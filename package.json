@@ -10,11 +10,16 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@rollup/plugin-node-resolve": "^13.1.3",
     "@typescript-eslint/eslint-plugin": "^5.12.0",
     "@typescript-eslint/parser": "^5.12.0",
     "eslint": "^8.9.0",
     "rollup": "^2.67.2",
     "terser": "^5.10.0",
     "typescript": "^4.5.5"
+  },
+  "dependencies": {
+    "secure-remote-password": "^0.3.1"
   }
 }
