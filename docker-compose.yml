@@ -12,5 +12,7 @@ services:
     image: golang:1.17.7-alpine
     volumes:
      - "./:/app"
+    environment:
+     WEBDEV: "true"
     working_dir: "/app"
     command: "go run ."
