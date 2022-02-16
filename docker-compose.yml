@@ -12,6 +12,8 @@ services:
     image: golang:1.17.7-alpine
     volumes:
      - "./:/app"
+    ports:
+     - "8080:8080"
     environment:
      WEBDEV: "true"
     working_dir: "/app"
