@@ -1,7 +1,17 @@
 
-import * as srp from "secure-remote-password/client";
+import * as srp from "secure-remote-password/client"
+import { CreatePing } from "./packet"
 
-console.log("ok", srp);
+console.log("ok", srp)
+
+const ws = new WebSocket("ws://127.0.0.1:8080/api/ws?host=minetest&port=30000")
+ws.onerror = console.log.bind(console)
+ws.onclose = console.log.bind(console)
+ws.onmessage = console.log.bind(console)
+ws.onopen = function(){
+    const ping = CreatePing()
+    ws.send(ping.Marshal())    
+}
 
 /*
 ws = new WebSocket("ws://127.0.0.1:8080/api/ws?host=minetest&port=30000");
