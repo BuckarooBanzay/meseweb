@@ -27,8 +27,18 @@ func (t *WS) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	ch := make(chan []byte)
+	go func() {
+		for {
+			_, data, err := conn.ReadMessage()
+			if err != nil {
+				fmt.Printf("Websocket rx-error: %s\n", err.Error())
+				return
+			}
+			fmt.Printf("Rx: %s\n", string(data))
+		}
+	}()
 
+	ch := make(chan []byte)
 	for data := range ch {
 		err := conn.WriteMessage(websocket.TextMessage, data)
 		if err != nil {
