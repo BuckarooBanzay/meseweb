@@ -20,3 +20,15 @@ services:
      WEBDEV: "true"
     working_dir: "/app"
     command: "go run ."
+
+  minetest:
+    image: registry.gitlab.com/minetest/minetest/server:5.4.0
+    user: root
+    volumes:
+    - "world_data:/root/.minetest/worlds/world"
+    ports:
+    - "30000:30000/udp"
+    command: ["/usr/local/bin/minetestserver", "--config", "/etc/minetest/minetest.conf", "--verbose"]
+
+volumes:
+  world_data: {}
