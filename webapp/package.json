@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc && rollup -c rollup.config.js",
+    "minify": "terser dist/bundle.js -m --source-map -o dist/bundle.min.js",
     "lint": "eslint",
-    "watch": "chokidar \"src/**/*.ts\" -c \"npm run build\""
+    "watch": "nodemon --ext ts --watch src --exec \"npm run build\""
   },
   "author": "",
   "license": "MIT",
@@ -15,8 +16,8 @@
     "@rollup/plugin-node-resolve": "^13.1.3",
     "@typescript-eslint/eslint-plugin": "^5.12.0",
     "@typescript-eslint/parser": "^5.12.0",
-    "chokidar-cli": "^3.0.0",
     "eslint": "^8.9.0",
+    "nodemon": "^2.0.15",
     "rollup": "^2.67.2",
     "terser": "^5.10.0",
     "typescript": "^4.5.5"
