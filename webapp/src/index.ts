@@ -1,6 +1,7 @@
 
 import * as srp from "secure-remote-password/client"
-import { createPing, createAck, marshal, unmarshal } from "./packet"
+import { marshal, unmarshal } from "./packet/marshal"
+import { createPing, createAck } from "./packet/packetfactory"
 
 console.log("ok", srp)
 

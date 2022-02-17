@@ -1,5 +1,6 @@
 import 'jest'
-import { createPing, marshal } from "./packet"
+import { marshal } from "./marshal"
+import { createPing } from "./packetfactory"
 
 describe("packet test", function(){
     it("CreatePing", function(){
