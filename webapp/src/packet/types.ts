@@ -26,6 +26,7 @@ export class Packet {
     payload = new Payload()
 
     toString(): string {
-        return `Packet{type=${PacketType[this.packetType || 0]}, control=${ControlType[this.controlType || 0]}}`
+        return `Packet{type=${PacketType[this.packetType || 0]},`+
+            `control=${ControlType[this.controlType || 0]}}`
     }
 }
