@@ -1,7 +1,8 @@
 
 import * as srp from "secure-remote-password/client"
+import { ClientInit } from "./commands/client_init"
 import { marshal, unmarshal } from "./packet/marshal"
-import { createPing, createAck } from "./packet/packetfactory"
+import { createPing, createAck, createOriginal } from "./packet/packetfactory"
 import { PacketType } from "./packet/types"
 
 console.log("ok", srp)
@@ -11,8 +12,8 @@ ws.onerror = console.log.bind(console)
 ws.onclose = console.log.bind(console)
 
 ws.addEventListener("open", function(){
-    const ping = createPing()
-    ws.send(marshal(ping))
+    const hello = createOriginal(new ClientInit("test"))
+    ws.send(marshal(hello).toUint8Array())
 })
 
 ws.addEventListener("message", async function(event){
@@ -25,6 +26,6 @@ ws.addEventListener("message", async function(event){
         const ack = createAck(p)
         ack.peerId = 0
         console.log("tx-packet", ack.toString())
-        ws.send(marshal(ack))
+        ws.send(marshal(ack).toUint8Array())
     }
 })

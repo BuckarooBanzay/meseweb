@@ -1,27 +1,27 @@
+import { Payload } from "./payload"
 import { Packet, PacketType, ControlType, ProtocolID } from "./types"
 
-export function marshal(p: Packet): Uint8Array {
+export function marshal(p: Packet): Payload {
+    const payload = new Payload()
+    for (let i=0; i<ProtocolID.length; i++){
+        payload.appendUint8(ProtocolID[i])
+    }
+    payload.appendUint16(p.peerId)
+    payload.appendUint8(p.channel)
+    payload.appendUint8(p.packetType || 0)
+
     switch (p.packetType){
     case PacketType.Control:
         switch (p.controlType){
         case ControlType.Ping:
         case ControlType.Ack:
-            const buffer = new ArrayBuffer(11)
-            const dv = new DataView(buffer)
-            for (let i=0; i<ProtocolID.length; i++){
-                dv.setUint8(i, ProtocolID[i])
-            }
-
-            dv.setUint16(4, p.peerId)
-            dv.setUint8(6, p.channel)
-            dv.setUint8(7, p.packetType)
-            dv.setUint8(8, p.controlType)
-            dv.setUint16(9, p.seqNr)
-
-            return new Uint8Array(buffer)
+            payload.appendUint8(p.controlType || 0)
+            payload.appendUint16(p.seqNr)
+            return payload
         }
     case PacketType.Original:
-
+        payload.appendPayload(p.payload)
+        return payload
     }
 
     throw new Error("not implemented yet")

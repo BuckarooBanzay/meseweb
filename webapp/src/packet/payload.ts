@@ -22,6 +22,10 @@ export class Payload {
         }
     }
 
+    appendPayload(p: Payload) {
+        this.data = this.data.concat(p.data)
+    }
+
     getUint8(offset: number): number {
         return this.data[offset]
     }
@@ -29,5 +33,9 @@ export class Payload {
     getUint16(offset: number): number {
         //TODO: verify byte order
         return this.data[offset+1] + (this.data[offset] * 256)
+    }
+
+    toUint8Array(): Uint8Array {
+        return new Uint8Array(this.data)
     }
 }

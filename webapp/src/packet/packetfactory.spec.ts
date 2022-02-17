@@ -5,7 +5,7 @@ import { createPing } from "./packetfactory"
 describe("packet test", function(){
     it("CreatePing", function(){
         const p = createPing()
-        const data = marshal(p)
-        expect(data.length).toBe(11)
+        const payload = marshal(p)
+        expect(payload.data.length).toBe(11)
     })
 })

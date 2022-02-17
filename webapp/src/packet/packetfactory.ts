@@ -19,9 +19,13 @@ export function createAck(srcp: Packet): Packet {
 }
 
 export function createOriginal(cmd: ClientCommand): Packet {
+    const payload = new Payload()
+    payload.appendUint16(cmd.GetCommandID())
+    payload.appendPayload(cmd.MarshalPacket())
+
     const p = new Packet()
     p.packetType = PacketType.Original
-    p.payload = cmd.MarshalPacket() // TODO: commandId preamble
+    p.payload = payload
     p.channel = 1
     p.peerId = 0 // TODO
     p.seqNr = 0 // TODO
