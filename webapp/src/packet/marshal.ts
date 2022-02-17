@@ -22,6 +22,11 @@ export function marshal(p: Packet): Payload {
     case PacketType.Original:
         payload.appendPayload(p.payload)
         return payload
+    case PacketType.Reliable:
+        payload.appendUint16(p.seqNr)
+        payload.appendUint8(p.subtype || 0)
+        payload.appendPayload(p.payload)
+        return payload
     }
 
     throw new Error("not implemented yet")
@@ -60,12 +65,24 @@ export function unmarshal(buf: Uint8Array): Packet {
         case PacketType.Original:
             const cmdPayload = new Array(buf.byteLength - 11)
             for (let i=11; i<buf.length; i++){
-                cmdPayload[i-11] = buf[i];
+                cmdPayload[i-11] = dv.getUint8(i);
             }
             p.payload = new Payload(cmdPayload)
             return p
         }
+    case PacketType.Control:
+        //TODO
+        return p
     }
 
-    throw new Error(`not implemented yet: packetType: ${p.packetType}, subtype: ${p.subtype}, controlType: ${p.controlType}`)
+    throw new Error(`not implemented yet: packetType: ${p.packetType}, subtype: ${p.subtype}, controlType: ${p.controlType}, data: ${dumpPacket(buf)}`)
+}
+
+function dumpPacket(buf: Uint8Array): string {
+    let str = ""
+    const dv = new DataView(buf)
+    for (let i=0; i<dv.byteLength; i++){
+        str += "0x" + dv.getUint8(i).toString(16) + ","
+    }
+    return str
 }

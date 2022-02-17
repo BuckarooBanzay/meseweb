@@ -18,6 +18,16 @@ export function createAck(srcp: Packet): Packet {
     return p
 }
 
+export function createPeerInit(): Packet {
+    const p = new Packet()
+    p.packetType = PacketType.Reliable
+    p.subtype = PacketType.Original
+    p.channel = 0
+    p.payload = new Payload()
+    p.payload.appendUint16(0)
+    return p
+}
+
 export function createOriginal(cmd: ClientCommand): Packet {
     const payload = new Payload()
     payload.appendUint16(cmd.GetCommandID())

@@ -1,7 +1,7 @@
 import { ClientCommand, ServerCommand } from "./commands/command";
 import { ServerHello } from "./commands/server_hello";
 import { marshal, unmarshal } from "./packet/marshal";
-import { createAck, createOriginal, createPing } from "./packet/packetfactory";
+import { createAck, createOriginal, createPeerInit, createPing } from "./packet/packetfactory";
 import { ControlType, Packet, PacketType } from "./packet/types";
 
 type CommandHandler = (cmd: ServerCommand) => void
@@ -17,23 +17,20 @@ export class Client {
 
     onOpen() {
         console.log("websocket opened")
-        const ping = createPing()
-        this.ws.send(marshal(ping).toUint8Array())
+        this.sendPacket(createPeerInit())
         this.readyListeners.forEach(l => l(this))
     }
 
     async onMessage(ev: MessageEvent<any>) {
         const buf: Uint8Array = await ev.data.arrayBuffer()
-        console.log("rx-data", buf)
         const p = unmarshal(buf)
-        console.log("rx-packet: " + p.toString())
+        console.log("RX>>> " + JSON.stringify(p))
 
         if (p.packetType == PacketType.Reliable){
             // send ack
             const ack = createAck(p)
             ack.peerId = 0
-            console.log("tx-packet: " + ack)
-            this.ws.send(marshal(ack).toUint8Array())
+            this.sendPacket(ack)
 
             if (p.controlType == ControlType.SetPeerID){
                 // set peer id
@@ -58,7 +55,7 @@ export class Client {
     }
 
     sendPacket(p: Packet){
-        console.log("tx-packet: " + p)
+        console.log("TX<<< " + JSON.stringify(p))
         this.ws.send(marshal(p).toUint8Array())
     }
 
