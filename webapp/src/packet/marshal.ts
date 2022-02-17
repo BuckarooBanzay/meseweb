@@ -63,8 +63,8 @@ export function unmarshal(buf: Uint8Array): Packet {
             }
             return p
         case PacketType.Original:
-            const cmdPayload = new Array(buf.byteLength - 11)
-            for (let i=11; i<buf.length; i++){
+            const cmdPayload = new Array(dv.byteLength - 11)
+            for (let i=11; i<dv.byteLength; i++){
                 cmdPayload[i-11] = dv.getUint8(i);
             }
             p.payload = new Payload(cmdPayload)

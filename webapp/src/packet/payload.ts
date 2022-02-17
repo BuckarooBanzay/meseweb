@@ -22,6 +22,13 @@ export class Payload {
         }
     }
 
+    appendArray(a: number[]){
+        this.appendUint16(a.length)
+        for (let i=0; i<a.length; i++){
+            this.appendUint8(a[i])
+        }
+    }
+
     appendPayload(p: Payload) {
         this.data = this.data.concat(p.data)
     }
@@ -36,6 +43,11 @@ export class Payload {
 
     getBoolean(offset: number, mask: number): boolean {
         return (this.data[offset] & mask) == mask
+    }
+
+    getArray(offset: number): number[] {
+        const len = this.getUint16(offset)
+        return this.data.slice(offset+2, offset+2+len)
     }
 
     toUint8Array(): Uint8Array {
