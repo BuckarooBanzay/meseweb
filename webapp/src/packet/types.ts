@@ -27,6 +27,8 @@ export class Packet {
 
     toString(): string {
         return `Packet{type=${PacketType[this.packetType || 0]},`+
-            `control=${ControlType[this.controlType || 0]}}`
+            `control=${ControlType[this.controlType || 0]},`+
+            `subType=${PacketType[this.subtype || 0]}`+
+            `}`
     }
 }

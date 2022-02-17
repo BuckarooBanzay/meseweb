@@ -31,8 +31,11 @@ export class Payload {
     }
 
     getUint16(offset: number): number {
-        //TODO: verify byte order
         return this.data[offset+1] + (this.data[offset] * 256)
+    }
+
+    getBoolean(offset: number, mask: number): boolean {
+        return (this.data[offset] & mask) == mask
     }
 
     toUint8Array(): Uint8Array {
