@@ -1,10 +1,10 @@
 import 'jest'
-import { CreatePing } from "./packet"
+import { createPing, marshal } from "./packet"
 
 describe("packet test", function(){
     it("CreatePing", function(){
-        const p = CreatePing()
-        const data = p.Marshal()
+        const p = createPing()
+        const data = marshal(p)
         expect(data.length).toBe(11)
     })
 })

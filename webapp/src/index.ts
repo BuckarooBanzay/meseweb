@@ -1,17 +1,30 @@
 
 import * as srp from "secure-remote-password/client"
-import { CreatePing } from "./packet"
+import { createPing, createAck, marshal, unmarshal } from "./packet"
 
 console.log("ok", srp)
 
 const ws = new WebSocket("ws://127.0.0.1:8080/api/ws?host=minetest&port=30000")
 ws.onerror = console.log.bind(console)
 ws.onclose = console.log.bind(console)
-ws.onmessage = console.log.bind(console)
-ws.onopen = function(){
-    const ping = CreatePing()
-    ws.send(ping.Marshal())    
-}
+
+ws.addEventListener("open", function(){
+    const ping = createPing()
+    ws.send(marshal(ping))    
+})
+
+ws.addEventListener("message", async function(event){
+    console.log("ws-message", event)
+    event.data.arrayBuffer().then(function(buf: Uint8Array) {
+        const p = unmarshal(buf)
+        console.log("rx-packet", p.toString, p)
+
+        const ack = createAck(p)
+        ack.peerId = 0
+        console.log("tx-packet", ack)
+        ws.send(marshal(ack))
+    })
+})
 
 /*
 ws = new WebSocket("ws://127.0.0.1:8080/api/ws?host=minetest&port=30000");
