@@ -20,7 +20,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func SendError(w http.ResponseWriter, code int, message string) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
 	w.WriteHeader(code)
 	w.Write([]byte(message))
 }
