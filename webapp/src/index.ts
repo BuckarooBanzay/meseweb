@@ -15,15 +15,14 @@ ws.addEventListener("open", function(){
 
 ws.addEventListener("message", async function(event){
     console.log("ws-message", event)
-    event.data.arrayBuffer().then(function(buf: Uint8Array) {
-        const p = unmarshal(buf)
-        console.log("rx-packet", p.toString, p)
+    const buf: Uint8Array = await event.data.arrayBuffer()
+    const p = unmarshal(buf)
+    console.log("rx-packet", p.toString, p)
 
-        const ack = createAck(p)
-        ack.peerId = 0
-        console.log("tx-packet", ack)
-        ws.send(marshal(ack))
-    })
+    const ack = createAck(p)
+    ack.peerId = 0
+    console.log("tx-packet", ack)
+    ws.send(marshal(ack))
 })
 
 /*
