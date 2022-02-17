@@ -16,7 +16,7 @@ export class Payload {
     }
 
     appendString(s: string) {
-        this.data.push(s.length)
+        this.appendUint16(s.length)
         for (let i=0; i<s.length; i++){
             this.data.push(s.charCodeAt(i))
         }

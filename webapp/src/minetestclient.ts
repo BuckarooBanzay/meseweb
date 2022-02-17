@@ -21,6 +21,7 @@ export class MinetestClient {
 
     async onMessage(ev: MessageEvent<any>) {
         const buf: Uint8Array = await ev.data.arrayBuffer()
+        console.log("rx-data", buf)
         const p = unmarshal(buf)
         console.log("rx-packet", p.toString())
 

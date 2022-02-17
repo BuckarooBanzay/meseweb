@@ -28,7 +28,7 @@ export function marshal(p: Packet): Payload {
 }
 
 export function unmarshal(buf: Uint8Array): Packet {
-    if (buf.length < 5) {
+    if (buf.byteLength < 5) {
         throw new Error("invalid packet length")
     }
 
@@ -57,8 +57,15 @@ export function unmarshal(buf: Uint8Array): Packet {
                 p.peerId = dv.getUint16(12)
             }
             return p
+        case PacketType.Original:
+            const cmdPayload = new Array(buf.byteLength - 11)
+            for (let i=11; i<buf.length; i++){
+                cmdPayload[i-11] = buf[i];
+            }
+            p.payload = new Payload(cmdPayload)
+            return p
         }
     }
 
-    throw new Error("not implemented yet")
+    throw new Error(`not implemented yet: packetType: ${p.packetType}, subtype: ${p.subtype}, controlType: ${p.controlType}`)
 }
