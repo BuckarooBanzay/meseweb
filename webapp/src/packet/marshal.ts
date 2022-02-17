@@ -1,11 +1,12 @@
 import { Packet, PacketType, ControlType, ProtocolID } from "./types"
 
 export function marshal(p: Packet): Uint8Array {
-    if (p.packetType == PacketType.Control){
+    switch (p.packetType){
+    case PacketType.Control:
         switch (p.controlType){
         case ControlType.Ping:
         case ControlType.Ack:
-                const buffer = new ArrayBuffer(11)
+            const buffer = new ArrayBuffer(11)
             const dv = new DataView(buffer)
             for (let i=0; i<ProtocolID.length; i++){
                 dv.setUint8(i, ProtocolID[i])
@@ -19,6 +20,8 @@ export function marshal(p: Packet): Uint8Array {
 
             return new Uint8Array(buffer)
         }
+    case PacketType.Original:
+
     }
 
     throw new Error("not implemented yet")
