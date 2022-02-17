@@ -41,4 +41,8 @@ export class Payload {
     toUint8Array(): Uint8Array {
         return new Uint8Array(this.data)
     }
+
+    subPayload(offset: number): Payload {
+        return new Payload(this.data.slice(offset))
+    }
 }
