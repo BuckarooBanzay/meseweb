@@ -7,6 +7,7 @@ import { ClientSRPBytesA } from "./commands/client_srp_bytes_a"
 import { ClientSRPBytesM } from "./commands/client_srp_bytes_m"
 import { ServerHello } from "./commands/server_hello"
 import { ServerSRPBytesSB } from "./commands/server_srp_bytes_s_b"
+import { ServerTimeOfDay } from "./commands/server_time_of_day"
 import { arrayToHex, hexToArray } from "./util/hex"
 
 console.log("ok", srp)
@@ -57,6 +58,10 @@ client.addCommandListener(function(cmd){
 
         const proof = hexToArray(clientSession.proof)
         client.sendCommand(new ClientSRPBytesM(proof))
+    }
+
+    if (cmd instanceof ServerTimeOfDay) {
+        console.log("Got server time of day: " + cmd.timeOfday)
     }
 })
 

@@ -1,6 +1,7 @@
 import { ClientCommand, ServerCommand } from "./commands/command";
 import { ServerHello } from "./commands/server_hello";
 import { ServerSRPBytesSB } from "./commands/server_srp_bytes_s_b";
+import { ServerTimeOfDay } from "./commands/server_time_of_day";
 import { marshal, unmarshal } from "./packet/marshal";
 import { createAck, createOriginal, createPeerInit, createPing } from "./packet/packetfactory";
 import { ControlType, Packet, PacketType } from "./packet/types";
@@ -59,6 +60,10 @@ export class Client {
                 break
             case 0x60:
                 cmd = new ServerSRPBytesSB()
+                cmd.UnmarshalPacket(p.payload.subPayload(2))
+                break
+            case 0x29:
+                cmd = new ServerTimeOfDay()
                 cmd.UnmarshalPacket(p.payload.subPayload(2))
                 break
         }
