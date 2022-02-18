@@ -1,20 +1,17 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import typescript from 'rollup-plugin-typescript2';
 
 export default {
-  input: 'dist/index.js',
+  input: 'src/index.ts',
   output: {
+    sourcemap: true,
     file: 'dist/bundle.js',
     format: 'iife'
   },
-  plugins: [nodeResolve({ browser: true }), commonjs()],
+  plugins: [nodeResolve({ browser: true }), commonjs(), typescript()],
   onwarn: function(warning) {
-    // Skip certain warnings
-
-    // should intercept ... but doesn't in some rollup versions
     if ( warning.code === 'THIS_IS_UNDEFINED' ) { return; }
-
-    // console.warn everything else
     console.warn( warning.message );
 }
 };
