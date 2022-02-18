@@ -10,8 +10,6 @@ import { ServerSRPBytesSB } from "./commands/server_srp_bytes_s_b"
 import { ServerTimeOfDay } from "./commands/server_time_of_day"
 import { arrayToHex, hexToArray } from "./util/hex"
 
-console.log("ok", srp)
-
 const ws = new WebSocket("ws://127.0.0.1:8080/api/ws?host=minetest&port=30000")
 ws.onerror = console.log.bind(console)
 ws.onclose = console.log.bind(console)
