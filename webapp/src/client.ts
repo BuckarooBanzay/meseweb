@@ -1,4 +1,5 @@
 import { ClientCommand, ServerCommand } from "./commands/command";
+import { getServerCommand } from "./commands/server_commands";
 import { ServerHello } from "./commands/server_hello";
 import { ServerSRPBytesSB } from "./commands/server_srp_bytes_s_b";
 import { ServerTimeOfDay } from "./commands/server_time_of_day";
@@ -48,30 +49,20 @@ export class Client {
                 // set peer id
                 this.peerId = p.peerId
                 console.log("Set peerId to " + this.peerId)
+                return
             }
         }
 
-        const cmdId = p.payload.getUint16(0)
-        var cmd: ServerCommand|null = null
-        switch (cmdId){
-            case 0x02:
-                cmd = new ServerHello()
+        if (p.packetType == PacketType.Reliable && p.subtype == PacketType.Original){
+            const cmdId = p.payload.getUint16(0)
+            const cmd = getServerCommand(cmdId)
+            if (cmd != null){
                 cmd.UnmarshalPacket(p.payload.subPayload(2))
-                break
-            case 0x60:
-                cmd = new ServerSRPBytesSB()
-                cmd.UnmarshalPacket(p.payload.subPayload(2))
-                break
-            case 0x29:
-                cmd = new ServerTimeOfDay()
-                cmd.UnmarshalPacket(p.payload.subPayload(2))
-                break
+                this.onCommandReceived(cmd)
+            } else {
+                console.log("Unknown command received: " + cmdId)
+            }
         }
-        if (cmd != null) {
-            this.onCommandReceived(cmd)
-        }
-
-        // TODO: parse server command and emit events
     }
 
     onCommandReceived(cmd: ServerCommand){

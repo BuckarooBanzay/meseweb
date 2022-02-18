@@ -8,10 +8,6 @@ export class ServerHello implements ServerCommand {
     authMechanismSrp = false
     authMechanismFirstSrp = false
 
-    GetCommandID(): number {
-        return 0x02
-    }
-    
     UnmarshalPacket(payload: Payload): void {
         this.serializationVersion = payload.getUint8(0)
         this.compressionMode = payload.getUint16(1)

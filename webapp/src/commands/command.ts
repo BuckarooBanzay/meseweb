@@ -1,16 +1,13 @@
 import { Payload } from "../packet/payload";
 
 
-export interface Command {
-    GetCommandID(): number
-}
-
 // client -> server
-export interface ClientCommand extends Command {
+export interface ClientCommand {
+    GetCommandID(): number
     MarshalPacket(): Payload
 }
 
 // server -> client
-export interface ServerCommand extends Command {
+export interface ServerCommand {
     UnmarshalPacket(payload: Payload): void
 }
