@@ -27,6 +27,6 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
-    "secure-remote-password": "^0.3.1"
+    "secure-remote-password": "github:LinusU/secure-remote-password#rfc5054"
   }
 }

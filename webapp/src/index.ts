@@ -15,7 +15,7 @@ const ws = new WebSocket("ws://127.0.0.1:8080/api/ws?host=minetest&port=30000")
 ws.onerror = console.log.bind(console)
 ws.onclose = console.log.bind(console)
 
-const username = "test2"
+const username = "test3"
 const password = "enter"
 
 const client = new Client(ws)
