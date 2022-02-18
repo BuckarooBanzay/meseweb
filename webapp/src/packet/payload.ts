@@ -38,7 +38,35 @@ export class Payload {
     }
 
     getUint16(offset: number): number {
-        return this.data[offset+1] + (this.data[offset] * 256)
+        return (this.data[offset] * 256) +
+            this.data[offset+1]
+    }
+
+    getUint32(offset: number): number {
+        return (this.data[offset] * 256 * 256 * 256) +
+            (this.data[offset+1] * 256 * 256) +
+            (this.data[offset+2] * 256) +
+            this.data[offset+3]
+    }
+
+    getUint64(offset: number): bigint {
+        const buf = new ArrayBuffer(8)
+        const dv = new DataView(buf)
+        for (let i=offset; i<offset+8; i++){
+            dv.setUint8(i-offset, this.data[offset])
+        }
+
+        return dv.getBigUint64(0)
+    }
+
+    getFloat32(offset: number): number {
+        const buf = new ArrayBuffer(4)
+        const dv = new DataView(buf)
+        for (let i=offset; i<offset+4; i++){
+            dv.setUint8(i-offset, this.data[offset])
+        }
+
+        return dv.getFloat32(0)
     }
 
     getBoolean(offset: number, mask: number): boolean {
