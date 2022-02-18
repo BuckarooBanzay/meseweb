@@ -15,7 +15,7 @@ const ws = new WebSocket("ws://127.0.0.1:8080/api/ws?host=minetest&port=30000")
 ws.onerror = console.log.bind(console)
 ws.onclose = console.log.bind(console)
 
-const username = "test3"
+const username = "test"
 const password = "enter"
 
 const client = new Client(ws)
@@ -34,25 +34,20 @@ client.addCommandListener(function(cmd){
         console.log("Got server hello")
 
         if (cmd.authMechanismFirstSrp) {
-            // works
             const salt = srp.generateSalt()
             const privateKey = srp.derivePrivateKey(salt, username, password)
             const verifier = srp.deriveVerifier(privateKey)
             client.sendCommand(new ClientFirstSRP(hexToArray(salt), hexToArray(verifier)))
 
         } else if (cmd.authMechanismSrp) {
-            // Server: User test at 192.168.32.3 supplied wrong password (auth mechanism: SRP).
             const a = hexToArray(eph.public)
-            if (a.length != 256){
-                throw new Error("invalid bytes-a length")
-            }
             client.sendCommand(new ClientSRPBytesA(a))
 
         }
     }
 
     if (cmd instanceof ServerSRPBytesSB) {
-        console.log("Got server bytes S+B") // salt + server-public
+        console.log("Got server bytes S+B")
 
         const serverSalt = arrayToHex(cmd.bytesS)
         const serverPublic = arrayToHex(cmd.bytesB)
@@ -61,9 +56,6 @@ client.addCommandListener(function(cmd){
         const clientSession = srp.deriveSession(eph.secret, serverPublic, serverSalt, username, privateKey)
 
         const proof = hexToArray(clientSession.proof)
-        if (proof.length != 32) {
-            throw new Error("invalid proof length")
-        }
         client.sendCommand(new ClientSRPBytesM(proof))
     }
 })
