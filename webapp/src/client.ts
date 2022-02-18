@@ -59,7 +59,7 @@ export class Client {
                 cmd.UnmarshalPacket(new DataView(p.payloadView.buffer, p.payloadView.byteOffset + 2))
                 this.onCommandReceived(cmd)
             } else {
-                console.log("Unknown command received: " + cmdId)
+                console.log("Unknown command received: " + cmdId, p)
             }
         }
     }

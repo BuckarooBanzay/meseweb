@@ -5,6 +5,8 @@ import { ClientFirstSRP } from "./commands/client_first_srp"
 import { ClientInit } from "./commands/client_init"
 import { ClientSRPBytesA } from "./commands/client_srp_bytes_a"
 import { ClientSRPBytesM } from "./commands/client_srp_bytes_m"
+import { ServerAccessDenied } from "./commands/server_access_denied"
+import { ServerAuthAccept } from "./commands/server_auth_accept"
 import { ServerHello } from "./commands/server_hello"
 import { ServerSRPBytesSB } from "./commands/server_srp_bytes_s_b"
 import { ServerTimeOfDay } from "./commands/server_time_of_day"
@@ -60,6 +62,14 @@ client.addCommandListener(function(cmd){
 
     if (cmd instanceof ServerTimeOfDay) {
         console.log("Got server time of day: " + cmd.timeOfday)
+    }
+
+    if (cmd instanceof ServerAccessDenied) {
+        console.log("Server access denied")
+    }
+
+    if (cmd instanceof ServerAuthAccept) {
+        console.log("Server access granted")
     }
 })
 
