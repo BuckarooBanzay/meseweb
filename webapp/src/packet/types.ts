@@ -1,4 +1,3 @@
-import { Payload } from "./payload"
 
 export const ProtocolID = [0x4f, 0x45, 0x74, 0x03]
 
@@ -23,7 +22,8 @@ export class Packet {
     peerId = 0
     seqNr = 0
     channel = 0
-    payload = new Payload()
+    payload = new Uint8Array(0)
+    payloadView = new DataView(this.payload.buffer)
 
     toString(): string {
         return `Packet{type=${PacketType[this.packetType || 0]},`+

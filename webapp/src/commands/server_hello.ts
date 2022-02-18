@@ -1,4 +1,5 @@
-import { Payload } from "../packet/payload";
+
+import { PayloadHelper } from "../packet/payloadhelper";
 import { ServerCommand } from "./command";
 
 export class ServerHello implements ServerCommand {
@@ -8,11 +9,12 @@ export class ServerHello implements ServerCommand {
     authMechanismSrp = false
     authMechanismFirstSrp = false
 
-    UnmarshalPacket(payload: Payload): void {
-        this.serializationVersion = payload.getUint8(0)
-        this.compressionMode = payload.getUint16(1)
-        this.protocolVersion = payload.getUint16(3)
-        this.authMechanismSrp = payload.getBoolean(8, 0x02)
-        this.authMechanismFirstSrp = payload.getBoolean(8, 0x04)
+    UnmarshalPacket(dv: DataView): void {
+        const ph = new PayloadHelper(dv)
+        this.serializationVersion = dv.getUint8(0)
+        this.compressionMode = dv.getUint16(1)
+        this.protocolVersion = dv.getUint16(3)
+        this.authMechanismSrp = ph.getBoolean(8, 0x02)
+        this.authMechanismFirstSrp = ph.getBoolean(8, 0x04)
     }
 }

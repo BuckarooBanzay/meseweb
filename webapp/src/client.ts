@@ -35,7 +35,8 @@ export class Client {
     }
 
     async onMessage(ev: MessageEvent<any>) {
-        const buf: Uint8Array = await ev.data.arrayBuffer()
+        const ab: ArrayBuffer = await ev.data.arrayBuffer()
+        const buf = new Uint8Array(ab)
         const p = unmarshal(buf)
         console.log("RX>>> " + JSON.stringify(p))
 
@@ -54,10 +55,11 @@ export class Client {
         }
 
         if (p.packetType == PacketType.Reliable && p.subtype == PacketType.Original){
-            const cmdId = p.payload.getUint16(0)
+            const cmdId = p.payloadView.getUint16(0)
+            
             const cmd = getServerCommand(cmdId)
             if (cmd != null){
-                cmd.UnmarshalPacket(p.payload.subPayload(2))
+                cmd.UnmarshalPacket(new DataView(p.payloadView.buffer, p.payloadView.byteOffset + 2))
                 this.onCommandReceived(cmd)
             } else {
                 console.log("Unknown command received: " + cmdId)
@@ -74,7 +76,7 @@ export class Client {
             p.seqNr = this.getNextSeqNr()
         }
         console.log("TX<<< " + JSON.stringify(p))
-        this.ws.send(marshal(p).toUint8Array())
+        this.ws.send(marshal(p))
     }
 
     sendCommand(cmd: ClientCommand) {

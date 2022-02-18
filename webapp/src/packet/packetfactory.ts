@@ -1,6 +1,5 @@
 import { Packet, ControlType, PacketType } from "./types"
 import { ClientCommand } from "../commands/command"
-import { Payload } from "./payload"
 
 export function createPing(): Packet {
     const p = new Packet()
@@ -23,15 +22,16 @@ export function createPeerInit(): Packet {
     p.packetType = PacketType.Reliable
     p.subtype = PacketType.Original
     p.channel = 0
-    p.payload = new Payload()
-    p.payload.appendUint16(0)
+    p.payload = new Uint8Array(1)
     return p
 }
 
 export function createOriginal(cmd: ClientCommand): Packet {
-    const payload = new Payload()
-    payload.appendUint16(cmd.GetCommandID())
-    payload.appendPayload(cmd.MarshalPacket())
+    const commandPayload = cmd.MarshalPacket()
+    const payload = new Uint8Array(2 + commandPayload.length)
+    const dv = new DataView(payload.buffer)
+    dv.setUint16(0, cmd.GetCommandID())
+    payload.set(commandPayload, 2)
 
     const p = new Packet()
     p.packetType = PacketType.Original

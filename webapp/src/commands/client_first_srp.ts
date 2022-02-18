@@ -1,4 +1,4 @@
-import { Payload } from "../packet/payload";
+import { PayloadBuilder } from "../packet/payloadbuilder";
 import { ClientCommand } from "./command";
 
 export class ClientFirstSRP implements ClientCommand {
@@ -8,11 +8,11 @@ export class ClientFirstSRP implements ClientCommand {
         return 0x50
     }
     
-    MarshalPacket(): Payload {
-        const p = new Payload()
+    MarshalPacket(): Uint8Array {
+        const p = new PayloadBuilder()
         p.appendArray(this.salt)
         p.appendArray(this.verificationKey)
         p.appendUint8(0)
-        return p
+        return p.toUint8Array()
     }
 }

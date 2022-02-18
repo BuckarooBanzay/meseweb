@@ -7,7 +7,7 @@ describe("packet test", function(){
     it("creates a ping packet", function(){
         const p = createPing()
         const payload = marshal(p)
-        expect(payload.data.length).toBe(11)
+        expect(payload.length).toBe(11)
     })
 
     it("creates an init command", function(){
@@ -15,6 +15,6 @@ describe("packet test", function(){
         const pkg = createOriginal(new ClientInit(name))
         const payload = marshal(pkg)
         const expected_size = 8 + 2 + 7 + 2 + name.length
-        expect(payload.data.length).toBe(expected_size)
+        expect(payload.length).toBe(expected_size)
     })
 })

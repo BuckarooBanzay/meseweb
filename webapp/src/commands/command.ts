@@ -1,13 +1,11 @@
-import { Payload } from "../packet/payload";
-
 
 // client -> server
 export interface ClientCommand {
     GetCommandID(): number
-    MarshalPacket(): Payload
+    MarshalPacket(): Uint8Array
 }
 
 // server -> client
 export interface ServerCommand {
-    UnmarshalPacket(payload: Payload): void
+    UnmarshalPacket(dv: DataView): void
 }

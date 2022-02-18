@@ -1,32 +1,53 @@
-import { Payload } from "./payload"
 import { Packet, PacketType, ControlType, ProtocolID } from "./types"
 
-export function marshal(p: Packet): Payload {
-    const payload = new Payload()
+function createPacketHeader(p: Packet): Uint8Array {
+    const buf = new Uint8Array(8)
+    const dv = new DataView(buf.buffer)
     for (let i=0; i<ProtocolID.length; i++){
-        payload.appendUint8(ProtocolID[i])
+        dv.setUint8(i, ProtocolID[i])
     }
-    payload.appendUint16(p.peerId)
-    payload.appendUint8(p.channel)
-    payload.appendUint8(p.packetType || 0)
+    dv.setUint16(4, p.peerId)
+    dv.setUint8(6, p.channel)
+    dv.setUint8(7, p.packetType || 0)
+
+    return buf
+}
+
+export function marshal(p: Packet): Uint8Array {
+    const header = createPacketHeader(p)
+    var buf: Uint8Array
+    var dv: DataView
 
     switch (p.packetType){
     case PacketType.Control:
         switch (p.controlType){
         case ControlType.Ping:
         case ControlType.Ack:
-            payload.appendUint8(p.controlType || 0)
-            payload.appendUint16(p.seqNr)
-            return payload
+            const control = new Uint8Array(3)
+            dv = new DataView(control.buffer)
+            dv.setUint8(0, p.controlType || 0)
+            dv.setUint16(1, p.seqNr)
+
+            const buf = new Uint8Array(header.length + control.length)
+            buf.set(header, 0)
+            buf.set(control, header.length)
+            return buf
         }
+
     case PacketType.Original:
-        payload.appendPayload(p.payload)
-        return payload
+        buf = new Uint8Array(header.length + p.payload.length)
+        buf.set(header, 0)
+        buf.set(p.payload, header.length)
+        return buf
+
     case PacketType.Reliable:
-        payload.appendUint16(p.seqNr)
-        payload.appendUint8(p.subtype || 0)
-        payload.appendPayload(p.payload)
-        return payload
+        buf = new Uint8Array(header.length + 3 + p.payload.length)
+        buf.set(header, 0)
+        dv = new DataView(buf.buffer)
+        dv.setUint16(header.length, p.seqNr)
+        dv.setUint8(header.length + 2, p.subtype || 0)
+        buf.set(p.payload, header.length + 3)
+        return buf
     }
 
     throw new Error("not implemented yet")
@@ -37,7 +58,7 @@ export function unmarshal(buf: Uint8Array): Packet {
         throw new Error("invalid packet length")
     }
 
-    const dv = new DataView(buf)
+    const dv = new DataView(buf.buffer)
 
     for (let i=0; i<ProtocolID.length; i++){
         if (dv.getUint8(i) != ProtocolID[i]){
@@ -63,11 +84,8 @@ export function unmarshal(buf: Uint8Array): Packet {
             }
             return p
         case PacketType.Original:
-            const cmdPayload = new Array(dv.byteLength - 11)
-            for (let i=11; i<dv.byteLength; i++){
-                cmdPayload[i-11] = dv.getUint8(i);
-            }
-            p.payload = new Payload(cmdPayload)
+            p.payload = buf.subarray(11)
+            p.payloadView = new DataView(buf.buffer, 11)
             return p
         }
     case PacketType.Control:
@@ -80,7 +98,7 @@ export function unmarshal(buf: Uint8Array): Packet {
 
 function dumpPacket(buf: Uint8Array): string {
     let str = ""
-    const dv = new DataView(buf)
+    const dv = new DataView(buf.buffer)
     for (let i=0; i<dv.byteLength; i++){
         str += "0x" + dv.getUint8(i).toString(16) + ","
     }

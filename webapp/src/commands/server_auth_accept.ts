@@ -1,4 +1,3 @@
-import { Payload } from "../packet/payload";
 import { ServerCommand } from "./command";
 
 export class ServerAuthAccept implements ServerCommand {
@@ -8,11 +7,11 @@ export class ServerAuthAccept implements ServerCommand {
     seed = ""
     sendInterval = 0
 
-    UnmarshalPacket(payload: Payload): void {
-        this.posX = payload.getUint32(0)
-        this.posY = payload.getUint32(4)
-        this.posZ = payload.getUint32(8)
-        this.seed = payload.getUint64(12).toString()
-        this.sendInterval = payload.getFloat32(20)
+    UnmarshalPacket(dv: DataView): void {
+        this.posX = dv.getUint32(0)
+        this.posY = dv.getUint32(4)
+        this.posZ = dv.getUint32(8)
+        this.seed = dv.getBigUint64(12).toString()
+        this.sendInterval = dv.getFloat32(20)
     }
 }
