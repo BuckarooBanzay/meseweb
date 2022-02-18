@@ -24,7 +24,7 @@ describe("payloadbuilder test", function(){
     })
 
     it("creates string payload properly", function(){
-        let p = new PayloadBuilder()
+        const p = new PayloadBuilder()
         const name = "test"
         p.appendString(name)
         expect(p.data.length).toBe(6)

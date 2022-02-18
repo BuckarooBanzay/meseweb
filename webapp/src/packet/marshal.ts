@@ -15,24 +15,26 @@ function createPacketHeader(p: Packet): Uint8Array {
 
 export function marshal(p: Packet): Uint8Array {
     const header = createPacketHeader(p)
-    var buf: Uint8Array
-    var dv: DataView
+    let buf: Uint8Array
+    let dv: DataView
 
     switch (p.packetType){
     case PacketType.Control:
         switch (p.controlType){
-        case ControlType.Ping:
-        case ControlType.Ack:
-            const control = new Uint8Array(3)
-            dv = new DataView(control.buffer)
-            dv.setUint8(0, p.controlType || 0)
-            dv.setUint16(1, p.seqNr)
+            case ControlType.Ping:
+            case ControlType.Ack: {
+                const control = new Uint8Array(3)
+                dv = new DataView(control.buffer)
+                dv.setUint8(0, p.controlType || 0)
+                dv.setUint16(1, p.seqNr)
 
-            const buf = new Uint8Array(header.length + control.length)
-            buf.set(header, 0)
-            buf.set(control, header.length)
-            return buf
+                const buf = new Uint8Array(header.length + control.length)
+                buf.set(header, 0)
+                buf.set(control, header.length)
+                return buf
+            }
         }
+        break;
 
     case PacketType.Original:
         buf = new Uint8Array(header.length + p.payload.length)
@@ -88,6 +90,7 @@ export function unmarshal(buf: Uint8Array): Packet {
             p.payloadView = new DataView(buf.buffer, 11)
             return p
         }
+        break;
     case PacketType.Control:
         //TODO
         return p

@@ -1,7 +1,7 @@
 import { ClientCommand, ServerCommand } from "./commands/command";
 import { getServerCommand } from "./commands/server_commands";
 import { marshal, unmarshal } from "./packet/marshal";
-import { createAck, createOriginal, createPeerInit, createPing } from "./packet/packetfactory";
+import { createAck, createOriginal, createPeerInit } from "./packet/packetfactory";
 import { ControlType, Packet, PacketType } from "./packet/types";
 
 type CommandHandler = (cmd: ServerCommand) => void
@@ -31,7 +31,7 @@ export class Client {
         this.readyListeners.forEach(l => l(this))
     }
 
-    async onMessage(ev: MessageEvent<any>) {
+    async onMessage(ev: MessageEvent<Blob>) {
         const ab: ArrayBuffer = await ev.data.arrayBuffer()
         const buf = new Uint8Array(ab)
         const p = unmarshal(buf)
