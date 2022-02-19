@@ -43,13 +43,21 @@ export function marshal(p: Packet): Uint8Array {
         return buf
 
     case PacketType.Reliable:
-        buf = new Uint8Array(header.length + 3 + p.payload.length)
-        buf.set(header, 0)
-        dv = new DataView(buf.buffer)
-        dv.setUint16(header.length, p.seqNr)
-        dv.setUint8(header.length + 2, p.subtype || 0)
-        buf.set(p.payload, header.length + 3)
-        return buf
+
+        switch (p.subtype) {
+            case PacketType.Original:
+            case PacketType.Reliable:
+                buf = new Uint8Array(header.length + 3 + p.payload.length)
+                buf.set(header, 0)
+                dv = new DataView(buf.buffer)
+                dv.setUint16(header.length, p.seqNr)
+                dv.setUint8(header.length + 2, p.subtype || 0)
+                buf.set(p.payload, header.length + 3)
+                return buf
+
+            case PacketType.Split:
+                //TODO
+        }
     }
 
     throw new Error("not implemented yet")
