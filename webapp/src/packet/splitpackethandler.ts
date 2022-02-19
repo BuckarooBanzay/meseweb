@@ -1,3 +1,4 @@
+import { Packet } from "./types"
 
 export const MaxPacketLength = 495
 
@@ -35,12 +36,12 @@ export class SplitPacketHandler {
         return this.seqNr
     }
 
-    SplitPayload(buf: Uint8Array): Uint8Array[] {
+    SplitPayload(p: Packet): Packet[] {
         //TODO
-        return new Array<Uint8Array>(0)
+        return new Array<Packet>(0)
     }
 
-    AddSplitPacket(buf: Uint8Array): Uint8Array|null {
+    AddSplitPacket(p: Packet): Packet|null {
         //TODO
         return null
     }
