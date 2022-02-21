@@ -26,7 +26,7 @@ client.addReadyListener(function(c){
     setTimeout(function(){
         console.log("Sending INIT")
         c.sendCommand(new ClientInit(username), PacketType.Original)
-    }, 1000)
+    }, 100)
 })
 
 const eph = srp.generateEphemeral()

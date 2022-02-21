@@ -14,7 +14,6 @@ export function createAck(srcp: Packet, peerId: number): Packet {
     p.packetType = PacketType.Control
     p.controlType = ControlType.Ack
     p.seqNr = srcp.seqNr
-    p.channel = 0
     p.peerId = peerId
     return p
 }

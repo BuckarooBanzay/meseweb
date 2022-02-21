@@ -33,6 +33,7 @@ export class Client {
         if (p.packetType == PacketType.Reliable){
             // send ack
             const ack = createAck(p, this.peerId)
+            ack.channel = p.channel
             this.sendPacket(ack)
 
             if (p.controlType == ControlType.SetPeerID){
