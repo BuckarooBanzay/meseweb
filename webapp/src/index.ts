@@ -3,6 +3,7 @@ import * as srp from "secure-remote-password/client"
 import { Client } from "./client"
 import { ClientFirstSRP } from "./commands/client_first_srp"
 import { ClientInit } from "./commands/client_init"
+import { ClientInit2 } from "./commands/client_init2"
 import { ClientSRPBytesA } from "./commands/client_srp_bytes_a"
 import { ClientSRPBytesM } from "./commands/client_srp_bytes_m"
 import { ServerAccessDenied } from "./commands/server_access_denied"
@@ -70,6 +71,7 @@ client.addCommandListener(function(cmd){
 
     if (cmd instanceof ServerAuthAccept) {
         console.log("Server access granted")
+        client.sendCommand(new ClientInit2())
     }
 })
 
