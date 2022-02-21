@@ -1,4 +1,6 @@
 
+export const MaxPacketLength = 495
+
 export const ProtocolID = [0x4f, 0x45, 0x74, 0x03]
 
 export enum PacketType {

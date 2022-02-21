@@ -1,6 +1,6 @@
+import { splitPayload } from "./splitter"
 import { Packet } from "./types"
 
-export const MaxPacketLength = 495
 
 class SplitPayload {
     //TODO
@@ -10,39 +10,63 @@ class SplitPayload {
     data = new Uint8Array(0)
 }
 
-export function splitArray(buf: Uint8Array, limit: number): Uint8Array[] {
-    const parts = Math.ceil(buf.length / (limit+1))
-    const a = new Array<Uint8Array>(parts)
-
-    for (let i=0; i<parts; i++){
-        let start =  i * limit
-        let end = start + Math.min(limit, buf.byteLength - start)
-        a[i] = buf.subarray(start, end)
-    }
-    return a
-}
-
 export class SplitPacketHandler {
-    seqNr = 65500-1
+    
+    store = new Map<number, Array<SplitPayload>>()
+    store_count = new Map<number, number>()
+    store_length = new Map<number, number>();
 
     constructor(){}
 
-    NextSequenceNr(): number {
-        if (this.seqNr > 65535) {
-            this.seqNr = 0
-        } else {
-            this.seqNr++
+    AddSplitPacket(p: Packet): Uint8Array|null {
+        const sp = new SplitPayload()
+        sp.seqNr = p.payloadView.getUint16(0)
+        sp.chunkCount = p.payloadView.getUint16(2)
+        sp.chunkNumber = p.payloadView.getUint16(4)
+        sp.data = p.payload.subarray(p.payloadView.byteOffset)
+
+        let list = this.store.get(sp.seqNr)
+        if (!list) {
+            // create list
+            list = Array<SplitPayload>();
+            this.store.set(sp.seqNr, list)
         }
-        return this.seqNr
-    }
 
-    SplitPayload(p: Packet): Packet[] {
-        //TODO
-        return new Array<Packet>(0)
-    }
+        if (!list[sp.chunkNumber]){
+            // add to list
+            list[sp.chunkNumber] = sp
 
-    AddSplitPacket(p: Packet): Packet|null {
-        //TODO
+            //increment count
+            let count = this.store_count.get(sp.seqNr) || 0
+            count++
+            this.store_count.set(sp.seqNr, count)
+
+            //increment length
+            let length = this.store_length.get(sp.seqNr) || 0
+            length += sp.data.length
+            this.store_length.set(sp.seqNr, length)
+
+            //check if we have all parts
+            if (count == sp.chunkCount){
+                //reassemble payload
+                const buf = new Uint8Array(length)
+
+                let offset = 0
+                for (let i=0; i<list.length; i++){
+                    const data = list[i].data
+                    buf.set(data, offset)
+                    offset += data.length
+                }
+
+                //clear store
+                this.store.delete(sp.seqNr)
+                this.store_length.delete(sp.seqNr)
+                this.store_count.delete(sp.seqNr)
+
+                return buf
+            }
+        }
+
         return null
     }
 

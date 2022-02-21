@@ -47,6 +47,7 @@ export function marshal(p: Packet): Uint8Array {
         switch (p.subtype) {
             case PacketType.Original:
             case PacketType.Reliable:
+            case PacketType.Split:
                 buf = new Uint8Array(header.length + 3 + p.payload.length)
                 buf.set(header, 0)
                 dv = new DataView(buf.buffer)
@@ -54,9 +55,6 @@ export function marshal(p: Packet): Uint8Array {
                 dv.setUint8(header.length + 2, p.subtype || 0)
                 buf.set(p.payload, header.length + 3)
                 return buf
-
-            case PacketType.Split:
-                //TODO
         }
     }
 
@@ -82,26 +80,27 @@ export function unmarshal(buf: Uint8Array): Packet {
     p.packetType = dv.getUint8(7)
     
     switch (p.packetType){
-    case PacketType.Reliable:
-        p.seqNr = dv.getUint16(8)
-        p.subtype = dv.getUint8(10)
+        case PacketType.Reliable:
+            p.seqNr = dv.getUint16(8)
+            p.subtype = dv.getUint8(10)
 
-        switch (p.subtype){
-        case PacketType.Control:
-            p.controlType = dv.getUint8(11)
-            if (p.controlType == ControlType.SetPeerID) {
-                p.peerId = dv.getUint16(12)
+            switch (p.subtype){
+                case PacketType.Control:
+                    p.controlType = dv.getUint8(11)
+                    if (p.controlType == ControlType.SetPeerID) {
+                        p.peerId = dv.getUint16(12)
+                    }
+                    return p
+                case PacketType.Original:
+                case PacketType.Split:
+                        p.payload = buf.subarray(11)
+                        p.payloadView = new DataView(buf.buffer, 11)
+                    return p
             }
+            break;
+        case PacketType.Control:
+            //TODO
             return p
-        case PacketType.Original:
-            p.payload = buf.subarray(11)
-            p.payloadView = new DataView(buf.buffer, 11)
-            return p
-        }
-        break;
-    case PacketType.Control:
-        //TODO
-        return p
     }
 
     throw new Error(`not implemented yet: packetType: ${p.packetType}, subtype: ${p.subtype}, controlType: ${p.controlType}, data: ${dumpPacket(buf)}`)

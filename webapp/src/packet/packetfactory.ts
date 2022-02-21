@@ -1,5 +1,6 @@
-import { Packet, ControlType, PacketType } from "./types"
+import { Packet, ControlType, PacketType, MaxPacketLength } from "./types"
 import { ClientCommand } from "../commands/command"
+import { splitPayload } from "./splitter"
 
 export function createPing(): Packet {
     const p = new Packet()
@@ -26,18 +27,29 @@ export function createPeerInit(): Packet {
     return p
 }
 
-export function createOriginal(cmd: ClientCommand): Packet {
+export function createOriginal(cmd: ClientCommand, peerId: number): Packet[] {
     const commandPayload = cmd.MarshalPacket()
     const payload = new Uint8Array(2 + commandPayload.length)
     const dv = new DataView(payload.buffer)
     dv.setUint16(0, cmd.GetCommandID())
     payload.set(commandPayload, 2)
 
+    if (payload.length > MaxPacketLength) {
+        // split into multiple packets
+        const packets = splitPayload(payload)
+        packets.forEach(p => {
+            p.peerId = peerId
+            p.channel = 1
+        })
+
+        return packets
+    }
+
+    // just a single packet
     const p = new Packet()
     p.packetType = PacketType.Original
     p.payload = payload
     p.channel = 1
-    p.peerId = 0 // TODO
-    p.seqNr = 0 // TODO
-    return p
+    p.peerId = peerId
+    return [p]
 }

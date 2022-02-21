@@ -1,5 +1,6 @@
 import 'jest'
-import { MaxPacketLength, splitArray } from './splitpackethandler'
+import { MaxPacketLength } from './types'
+import { splitArray } from './splitter'
 
 describe("splitArray", function(){
     it("splits buffers", function(){

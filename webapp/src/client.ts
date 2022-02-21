@@ -2,6 +2,7 @@ import { ClientCommand, ServerCommand } from "./commands/command";
 import { getServerCommand } from "./commands/server_commands";
 import { marshal, unmarshal } from "./packet/marshal";
 import { createAck, createOriginal, createPeerInit } from "./packet/packetfactory";
+import { SplitPacketHandler } from "./packet/splitpackethandler";
 import { ControlType, Packet, PacketType } from "./packet/types";
 
 type CommandHandler = (cmd: ServerCommand) => void
@@ -15,6 +16,7 @@ export class Client {
 
     peerId = 0
     seqNr = 65500
+    splitHandler = new SplitPacketHandler()
 
     getNextSeqNr(): number {
         if (this.seqNr >= 65535){
@@ -51,16 +53,28 @@ export class Client {
             }
         }
 
-        if (p.packetType == PacketType.Reliable && p.subtype == PacketType.Original){
-            const cmdId = p.payloadView.getUint16(0)
-            
-            const cmd = getServerCommand(cmdId)
-            if (cmd != null){
-                cmd.UnmarshalPacket(new DataView(p.payloadView.buffer, p.payloadView.byteOffset + 2))
-                this.onCommandReceived(cmd)
-            } else {
-                console.log("Unknown command received: " + cmdId, p)
+        if (p.packetType == PacketType.Split) {
+            const payload = this.splitHandler.AddSplitPacket(p)
+            if (payload != null) {
+                // all split parts arrived
+                this.parseCommandPayload(new DataView(payload))
             }
+        }
+
+        if (p.packetType == PacketType.Reliable && p.subtype == PacketType.Original){
+            this.parseCommandPayload(p.payloadView)
+        }
+    }
+
+    parseCommandPayload(dv: DataView){
+        const cmdId = dv.getUint16(0)
+            
+        const cmd = getServerCommand(cmdId)
+        if (cmd != null){
+            cmd.UnmarshalPacket(new DataView(dv.buffer, dv.byteOffset + 2))
+            this.onCommandReceived(cmd)
+        } else {
+            console.log("Unknown command received: " + cmdId)
         }
     }
 
@@ -72,14 +86,14 @@ export class Client {
         if (p.seqNr == 0){
             p.seqNr = this.getNextSeqNr()
         }
+        //TODO: track reliable seqNr
         console.log("TX<<< " + JSON.stringify(p))
         this.ws.send(marshal(p))
     }
 
     sendCommand(cmd: ClientCommand) {
-        const pkg = createOriginal(cmd)
-        pkg.peerId = this.peerId
-        this.sendPacket(pkg)
+        const packets = createOriginal(cmd, this.peerId)
+        packets.forEach(p => this.sendPacket(p))
     }
 
     commandListeners = new Array<CommandHandler>()

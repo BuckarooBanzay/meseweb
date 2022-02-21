@@ -12,7 +12,10 @@ describe("packet test", function(){
 
     it("creates an init command", function(){
         const name = "test"
-        const pkg = createOriginal(new ClientInit(name))
+        const packets = createOriginal(new ClientInit(name), 0)
+        expect(packets.length).toBe(1)
+
+        const pkg = packets[0]
         const payload = marshal(pkg)
         const expected_size = 8 + 2 + 7 + 2 + name.length
         expect(payload.length).toBe(expected_size)
