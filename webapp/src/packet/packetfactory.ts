@@ -24,11 +24,11 @@ export function createPeerInit(): Packet {
     p.packetType = PacketType.Reliable
     p.subtype = PacketType.Original
     p.channel = 0
-    p.payload = new Uint8Array(1)
+    p.payload = new Uint8Array(2)
     return p
 }
 
-export function createOriginal(cmd: ClientCommand, peerId: number): Packet[] {
+export function createCommandPacket(cmd: ClientCommand, peerId: number, type: PacketType): Packet[] {
     const commandPayload = cmd.MarshalPacket()
     const payload = new Uint8Array(2 + commandPayload.length)
     const dv = new DataView(payload.buffer)
@@ -48,7 +48,8 @@ export function createOriginal(cmd: ClientCommand, peerId: number): Packet[] {
 
     // just a single packet
     const p = new Packet()
-    p.packetType = PacketType.Original
+    p.packetType = type
+    p.subtype = PacketType.Original
     p.payload = payload
     p.channel = 1
     p.peerId = peerId

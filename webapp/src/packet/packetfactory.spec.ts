@@ -1,7 +1,8 @@
 import 'jest'
 import { ClientInit } from '../commands/client_init'
 import { marshal } from "./marshal"
-import { createOriginal, createPing } from "./packetfactory"
+import { createCommandPacket, createPing } from "./packetfactory"
+import { PacketType } from './types'
 
 describe("packet test", function(){
     it("creates a ping packet", function(){
@@ -12,7 +13,7 @@ describe("packet test", function(){
 
     it("creates an init command", function(){
         const name = "test"
-        const packets = createOriginal(new ClientInit(name), 0)
+        const packets = createCommandPacket(new ClientInit(name), 0, PacketType.Original)
         expect(packets.length).toBe(1)
 
         const pkg = packets[0]

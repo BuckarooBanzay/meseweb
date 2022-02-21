@@ -11,6 +11,7 @@ import { ServerAuthAccept } from "./commands/server_auth_accept"
 import { ServerHello } from "./commands/server_hello"
 import { ServerSRPBytesSB } from "./commands/server_srp_bytes_s_b"
 import { ServerTimeOfDay } from "./commands/server_time_of_day"
+import { PacketType } from "./packet/types"
 import { arrayToHex, hexToArray } from "./util/hex"
 
 const ws = new WebSocket("ws://127.0.0.1:8080/api/ws?host=minetest&port=30000")
@@ -24,14 +25,14 @@ const client = new Client(ws)
 client.addReadyListener(function(c){
     setTimeout(function(){
         console.log("Sending INIT")
-        c.sendCommand(new ClientInit(username))
+        c.sendCommand(new ClientInit(username), PacketType.Original)
     }, 1000)
 })
 
 const eph = srp.generateEphemeral()
 
 client.addCommandListener(function(cmd){
-    console.log("Received command: " + JSON.stringify(cmd))
+    console.log(`Received command: ${JSON.stringify(cmd)}`)
     if (cmd instanceof ServerHello){
         console.log("Got server hello")
 

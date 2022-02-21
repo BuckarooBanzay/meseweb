@@ -1,7 +1,8 @@
+import { ClientInit } from "./commands/client_init";
 import { ClientCommand, ServerCommand } from "./commands/command";
 import { getServerCommand } from "./commands/server_commands";
-import { marshal, unmarshal } from "./packet/marshal";
-import { createAck, createOriginal, createPeerInit } from "./packet/packetfactory";
+import { marshal, setSeqNr, unmarshal } from "./packet/marshal";
+import { createAck, createCommandPacket, createPeerInit } from "./packet/packetfactory";
 import { SplitPacketHandler } from "./packet/splitpackethandler";
 import { ControlType, Packet, PacketType } from "./packet/types";
 
@@ -15,17 +16,7 @@ export class Client {
     }
 
     peerId = 0
-    seqNr = 65500
     splitHandler = new SplitPacketHandler()
-
-    getNextSeqNr(): number {
-        if (this.seqNr >= 65535){
-            this.seqNr = 0
-        } else {
-            this.seqNr++
-        }
-        return this.seqNr
-    }
 
     onOpen() {
         console.log("websocket opened")
@@ -82,9 +73,6 @@ export class Client {
     }
 
     sendPacket(p: Packet){
-        if (p.seqNr == 0){
-            p.seqNr = this.getNextSeqNr()
-        }
         p.peerId = this.peerId
 
         //TODO: track reliable seqNr
@@ -92,9 +80,13 @@ export class Client {
         this.ws.send(marshal(p))
     }
 
-    sendCommand(cmd: ClientCommand) {
-        const packets = createOriginal(cmd, this.peerId)
+    sendCommand(cmd: ClientCommand, type?: PacketType) {
+        const packets = createCommandPacket(cmd, this.peerId, type || PacketType.Reliable)
         packets.forEach(p => this.sendPacket(p))
+
+        if (cmd instanceof ClientInit){
+            setSeqNr(65500-1)
+        }
     }
 
     commandListeners = new Array<CommandHandler>()

@@ -22,7 +22,7 @@ export class Packet {
     controlType: ControlType = 0
     subtype: PacketType = 0
     peerId = 0
-    seqNr = 0
+    seqNr = -1
     channel = 0
     payload = new Uint8Array(0)
     payloadView = new DataView(this.payload.buffer)

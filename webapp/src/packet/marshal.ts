@@ -1,5 +1,20 @@
 import { Packet, PacketType, ControlType, ProtocolID } from "./types"
 
+let seqNr = 65500-1
+
+function getNextSeqNr(): number {
+    if (seqNr >= 65535){
+        seqNr = 0
+    } else {
+        seqNr++
+    }
+    return seqNr
+}
+
+export function setSeqNr(n: number) {
+    seqNr = n
+}
+
 function createPacketHeader(p: Packet): Uint8Array {
     const buf = new Uint8Array(8)
     const dv = new DataView(buf.buffer)
@@ -51,6 +66,9 @@ export function marshal(p: Packet): Uint8Array {
                 buf = new Uint8Array(header.length + 3 + p.payload.length)
                 buf.set(header, 0)
                 dv = new DataView(buf.buffer)
+                if (p.seqNr < 0) {
+                    p.seqNr = getNextSeqNr()
+                }
                 dv.setUint16(header.length, p.seqNr)
                 dv.setUint8(header.length + 2, p.subtype || 0)
                 buf.set(p.payload, header.length + 3)

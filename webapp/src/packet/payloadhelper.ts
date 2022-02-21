@@ -15,4 +15,13 @@ export class PayloadHelper {
         return a
     }
 
+    getString(offset: number): string {
+        const len = this.dv.getUint16(offset)
+        let str = ""
+        for (let i=0; i<len; i++){
+            str += String.fromCharCode(this.dv.getUint8(offset+2+i))
+        }
+        return str
+    }
+
 }
