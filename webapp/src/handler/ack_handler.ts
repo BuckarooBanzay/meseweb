@@ -7,6 +7,6 @@ export function AckHandler(client: Client, p: Packet) {
         // send ack
         const ack = createAck(p, client.peerId)
         ack.channel = p.channel
-        client.sendPacket(ack)
+        setTimeout(() => client.sendPacket(ack), 200)
     }
 }
