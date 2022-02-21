@@ -23,7 +23,7 @@ export class SplitPacketHandler {
         sp.seqNr = p.payloadView.getUint16(0)
         sp.chunkCount = p.payloadView.getUint16(2)
         sp.chunkNumber = p.payloadView.getUint16(4)
-        sp.data = p.payload.subarray(p.payloadView.byteOffset)
+        sp.data = p.payload.subarray(p.payloadView.byteOffset + 6)
 
         let list = this.store.get(sp.seqNr)
         if (!list) {
