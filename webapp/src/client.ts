@@ -59,7 +59,7 @@ export class Client {
                 const payload = this.splitHandler.AddSplitPacket(p)
                 if (payload != null) {
                     // all split parts arrived
-                    this.parseCommandPayload(new DataView(payload))
+                    this.parseCommandPayload(new DataView(payload.buffer))
                 }
             }
         }
