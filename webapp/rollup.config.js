@@ -10,7 +10,7 @@ export default {
     file: 'dist/bundle.js',
     format: 'iife'
   },
-  plugins: [nodeResolve({ browser: true }), commonjs(), typescript(), terser()],
+  plugins: [nodeResolve({ browser: true }), commonjs(), typescript(), terser({ output: { comments: false }})],
   onwarn: function(warning) {
     if ( warning.code === 'THIS_IS_UNDEFINED' ) { return; }
     console.warn( warning.message );
