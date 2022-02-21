@@ -37,12 +37,11 @@ export class Client {
         const ab: ArrayBuffer = await ev.data.arrayBuffer()
         const buf = new Uint8Array(ab)
         const p = unmarshal(buf)
-        console.log("RX>>> " + JSON.stringify(p))
+        console.log("RX>>> " + p, p)
 
         if (p.packetType == PacketType.Reliable){
             // send ack
-            const ack = createAck(p)
-            ack.peerId = 0
+            const ack = createAck(p, this.peerId)
             this.sendPacket(ack)
 
             if (p.controlType == ControlType.SetPeerID){
@@ -51,18 +50,18 @@ export class Client {
                 console.log("Set peerId to " + this.peerId)
                 return
             }
-        }
 
-        if (p.packetType == PacketType.Split) {
-            const payload = this.splitHandler.AddSplitPacket(p)
-            if (payload != null) {
-                // all split parts arrived
-                this.parseCommandPayload(new DataView(payload))
+            if (p.subtype == PacketType.Original){
+                this.parseCommandPayload(p.payloadView)
             }
-        }
 
-        if (p.packetType == PacketType.Reliable && p.subtype == PacketType.Original){
-            this.parseCommandPayload(p.payloadView)
+            if (p.subtype == PacketType.Split) {
+                const payload = this.splitHandler.AddSplitPacket(p)
+                if (payload != null) {
+                    // all split parts arrived
+                    this.parseCommandPayload(new DataView(payload))
+                }
+            }
         }
     }
 
@@ -86,8 +85,10 @@ export class Client {
         if (p.seqNr == 0){
             p.seqNr = this.getNextSeqNr()
         }
+        p.peerId = this.peerId
+
         //TODO: track reliable seqNr
-        console.log("TX<<< " + JSON.stringify(p))
+        console.log("TX<<< " + p, p)
         this.ws.send(marshal(p))
     }
 

@@ -99,6 +99,7 @@ export function unmarshal(buf: Uint8Array): Packet {
             }
             break;
         case PacketType.Control:
+            p.controlType = dv.getUint8(8)
             //TODO
             return p
     }

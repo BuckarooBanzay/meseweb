@@ -18,21 +18,31 @@ export enum ControlType {
 }
 
 export class Packet {
-    packetType?: PacketType
-    controlType?: ControlType
-    subtype?: PacketType
+    packetType: PacketType = 0
+    controlType: ControlType = 0
+    subtype: PacketType = 0
     peerId = 0
     seqNr = 0
     channel = 0
     payload = new Uint8Array(0)
     payloadView = new DataView(this.payload.buffer)
 
+    dumpPayload(): number[] {
+        const a = new Array<number>(this.payloadView.byteLength)
+        for (let i=0; i<this.payloadView.byteLength; i++){
+            a[i] = this.payloadView.getUint8(i)
+        }
+        return a
+    }
+
     toString(): string {
-        return `Packet{type=${PacketType[this.packetType || 0]},`+
-            `control=${ControlType[this.controlType || 0]},`+
-            `subType=${PacketType[this.subtype || 0]},`+
+        return `Packet{`+
             `peerId=${this.peerId},`+
-            `seqNr=${this.seqNr}`+
-            `}`
+            `seqNr=${this.seqNr},`+
+            `channel=${this.channel},`+
+            `type=${PacketType[this.packetType]},`+
+            `control=${ControlType[this.controlType]},`+
+            `subType=${PacketType[this.subtype]}`+
+        `}`
     }
 }
