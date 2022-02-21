@@ -20,7 +20,6 @@ export class ServerAnnounceMedia implements ServerCommand {
                 hash[i] = hashbin.charCodeAt(i)
             }
 
-            console.log("name", name, "hash", hash)
             this.hashes.set(name, hash)
             offset += 2+2+name.length+hashstr.length
         }
