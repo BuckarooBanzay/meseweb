@@ -31,7 +31,7 @@ client.addReadyListener(function(c){
 
 const eph = srp.generateEphemeral()
 
-client.addCommandListener(function(cmd){
+client.addCommandListener(function(client, cmd){
     console.log(`Received command: ${JSON.stringify(cmd)}`)
     if (cmd instanceof ServerHello){
         console.log("Got server hello")

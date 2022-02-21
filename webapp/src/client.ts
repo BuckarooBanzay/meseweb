@@ -1,18 +1,23 @@
 import { ClientInit } from "./commands/client_init";
 import { ClientCommand, ServerCommand } from "./commands/command";
 import { getServerCommand } from "./commands/server_commands";
+import { AckHandler } from "./handler/ack_handler";
 import { marshal, setSeqNr, unmarshal } from "./packet/marshal";
 import { createAck, createCommandPacket, createPeerInit } from "./packet/packetfactory";
 import { SplitPacketHandler } from "./packet/splitpackethandler";
 import { ControlType, Packet, PacketType } from "./packet/types";
 
-type CommandHandler = (cmd: ServerCommand) => void
-type ReadyHandler = (c: Client) => void
+export type CommandHandler = (c: Client, cmd: ServerCommand) => void
+export type PacketHandler = (c: Client, packet: Packet) => void
+export type ReadyHandler = (c: Client) => void
 
 export class Client {
     constructor(private ws: WebSocket){
         ws.addEventListener("message", ev => this.onMessage(ev))
         ws.addEventListener("open", () => this.onOpen())
+
+        // register handlers
+        this.addPacketListener(AckHandler)
     }
 
     peerId = 0
@@ -30,12 +35,10 @@ export class Client {
         const p = unmarshal(buf)
         console.log("RX>>> " + p, p)
 
-        if (p.packetType == PacketType.Reliable){
-            // send ack
-            const ack = createAck(p, this.peerId)
-            ack.channel = p.channel
-            this.sendPacket(ack)
+        // emit packet events
+        this.packetListeners.forEach(h => h(this, p))
 
+        if (p.packetType == PacketType.Reliable){
             if (p.controlType == ControlType.SetPeerID){
                 // set peer id
                 this.peerId = p.peerId
@@ -70,7 +73,7 @@ export class Client {
     }
 
     onCommandReceived(cmd: ServerCommand){
-        this.commandListeners.forEach(l => l(cmd))
+        this.commandListeners.forEach(l => l(this, cmd))
     }
 
     sendPacket(p: Packet){
@@ -88,6 +91,11 @@ export class Client {
         if (cmd instanceof ClientInit){
             setSeqNr(65500-1)
         }
+    }
+
+    packetListeners = new Array<PacketHandler>()
+    addPacketListener(p: PacketHandler) {
+        this.packetListeners.push(p)
     }
 
     commandListeners = new Array<CommandHandler>()
