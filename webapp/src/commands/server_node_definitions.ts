@@ -133,7 +133,7 @@ export enum NodeDrawType {
 export enum ContentParamType {
 	CPT_NONE = 0x00,
 	CPT_LIGHT = 0x01,
-};
+}
 
 export enum ContentParamType2 {
 	CPT2_NONE = 0x00,
@@ -161,7 +161,7 @@ export enum ContentParamType2 {
 	CPT2_GLASSLIKE_LIQUID_LEVEL = 0x0B,
 	// 3 bits of palette index, then degrotate
 	CPT2_COLORED_DEGROTATE = 0x0C,
-};
+}
 
 export class NodeDefinition {
     id = 0
@@ -283,11 +283,8 @@ export class ServerNodeDefinitions implements ServerCommand {
         const buf = new Uint8Array(input)
         const output = pako.inflate(buf)
         const dataView = new DataView(output.buffer)
-        const ph = new PayloadHelper(dataView)
         this.version = dataView.getUint8(0)
         this.count = dataView.getUint16(1)
-
-        const nodedefs_size = dataView.getUint16(3)
         let offset = 7
 
         for (let i=0; i<this.count; i++){

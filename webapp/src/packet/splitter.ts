@@ -5,8 +5,8 @@ export function splitArray(buf: Uint8Array, limit: number): Uint8Array[] {
     const a = new Array<Uint8Array>(parts)
 
     for (let i=0; i<parts; i++){
-        let start =  i * limit
-        let end = start + Math.min(limit, buf.byteLength - start)
+        const start =  i * limit
+        const end = start + Math.min(limit, buf.byteLength - start)
         a[i] = buf.subarray(start, end)
     }
     return a

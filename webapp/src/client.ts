@@ -3,7 +3,7 @@ import { ClientCommand, ServerCommand } from "./commands/command";
 import { getServerCommand } from "./commands/server_commands";
 import { AckHandler } from "./handler/ack_handler";
 import { marshal, setSeqNr, unmarshal } from "./packet/marshal";
-import { createAck, createCommandPacket, createPeerInit } from "./packet/packetfactory";
+import { createCommandPacket, createPeerInit } from "./packet/packetfactory";
 import { SplitPacketHandler } from "./packet/splitpackethandler";
 import { ControlType, Packet, PacketType } from "./packet/types";
 

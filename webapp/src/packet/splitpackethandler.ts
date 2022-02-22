@@ -1,4 +1,3 @@
-import { splitPayload } from "./splitter"
 import { Packet } from "./types"
 
 
@@ -15,8 +14,6 @@ export class SplitPacketHandler {
     store = new Map<number, Array<SplitPayload>>()
     store_count = new Map<number, number>()
     store_length = new Map<number, number>();
-
-    constructor(){}
 
     AddSplitPacket(p: Packet): Uint8Array|null {
         const sp = new SplitPayload()
