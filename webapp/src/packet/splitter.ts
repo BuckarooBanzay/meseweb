@@ -35,7 +35,7 @@ export function splitPayload(buf: Uint8Array): Packet[] {
         payload.set(parts[i], 6)
 
         //add header
-        const dv = new DataView(payload)
+        const dv = new DataView(payload.buffer)
         dv.setUint16(0, seqNr)
         dv.setUint16(2, parts.length)
         dv.setUint16(4, i)

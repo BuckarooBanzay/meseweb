@@ -38,9 +38,13 @@ export function createCommandPacket(cmd: ClientCommand, peerId: number, type: Pa
         // split into multiple packets
         const packets = splitPayload(payload)
         packets.forEach(p => {
+            p.packetType = PacketType.Reliable
+            p.subtype = PacketType.Split
             p.peerId = peerId
             p.channel = 1
         })
+
+        console.log(`Split command into ${packets.length} parts`)
 
         return packets
     }

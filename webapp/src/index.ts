@@ -4,6 +4,7 @@ import { Client } from "./client"
 import { ClientFirstSRP } from "./commands/client_first_srp"
 import { ClientInit } from "./commands/client_init"
 import { ClientInit2 } from "./commands/client_init2"
+import { ClientRequestMedia } from "./commands/client_request_media"
 import { ClientSRPBytesA } from "./commands/client_srp_bytes_a"
 import { ClientSRPBytesM } from "./commands/client_srp_bytes_m"
 import { ServerAccessDenied } from "./commands/server_access_denied"
@@ -79,6 +80,13 @@ client.addCommandListener(function(client, cmd){
 
     if (cmd instanceof ServerAnnounceMedia){
         console.log(`Server announced media, files=${cmd.fileCount}`)
+
+        const reqMedia = new ClientRequestMedia()
+        cmd.hashes.forEach((v,k) => {
+            reqMedia.names.push(k)
+        })
+        console.log("Requesting media")
+        client.sendCommand(reqMedia)
     }
 
     if (cmd instanceof ServerNodeDefinitions){
