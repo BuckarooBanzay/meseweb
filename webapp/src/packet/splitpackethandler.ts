@@ -13,7 +13,7 @@ export class SplitPacketHandler {
     
     store = new Map<number, Array<SplitPayload>>()
     store_count = new Map<number, number>()
-    store_length = new Map<number, number>();
+    store_length = new Map<number, number>()
 
     AddSplitPacket(p: Packet): Uint8Array|null {
         const sp = new SplitPayload()
@@ -25,7 +25,7 @@ export class SplitPacketHandler {
         let list = this.store.get(sp.seqNr)
         if (!list) {
             // create list
-            list = Array<SplitPayload>();
+            list = Array<SplitPayload>()
             this.store.set(sp.seqNr, list)
         }
 
