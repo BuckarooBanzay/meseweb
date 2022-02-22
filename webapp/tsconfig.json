@@ -17,8 +17,5 @@
   "exclude": [
     "dist",
     "node_modules"
-  ],
-  "paths": {
-    "zlibjs/bin/zlib_and_gzip.min.js": [ "node_modules/zlibjs/bin/zlib_and_gzip.min.js" ]
-  }
+  ]
 }

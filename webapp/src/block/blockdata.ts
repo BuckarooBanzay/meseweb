@@ -1,4 +1,4 @@
-import * as zlib from "zlibjs/bin/zlib_and_gzip.min.js";
+import { Zlib } from "zlibjs/bin/zlib_and_gzip.min.js";
 
 export class Blockdata {
     underground = false
@@ -29,7 +29,7 @@ export class Blockdata {
             throw new Error("invalid zlib magic")
         }
 
-        const inflate = new zlib.Zlib.Inflate(compressedMapnodes)
+        const inflate = new Zlib.Inflate(compressedMapnodes)
         this.mapNodes = inflate.decompress()
 
         if (this.mapNodes.byteLength != (4096*4)){
