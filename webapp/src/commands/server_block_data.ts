@@ -7,6 +7,14 @@ export class ServerBlockData implements ServerCommand {
     blockData = new Blockdata()
 
     UnmarshalPacket(dv: DataView): void {
+        /*
+        const d = new Array<number>(dv.byteLength)
+        for (let i=0; i<dv.byteLength; i++){
+            d[i] = dv.getUint8(i)
+        }
+        localStorage.setItem("server_block_data", JSON.stringify(d))
+        */
+
         this.blockPos.X = dv.getInt16(0)
         this.blockPos.Y = dv.getInt16(2)
         this.blockPos.Z = dv.getInt16(4)

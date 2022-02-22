@@ -5,7 +5,7 @@ const testdata: Array<number> = require('./testdata/server_blockdata.json')
 
 describe("server nodedefs command", function(){
     it("unmarshals the data properly", function(){
-        //console.log(testdata.map(d => "0x"+(d<=16?'0':'')+d.toString(16)).join(","))
+        console.log(testdata.map(d => "0x"+(d<=16?'0':'')+d.toString(16)).join(","))
 
         const cmd = new ServerBlockData()
         const buf = Uint8Array.from(testdata)

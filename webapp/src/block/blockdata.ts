@@ -1,4 +1,4 @@
-import pako from 'pako'
+import { Inflate } from 'zlibt2'
 
 export class Blockdata {
     underground = false
@@ -26,19 +26,10 @@ export class Blockdata {
         const compressedMapnodes = new Uint8Array(ab)
         console.log(`compressed size: ${compressedMapnodes.byteLength}`)
 
-        const inflate = new pako.Inflate()
-        for (let i=0; i<compressedMapnodes.byteLength; i++){
-            inflate.push(compressedMapnodes.slice(i,i), false)
-            if (inflate.ended){
-                console.log("ended @ " + i)
-            }
-        }
-        //inflate.push(compressedMapnodes, true)
+        const inflater = new Inflate(compressedMapnodes)
+        this.mapNodes = inflater.decompress()
 
-        console.log(inflate.ended, inflate.error)
-
-        const mapNodes = inflate.result
-        console.log(`decompressed size: ${mapNodes.byteLength}`)
+        console.log(`decompressed size: ${this.mapNodes.byteLength}`)
 
     }
 }
