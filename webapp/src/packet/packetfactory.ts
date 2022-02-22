@@ -9,6 +9,13 @@ export function createPing(): Packet {
     return p
 }
 
+export function createDisconnect(): Packet {
+    const p = new Packet()
+    p.packetType = PacketType.Control
+    p.controlType = ControlType.Disco
+    return p
+}
+
 export function createAck(srcp: Packet, peerId: number): Packet {
     const p = new Packet()
     p.packetType = PacketType.Control

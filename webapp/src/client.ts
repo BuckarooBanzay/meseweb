@@ -3,7 +3,7 @@ import { ClientCommand, ServerCommand } from "./commands/command";
 import { getServerCommand } from "./commands/server_commands";
 import { AckHandler } from "./handler/ack_handler";
 import { marshal, setSeqNr, unmarshal } from "./packet/marshal";
-import { createCommandPacket, createPeerInit } from "./packet/packetfactory";
+import { createCommandPacket, createDisconnect, createPeerInit } from "./packet/packetfactory";
 import { SplitPacketHandler } from "./packet/splitpackethandler";
 import { ControlType, Packet, PacketType } from "./packet/types";
 
@@ -27,6 +27,11 @@ export class Client {
         console.log("websocket opened")
         this.sendPacket(createPeerInit())
         this.readyListeners.forEach(l => l(this))
+    }
+
+    close(){
+        this.sendPacket(createDisconnect())
+        this.ws.close()
     }
 
     async onMessage(ev: MessageEvent<Blob>) {
@@ -61,14 +66,23 @@ export class Client {
     }
 
     parseCommandPayload(dv: DataView){
+        if (this.ws.readyState != WebSocket.OPEN){
+            return
+        }
+
         const cmdId = dv.getUint16(0)
-            
-        const cmd = getServerCommand(cmdId)
-        if (cmd != null){
-            cmd.UnmarshalPacket(new DataView(dv.buffer, dv.byteOffset + 2))
-            this.onCommandReceived(cmd)
-        } else {
-            console.log("Unknown command received: " + cmdId)
+        try {
+            const cmd = getServerCommand(cmdId)
+            if (cmd != null){
+                cmd.UnmarshalPacket(new DataView(dv.buffer, dv.byteOffset + 2))
+                this.onCommandReceived(cmd)
+            } else {
+                console.log("Unknown command received: " + cmdId)
+            }
+        } catch (e: any) {
+            console.error(e)
+            console.log("Caught error, aborting")
+            this.close()
         }
     }
 

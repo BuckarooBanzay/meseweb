@@ -12,6 +12,6 @@ export class ServerBlockData implements ServerCommand {
         this.blockPos.Z = dv.getInt16(4)
 
         const rawData = new Uint8Array(dv.buffer.slice(dv.byteOffset+6))
-        this.blockData.parse(rawData)
+        this.blockData.parseV28(rawData)
     }
 }

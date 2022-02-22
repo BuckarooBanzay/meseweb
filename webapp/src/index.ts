@@ -42,7 +42,7 @@ const eph = srp.generateEphemeral()
 client.addCommandListener(function(client, cmd){
     //console.log(`Received command: ${JSON.stringify(cmd)}`)
     if (cmd instanceof ServerHello){
-        console.log("Got server hello")
+        console.log(`Got server hello, protocol=${cmd.protocolVersion}`)
 
         if (cmd.authMechanismFirstSrp) {
             const salt = srp.generateSalt()
@@ -115,7 +115,7 @@ client.addCommandListener(function(client, cmd){
     }
 
     if (cmd instanceof ServerBlockData){
-        console.log(`Got block data ${cmd.blockPos.X}/${cmd.blockPos.Y}/${cmd.blockPos.Z} size=${cmd.blockData.byteLength}`)
+        console.log(`Got block data ${cmd.blockPos.X}/${cmd.blockPos.Y}/${cmd.blockPos.Z}`)
     }
 })
 

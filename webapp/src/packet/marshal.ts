@@ -37,7 +37,8 @@ export function marshal(p: Packet): Uint8Array {
     case PacketType.Control:
         switch (p.controlType){
             case ControlType.Ping:
-            case ControlType.Ack: {
+            case ControlType.Ack:
+            case ControlType.Disco: {
                 const control = new Uint8Array(3)
                 dv = new DataView(control.buffer)
                 dv.setUint8(0, p.controlType || 0)
