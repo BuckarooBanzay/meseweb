@@ -15,6 +15,13 @@ export class PayloadBuilder {
         this.data.push(v & 0xFF)
     }
 
+    appendUint32(v: number){
+        this.data.push((v >> 32) & 0xFF)
+        this.data.push((v >> 16) & 0xFF)
+        this.data.push((v >> 8) & 0xFF)
+        this.data.push(v & 0xFF)
+    }
+
     appendString(s: string) {
         this.appendUint16(s.length)
         for (let i=0; i<s.length; i++){

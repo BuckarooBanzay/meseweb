@@ -4,12 +4,16 @@ import { Client } from "./client"
 import { ClientFirstSRP } from "./commands/client_first_srp"
 import { ClientInit } from "./commands/client_init"
 import { ClientInit2 } from "./commands/client_init2"
+import { ClientPlayerPos } from "./commands/client_player_pos"
+import { ClientReady } from "./commands/client_ready"
 import { ClientRequestMedia } from "./commands/client_request_media"
 import { ClientSRPBytesA } from "./commands/client_srp_bytes_a"
 import { ClientSRPBytesM } from "./commands/client_srp_bytes_m"
 import { ServerAccessDenied } from "./commands/server_access_denied"
 import { ServerAnnounceMedia } from "./commands/server_announce_media"
 import { ServerAuthAccept } from "./commands/server_auth_accept"
+import { ServerBlockData } from "./commands/server_block_data"
+import { ServerCSMRestrictionFlags } from "./commands/server_csm_restriction_flags"
 import { ServerHello } from "./commands/server_hello"
 import { ServerMedia } from "./commands/server_media"
 import { ServerNodeDefinitions } from "./commands/server_node_definitions"
@@ -82,12 +86,14 @@ client.addCommandListener(function(client, cmd){
     if (cmd instanceof ServerAnnounceMedia){
         console.log(`Server announced media, files=${cmd.fileCount}`)
 
+        /*
         const reqMedia = new ClientRequestMedia()
         cmd.hashes.forEach((v,k) => {
             reqMedia.names.push(k)
         })
         console.log("Requesting media")
         client.sendCommand(reqMedia)
+        */
     }
 
     if (cmd instanceof ServerNodeDefinitions){
@@ -96,6 +102,20 @@ client.addCommandListener(function(client, cmd){
 
     if (cmd instanceof ServerMedia){
         console.log(`Got server media bunches=${cmd.bunches} index=${cmd.index} numFiles=${cmd.numFiles}`, cmd.files)
+    }
+
+    if (cmd instanceof ServerCSMRestrictionFlags){
+        console.log("Got CSM restriction flags")
+        client.sendCommand(new ClientReady())
+
+        const ppos = new ClientPlayerPos()
+        ppos.fov = 149
+        ppos.requestViewRange = 13
+        client.sendCommand(ppos, PacketType.Original)
+    }
+
+    if (cmd instanceof ServerBlockData){
+        console.log(`Got block data ${cmd.blockPos.X}/${cmd.blockPos.Y}/${cmd.blockPos.Z}`)
     }
 })
 
