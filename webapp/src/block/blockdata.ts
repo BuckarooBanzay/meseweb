@@ -1,4 +1,4 @@
-import { Inflate } from 'zlibt2'
+import * as zlib from "zlibjs/bin/zlib_and_gzip.min.js";
 
 export class Blockdata {
     underground = false
@@ -24,12 +24,16 @@ export class Blockdata {
 
         const ab = dv.buffer.slice(offset)
         const compressedMapnodes = new Uint8Array(ab)
-        console.log(`compressed size: ${compressedMapnodes.byteLength}`)
 
-        const inflater = new Inflate(compressedMapnodes)
-        this.mapNodes = inflater.decompress()
+        if (compressedMapnodes[0] != 0x78 || compressedMapnodes[1] != 0x9c) {
+            throw new Error("invalid zlib magic")
+        }
 
-        console.log(`decompressed size: ${this.mapNodes.byteLength}`)
+        const inflate = new zlib.Zlib.Inflate(compressedMapnodes)
+        this.mapNodes = inflate.decompress()
 
+        if (this.mapNodes.byteLength != (4096*4)){
+            throw new Error("invalid decompressed size")
+        }
     }
 }

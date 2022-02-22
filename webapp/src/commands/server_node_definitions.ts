@@ -1,5 +1,5 @@
 import { ServerCommand } from "./command"
-import pako from 'pako'
+import * as zlib from "zlibjs/bin/zlib_and_gzip.min.js";
 import { PayloadHelper } from "../packet/payloadhelper"
 
 export enum TileAnimationType {
@@ -281,7 +281,8 @@ export class ServerNodeDefinitions implements ServerCommand {
     UnmarshalPacket(dv: DataView): void {
         const input = dv.buffer.slice(dv.byteOffset + 4)
         const buf = new Uint8Array(input)
-        const output = pako.inflate(buf)
+        const inflate = new zlib.Zlib.Inflate(buf)
+        const output = inflate.decompress()
         const dataView = new DataView(output.buffer)
         this.version = dataView.getUint8(0)
         this.count = dataView.getUint16(1)
