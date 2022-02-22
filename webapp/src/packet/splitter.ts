@@ -42,6 +42,7 @@ export function splitPayload(buf: Uint8Array): Packet[] {
 
         p.payload = payload
         p.packetType = PacketType.Split
+        packets[i] = p
     }
 
     return packets

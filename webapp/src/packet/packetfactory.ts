@@ -44,8 +44,6 @@ export function createCommandPacket(cmd: ClientCommand, peerId: number, type: Pa
             p.channel = 1
         })
 
-        console.log(`Split command into ${packets.length} parts`)
-
         return packets
     }
 

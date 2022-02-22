@@ -11,6 +11,7 @@ import { ServerAccessDenied } from "./commands/server_access_denied"
 import { ServerAnnounceMedia } from "./commands/server_announce_media"
 import { ServerAuthAccept } from "./commands/server_auth_accept"
 import { ServerHello } from "./commands/server_hello"
+import { ServerMedia } from "./commands/server_media"
 import { ServerNodeDefinitions } from "./commands/server_node_definitions"
 import { ServerSRPBytesSB } from "./commands/server_srp_bytes_s_b"
 import { ServerTimeOfDay } from "./commands/server_time_of_day"
@@ -91,6 +92,10 @@ client.addCommandListener(function(client, cmd){
 
     if (cmd instanceof ServerNodeDefinitions){
         console.log(`Got ${cmd.count} node-definitions`)
+    }
+
+    if (cmd instanceof ServerMedia){
+        console.log(`Got server media bunches=${cmd.bunches} index=${cmd.index} numFiles=${cmd.numFiles}`, cmd.files)
     }
 })
 

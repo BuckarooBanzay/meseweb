@@ -15,6 +15,17 @@ export class PayloadHelper {
         return a
     }
 
+    getUint8Array(offset: number): Uint8Array {
+        const buf = new Uint8Array(this.dv.buffer)
+        const len = this.dv.getUint32(offset)
+        const subOffset = this.dv.byteOffset+offset+4
+        return buf.subarray(subOffset, subOffset+len)
+    }
+
+    getUint8ArraySize(buf: Uint8Array) {
+        return 4+buf.byteLength
+    }
+
     getString(offset: number): string {
         const len = this.dv.getUint16(offset)
         let str = ""
