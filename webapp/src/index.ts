@@ -7,8 +7,10 @@ import { ClientInit2 } from "./commands/client_init2"
 import { ClientSRPBytesA } from "./commands/client_srp_bytes_a"
 import { ClientSRPBytesM } from "./commands/client_srp_bytes_m"
 import { ServerAccessDenied } from "./commands/server_access_denied"
+import { ServerAnnounceMedia } from "./commands/server_announce_media"
 import { ServerAuthAccept } from "./commands/server_auth_accept"
 import { ServerHello } from "./commands/server_hello"
+import { ServerNodeDefinitions } from "./commands/server_node_definitions"
 import { ServerSRPBytesSB } from "./commands/server_srp_bytes_s_b"
 import { ServerTimeOfDay } from "./commands/server_time_of_day"
 import { PacketType } from "./packet/types"
@@ -32,7 +34,7 @@ client.addReadyListener(function(c){
 const eph = srp.generateEphemeral()
 
 client.addCommandListener(function(client, cmd){
-    console.log(`Received command: ${JSON.stringify(cmd)}`)
+    //console.log(`Received command: ${JSON.stringify(cmd)}`)
     if (cmd instanceof ServerHello){
         console.log("Got server hello")
 
@@ -71,8 +73,16 @@ client.addCommandListener(function(client, cmd){
     }
 
     if (cmd instanceof ServerAuthAccept) {
-        console.log("Server access granted")
+        console.log(`Server access granted, seed=${cmd.seed} x=${cmd.posX}, y=${cmd.posY}, z=${cmd.posZ}`)
         client.sendCommand(new ClientInit2())
+    }
+
+    if (cmd instanceof ServerAnnounceMedia){
+        console.log(`Server announced media, files=${cmd.fileCount}`)
+    }
+
+    if (cmd instanceof ServerNodeDefinitions){
+        console.log(`Got ${cmd.count} node-definitions`)
     }
 })
 

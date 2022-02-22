@@ -33,7 +33,7 @@ export class Client {
         const ab: ArrayBuffer = await ev.data.arrayBuffer()
         const buf = new Uint8Array(ab)
         const p = unmarshal(buf)
-        console.log("RX>>> " + p, p)
+        //console.log("RX>>> " + p, p)
 
         // emit packet events
         this.packetListeners.forEach(h => h(this, p))
@@ -80,7 +80,7 @@ export class Client {
         p.peerId = this.peerId
 
         //TODO: track reliable seqNr
-        console.log("TX<<< " + p, p)
+        //console.log("TX<<< " + p, p)
         this.ws.send(marshal(p))
     }
 
