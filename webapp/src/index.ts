@@ -115,7 +115,7 @@ client.addCommandListener(function(client, cmd){
     }
 
     if (cmd instanceof ServerBlockData){
-        console.log(`Got block data ${cmd.blockPos.X}/${cmd.blockPos.Y}/${cmd.blockPos.Z}`)
+        console.log(`Got block data ${cmd.blockPos.X}/${cmd.blockPos.Y}/${cmd.blockPos.Z}`, cmd.blockData.blockMapping)
     }
 })
 

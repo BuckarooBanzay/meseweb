@@ -8,6 +8,7 @@ export class Blockdata {
     contentWidth = 0
     paramsWidth = 0
     mapNodes = new Uint8Array()
+    blockMapping: { [key: number]: boolean } = {}
 
     parseV28(buf: Uint8Array) {
         const dv = new DataView(buf.buffer)
@@ -35,5 +36,15 @@ export class Blockdata {
         if (this.mapNodes.byteLength != (4096*4)){
             throw new Error("invalid decompressed size")
         }
+
+        for (let i=0; i<4096; i++){
+            this.blockMapping[this.mapNodes[i]] = true
+        }
+
+        //TODO: compressed metadata
+
+        //TODO: static objects
+
+        //TODO: block mapping (if even relevant in the network-context)
     }
 }
