@@ -1,5 +1,5 @@
 import { ServerCommand } from "./command"
-import { Zlib } from "zlibjs/bin/zlib_and_gzip.min.js";
+import { Zlib } from "../zlib/zlib";
 import { PayloadHelper } from "../packet/payloadhelper"
 
 export enum TileAnimationType {

@@ -1,4 +1,4 @@
-import { Zlib } from "zlibjs/bin/zlib_and_gzip.min.js";
+import { Zlib } from "../zlib/zlib";
 
 export class Blockdata {
     underground = false
