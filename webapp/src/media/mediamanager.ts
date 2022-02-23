@@ -3,7 +3,8 @@ import Dexie, { Table } from 'dexie';
 export interface MediaEntry {
     id?: number
     hash: string
-    data: Uint8Array
+    filename: string
+    data: Blob
 }
 
 export class MediaManager extends Dexie {
@@ -12,14 +13,33 @@ export class MediaManager extends Dexie {
     constructor(){
         super("mediacache")
         this.version(1).stores({
-            media: "++id,hash,data"
+            media: "++id,hash,filename,data"
         })
     }
 
-    addMedia(key: string, data: Uint8Array){
-        this.media.add({
-            hash: key,
-            data: data
-        })
+    async getMediaCount(): Promise<number> {
+        return this.media.count()
+    }
+
+    addMedia(hash: string, filename: string, data: Uint8Array){
+            // only store if not already in cache
+            this.media
+            .where("hash")
+            .equalsIgnoreCase(hash)
+            .first()
+            .then(e => {
+                if (e == undefined){
+                    return this.media.add({
+                        hash: hash,
+                        filename: filename,
+                        data: new Blob([data])
+                    })
+            
+                }
+            })
+    }
+
+    async hasMedia(hash: string): Promise<boolean> {
+        return this.media.where("hash").equalsIgnoreCase(hash).first().then(v => !!v)
     }
 }

@@ -29,7 +29,10 @@ ws.onclose = console.log.bind(console)
 
 const username = "test"
 const password = "enter"
+
 const mediaManager = new MediaManager()
+// filename -> hash as string[40]
+let hashes: { [key: string]: string } = {}
 
 const client = new Client(ws)
 client.addReadyListener(function(c){
@@ -41,7 +44,7 @@ client.addReadyListener(function(c){
 
 const eph = srp.generateEphemeral()
 
-client.addCommandListener(function(client, cmd){
+client.addCommandListener(async function(client, cmd){
     //console.log(`Received command: ${JSON.stringify(cmd)}`)
     if (cmd instanceof ServerHello){
         console.log(`Got server hello, protocol=${cmd.protocolVersion}`)
@@ -86,14 +89,26 @@ client.addCommandListener(function(client, cmd){
     }
 
     if (cmd instanceof ServerAnnounceMedia){
-        console.log(`Server announced media, files=${cmd.fileCount}`)
+        const localCount = await mediaManager.getMediaCount()
+        console.log(`Server announced media, files=${cmd.fileCount}, localCount=${localCount}`)
+        // store filename->hash association
+        hashes = cmd.hashes
 
         const reqMedia = new ClientRequestMedia()
-        cmd.hashes.forEach((v,k) => {
-            reqMedia.names.push(k)
-        })
-        console.log("Requesting media")
-        client.sendCommand(reqMedia)
+        const filenameList = Object.keys(hashes)
+        for (let i=0; i<filenameList.length; i++){
+            const fileName = filenameList[i]
+            const hash = hashes[fileName]
+            const hasMedia = await mediaManager.hasMedia(hash)
+            if (!hasMedia){
+                reqMedia.names.push(fileName)
+            }
+        }
+
+        if (reqMedia.names.length > 0){
+            console.log(`Requesting media, count=${reqMedia.names.length}`)
+            client.sendCommand(reqMedia)
+        }
     }
 
     if (cmd instanceof ServerNodeDefinitions){
@@ -103,9 +118,10 @@ client.addCommandListener(function(client, cmd){
     if (cmd instanceof ServerMedia){
         console.log(`Got server media bunches=${cmd.bunches} index=${cmd.index} numFiles=${cmd.numFiles}`, cmd.files)
 
-        Object.keys(cmd.files).forEach(key => {
-            console.log(`Adding media to cache key=${key} size=${cmd.files[key].byteLength}`)
-            mediaManager.addMedia(key, cmd.files[key])
+        Object.keys(cmd.files).forEach(filename => {
+            const hash = hashes[filename]
+            const data = cmd.files[filename]
+            mediaManager.addMedia(hash, filename, data)
         })
     }
 

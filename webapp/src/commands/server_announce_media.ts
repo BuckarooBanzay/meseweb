@@ -1,9 +1,11 @@
 import { PayloadHelper } from "../packet/payloadhelper";
+import { stringToHex } from "../util/hex";
 import { ServerCommand } from "./command";
 
 export class ServerAnnounceMedia implements ServerCommand {
     fileCount = 0
-    hashes = new Map<string, number[]>()
+    // filename -> hash as string[40]
+    hashes: { [key: string]: string } = {}
     remoteServers = new Array<string>()
 
     UnmarshalPacket(dv: DataView): void {
@@ -15,12 +17,8 @@ export class ServerAnnounceMedia implements ServerCommand {
             const name = ph.getString(offset)
             const hashstr = ph.getString(offset+2+name.length)
             const hashbin = atob(hashstr)
-            const hash = new Array<number>(20)
-            for (let i=0; i<hashbin.length; i++){
-                hash[i] = hashbin.charCodeAt(i)
-            }
-
-            this.hashes.set(name, hash)
+            const hashHex = stringToHex(hashbin)
+            this.hashes[name] = hashHex
             offset += 2+2+name.length+hashstr.length
         }
 
