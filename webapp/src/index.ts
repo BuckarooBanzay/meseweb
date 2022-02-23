@@ -97,7 +97,7 @@ client.addCommandListener(function(client, cmd){
     }
 
     if (cmd instanceof ServerNodeDefinitions){
-        console.log(`Got ${cmd.count} node-definitions`)
+        console.log(`Got ${cmd.count} node-definitions`, cmd.nodeMapping)
     }
 
     if (cmd instanceof ServerMedia){

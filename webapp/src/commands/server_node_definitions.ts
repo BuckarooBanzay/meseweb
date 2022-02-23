@@ -277,6 +277,7 @@ export class ServerNodeDefinitions implements ServerCommand {
     version = 0
     count = 0
     definitions = new Array<NodeDefinition>();
+    nodeMapping: { [key: number]: NodeDefinition } = {}
 
     UnmarshalPacket(dv: DataView): void {
         const input = dv.buffer.slice(dv.byteOffset + 4)
@@ -290,7 +291,6 @@ export class ServerNodeDefinitions implements ServerCommand {
 
         for (let i=0; i<this.count; i++){
             const def = new NodeDefinition()
-            this.definitions.push(def)
 
             def.id = dataView.getUint16(offset)
             offset+=2
@@ -301,6 +301,8 @@ export class ServerNodeDefinitions implements ServerCommand {
             const nodedefView = new DataView(output.buffer, offset)
             def.Unmarshal(nodedefView)
 
+            this.definitions.push(def)
+            this.nodeMapping[def.id] = def
             offset+=nodedef_size
         }
     }
