@@ -19,6 +19,7 @@ import { ServerMedia } from "./commands/server_media"
 import { ServerNodeDefinitions } from "./commands/server_node_definitions"
 import { ServerSRPBytesSB } from "./commands/server_srp_bytes_s_b"
 import { ServerTimeOfDay } from "./commands/server_time_of_day"
+import { MediaManager } from "./media/mediamanager"
 import { PacketType } from "./packet/types"
 import { arrayToHex, hexToArray } from "./util/hex"
 
@@ -28,6 +29,7 @@ ws.onclose = console.log.bind(console)
 
 const username = "test"
 const password = "enter"
+const mediaManager = new MediaManager()
 
 const client = new Client(ws)
 client.addReadyListener(function(c){
@@ -86,14 +88,12 @@ client.addCommandListener(function(client, cmd){
     if (cmd instanceof ServerAnnounceMedia){
         console.log(`Server announced media, files=${cmd.fileCount}`)
 
-        /*
         const reqMedia = new ClientRequestMedia()
         cmd.hashes.forEach((v,k) => {
             reqMedia.names.push(k)
         })
         console.log("Requesting media")
         client.sendCommand(reqMedia)
-        */
     }
 
     if (cmd instanceof ServerNodeDefinitions){
@@ -102,6 +102,11 @@ client.addCommandListener(function(client, cmd){
 
     if (cmd instanceof ServerMedia){
         console.log(`Got server media bunches=${cmd.bunches} index=${cmd.index} numFiles=${cmd.numFiles}`, cmd.files)
+
+        Object.keys(cmd.files).forEach(key => {
+            console.log(`Adding media to cache key=${key} size=${cmd.files[key].byteLength}`)
+            mediaManager.addMedia(key, cmd.files[key])
+        })
     }
 
     if (cmd instanceof ServerCSMRestrictionFlags){
