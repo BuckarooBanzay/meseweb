@@ -21,6 +21,7 @@ import { ServerSRPBytesSB } from "./commands/server_srp_bytes_s_b"
 import { ServerTimeOfDay } from "./commands/server_time_of_day"
 import { MediaManager } from "./media/mediamanager"
 import { PacketType } from "./packet/types"
+import { Scene } from "./scene"
 import { arrayToHex, hexToArray } from "./util/hex"
 
 const ws = new WebSocket("ws://127.0.0.1:8080/api/ws?host=minetest&port=30000")
@@ -29,6 +30,8 @@ ws.onclose = console.log.bind(console)
 
 const username = "test"
 const password = "enter"
+
+const scene = new Scene()
 
 const mediaManager = new MediaManager()
 // filename -> hash as string[40]
