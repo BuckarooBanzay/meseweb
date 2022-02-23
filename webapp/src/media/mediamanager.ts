@@ -4,6 +4,7 @@ export interface MediaEntry {
     id?: number
     hash: string
     filename: string
+    size: number
     data: Blob
 }
 
@@ -13,7 +14,7 @@ export class MediaManager extends Dexie {
     constructor(){
         super("mediacache")
         this.version(1).stores({
-            media: "++id,hash,filename,data"
+            media: "++id,hash,filename,size,data"
         })
     }
 
@@ -32,6 +33,7 @@ export class MediaManager extends Dexie {
                     return this.media.add({
                         hash: hash,
                         filename: filename,
+                        size: data.byteLength,
                         data: new Blob([data])
                     })
             
