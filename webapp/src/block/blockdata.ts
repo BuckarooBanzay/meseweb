@@ -8,7 +8,17 @@ export class Blockdata {
     contentWidth = 0
     paramsWidth = 0
     mapNodes = new Uint8Array()
+    mapNodeView = new DataView(this.mapNodes.buffer)
     blockMapping: { [key: number]: boolean } = {}
+
+    GetNodePos(x: number, y: number, z: number): number {
+        return x + (y * 16) + (z * 256)
+    }
+
+    GetNodeID(x: number, y: number, z: number): number {
+        const index = this.GetNodePos(x,y,z)
+        return this.mapNodeView.getUint16(index*2)
+    }
 
     parseV28(buf: Uint8Array) {
         const dv = new DataView(buf.buffer)
@@ -32,6 +42,7 @@ export class Blockdata {
 
         const inflate = new Zlib.Inflate(compressedMapnodes)
         this.mapNodes = inflate.decompress()
+        this.mapNodeView = new DataView(this.mapNodes.buffer)
 
         if (this.mapNodes.byteLength != (4096*4)){
             throw new Error("invalid decompressed size")

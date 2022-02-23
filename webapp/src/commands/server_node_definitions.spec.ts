@@ -14,10 +14,12 @@ describe("server nodedefs command", function(){
         expect(cmd.version).toBe(1)
         expect(cmd.definitions.length).toBe(446)
 
+        /*
         cmd.definitions.forEach(d => {
             if (d.name == "default:lava_flowing" || d.name == "default:stone" || d.name == "doors:door_glass_c" || d.name == "default:glass") {
                 console.log(JSON.stringify(d))
             }
         })
+        */
     })
 })
