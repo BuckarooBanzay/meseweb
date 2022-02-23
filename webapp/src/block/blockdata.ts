@@ -1,5 +1,9 @@
 import { Zlib } from "../zlib/zlib";
 
+export function getNodePos(x: number, y: number, z: number): number {
+    return x + (y * 16) + (z * 256)
+}
+
 export class Blockdata {
     underground = false
     dayNightDiff = false
@@ -11,12 +15,8 @@ export class Blockdata {
     mapNodeView = new DataView(this.mapNodes.buffer)
     blockMapping: { [key: number]: boolean } = {}
 
-    GetNodePos(x: number, y: number, z: number): number {
-        return x + (y * 16) + (z * 256)
-    }
-
     GetNodeID(x: number, y: number, z: number): number {
-        const index = this.GetNodePos(x,y,z)
+        const index = getNodePos(x,y,z)
         return this.mapNodeView.getUint16(index*2)
     }
 
