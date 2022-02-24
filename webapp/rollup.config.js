@@ -1,7 +1,7 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
-import typescript from 'rollup-plugin-typescript2';
-import { terser } from "rollup-plugin-terser";
 import commonjs from '@rollup/plugin-commonjs';
+import esbuild from 'rollup-plugin-esbuild';
+
 
 export default {
   input: 'src/index.ts',
@@ -15,11 +15,8 @@ export default {
       browser: true
     }),
     commonjs(),
-    typescript(),
-    terser({
-      output: {
-        comments: false
-      }
+    esbuild({
+      minify: true
     })
   ],
   onwarn: function(warning) {
