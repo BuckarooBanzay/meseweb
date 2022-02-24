@@ -16,12 +16,14 @@ import { ServerBlockData } from "./commands/server_block_data"
 import { ServerCSMRestrictionFlags } from "./commands/server_csm_restriction_flags"
 import { ServerHello } from "./commands/server_hello"
 import { ServerMedia } from "./commands/server_media"
-import { ServerNodeDefinitions } from "./commands/server_node_definitions"
+import { NodeDefinition, ServerNodeDefinitions } from "./commands/server_node_definitions"
 import { ServerSRPBytesSB } from "./commands/server_srp_bytes_s_b"
 import { ServerTimeOfDay } from "./commands/server_time_of_day"
+import { MapblockView } from "./mapblockview"
 import { MediaManager } from "./media/mediamanager"
 import { PacketType } from "./packet/types"
 import { Scene } from "./scene"
+import { TextureManager } from "./texturemanager"
 import { arrayToHex, hexToArray } from "./util/hex"
 
 const ws = new WebSocket("ws://127.0.0.1:8080/api/ws?host=minetest&port=30000")
@@ -36,6 +38,9 @@ const scene = new Scene()
 const mediaManager = new MediaManager()
 // filename -> hash as string[40]
 let hashes: { [key: string]: string } = {}
+
+let nodedefs: ServerNodeDefinitions
+let textureManager: TextureManager
 
 const client = new Client(ws)
 client.addReadyListener(function(c){
@@ -116,6 +121,8 @@ client.addCommandListener(async function(client, cmd){
 
     if (cmd instanceof ServerNodeDefinitions){
         console.log(`Got ${cmd.count} node-definitions`, cmd.nodeMapping)
+        nodedefs = cmd
+        textureManager = new TextureManager(mediaManager, nodedefs)
     }
 
     if (cmd instanceof ServerMedia){
@@ -140,6 +147,9 @@ client.addCommandListener(async function(client, cmd){
 
     if (cmd instanceof ServerBlockData){
         console.log(`Got block data ${cmd.blockPos.X}/${cmd.blockPos.Y}/${cmd.blockPos.Z}`, cmd.blockData.blockMapping)
+
+        const view = new MapblockView(scene, cmd, textureManager, nodedefs)
+        await view.render()
     }
 })
 

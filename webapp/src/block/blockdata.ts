@@ -1,7 +1,8 @@
+import { Pos } from "../types/pos";
 import { Zlib } from "../zlib/zlib";
 
-export function getNodePos(x: number, y: number, z: number): number {
-    return x + (y * 16) + (z * 256)
+export function getNodePos(pos: Pos): number {
+    return pos.X + (pos.Y * 16) + (pos.Z * 256)
 }
 
 export class Blockdata {
@@ -15,8 +16,8 @@ export class Blockdata {
     mapNodeView = new DataView(this.mapNodes.buffer)
     blockMapping: { [key: number]: boolean } = {}
 
-    GetNodeID(x: number, y: number, z: number): number {
-        const index = getNodePos(x,y,z)
+    GetNodeID(pos: Pos): number {
+        const index = getNodePos(pos)
         return this.mapNodeView.getUint16(index*2)
     }
 

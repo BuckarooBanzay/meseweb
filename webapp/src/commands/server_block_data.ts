@@ -1,9 +1,9 @@
-import { Blockpos } from "../types/blockpos";
+import { Pos } from "../types/pos";
 import { ServerCommand } from "./command";
 import { Blockdata } from "../block/blockdata";
 
 export class ServerBlockData implements ServerCommand {
-    blockPos = new Blockpos()
+    blockPos = new Pos(0,0,0)
     blockData = new Blockdata()
 
     UnmarshalPacket(dv: DataView): void {

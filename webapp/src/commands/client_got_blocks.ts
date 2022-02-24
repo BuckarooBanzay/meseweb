@@ -1,9 +1,9 @@
 import { PayloadBuilder } from "../packet/payloadbuilder";
-import { Blockpos } from "../types/blockpos";
+import { Pos } from "../types/pos";
 import { ClientCommand } from "./command";
 
 export class ClientGotBlocks implements ClientCommand {
-    blocks = new Array<Blockpos>()
+    blocks = new Array<Pos>()
 
     GetCommandID(): number {
         return 0x24

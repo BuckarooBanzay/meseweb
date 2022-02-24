@@ -44,4 +44,10 @@ export class MediaManager extends Dexie {
     async hasMedia(hash: string): Promise<boolean> {
         return this.media.where("hash").equalsIgnoreCase(hash).first().then(v => !!v)
     }
+
+    async getMedia(filename: string): Promise<Blob|undefined> {
+        return this.media.where("filename").equals(filename).first().then(m => {
+            return m?.data
+        })
+    }
 }
