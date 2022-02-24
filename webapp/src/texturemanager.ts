@@ -21,6 +21,7 @@ export class TextureManager {
 
         const nodedef = this.nodedefs.nodeMapping[nodeid]
         let textureName = nodedef.tileDefs[0].name
+        console.log(`Trying to resolve texture from '${nodedef.name}' textureName=${textureName}`)
         if (textureName.includes("^")) {
             textureName = textureName.split("^")[0]
         }
@@ -42,6 +43,8 @@ export class TextureManager {
             map: texture,
             side: DoubleSide
         })
+
+        console.log(`Created new material from nodeid=${nodeid} texture=${textureName}`)
 
         this.cache.set(cachekey, material)
 

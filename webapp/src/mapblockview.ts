@@ -57,8 +57,13 @@ export class MapblockView {
     async renderBlock(intrablockpos: Pos) {
         const abspos = intrablockpos.add(this.posOffset)
         const nodeid = this.cmd.blockData.GetNodeID(intrablockpos)
+        if (nodeid > 22){
+            return
+        }
         let rotation: Matrix4|undefined
         var translation: Matrix4|undefined
+
+        console.log(`Rendering block at ${abspos.X}/${abspos.Y}/${abspos.Z} nodeid=${nodeid}`)
 
         if (!this.isOccluded(intrablockpos, new Pos(0,1,0))){
             rotation = new Matrix4().makeRotationX(Math.PI/2)

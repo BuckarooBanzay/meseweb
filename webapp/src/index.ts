@@ -41,6 +41,7 @@ let hashes: { [key: string]: string } = {}
 
 let nodedefs: ServerNodeDefinitions
 let textureManager: TextureManager
+let mapblockCount = 0
 
 const client = new Client(ws)
 client.addReadyListener(function(c){
@@ -147,9 +148,13 @@ client.addCommandListener(async function(client, cmd){
 
     if (cmd instanceof ServerBlockData){
         console.log(`Got block data ${cmd.blockPos.X}/${cmd.blockPos.Y}/${cmd.blockPos.Z}`, cmd.blockData.blockMapping)
+        if (mapblockCount >= 1){
+            return
+        }
 
         const view = new MapblockView(scene, cmd, textureManager, nodedefs)
         await view.render()
+        mapblockCount++
     }
 })
 
