@@ -2,31 +2,17 @@
   "name": "meseweb",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "js/index.js",
   "scripts": {
-    "build": "rollup -c rollup.config.js",
-    "lint": "eslint src",
-    "watch": "rollup -c rollup.config.js --watch",
-    "test": "jest --coverage",
-    "testwatch": "jest --watch"
+    "bundle": "rollup -c rollup.config.js",
+    "lint": "jshint src",
+    "watch": "rollup -c rollup.config.js --watch"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^21.0.1",
-    "@rollup/plugin-node-resolve": "^13.1.3",
-    "@types/crypto-js": "^4.1.1",
-    "@types/jest": "^27.4.0",
-    "@types/three": "^0.137.0",
-    "@typescript-eslint/eslint-plugin": "^5.12.0",
-    "@typescript-eslint/parser": "^5.12.0",
-    "eslint": "^8.9.0",
-    "jest": "^27.5.1",
-    "rollup": "^2.67.2",
-    "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-typescript2": "^0.31.2",
-    "ts-jest": "^27.1.3",
-    "tslib": "^2.3.1"
+    "jshint": "^2.13.4",
+    "rollup": "^2.67.2"
   },
   "dependencies": {
     "crypto-js": "^4.1.1",

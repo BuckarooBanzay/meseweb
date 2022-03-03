@@ -1,0 +1,11 @@
+{
+  "undef": true,
+  "unused": true,
+  "esversion": 8,
+  "browser": true,
+  "globals": {
+    "THREE": true,
+    "Dexie": true,
+    "console": true
+  }
+}
