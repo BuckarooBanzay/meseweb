@@ -7,7 +7,7 @@ export class Scene {
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
-        document.body.appendChild(this.stats.dom);
+        //document.body.appendChild(this.stats.dom);
 
         /*
         this.controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );

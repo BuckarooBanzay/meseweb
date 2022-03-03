@@ -1,5 +1,4 @@
 import { PayloadHelper } from "../packet/payloadhelper.js";
-import Zlib from "../zlib/zlib.js";
 
 export const TileAnimationType = {
     TAT_NONE: 0,

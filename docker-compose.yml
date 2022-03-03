@@ -7,7 +7,7 @@ services:
      - "./webapp:/app"
     user: node
     working_dir: "/app"
-    command: "bash -c 'npm ci && npm run watch'"
+    command: "bash -c 'npm ci'"
   
   server:
     image: golang:1.17.7

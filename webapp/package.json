@@ -15,8 +15,8 @@
     "rollup": "^2.67.2"
   },
   "dependencies": {
-    "crypto-js": "^4.1.1",
     "dexie": "^3.2.1",
-    "three": "^0.138.0"
+    "three": "^0.138.0",
+    "zlibjs": "^0.3.1"
   }
 }

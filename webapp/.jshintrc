@@ -4,6 +4,7 @@
   "esversion": 8,
   "browser": true,
   "globals": {
+    "Zlib": true,
     "srp": true,
     "THREE": true,
     "Dexie": true,
