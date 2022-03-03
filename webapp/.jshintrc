@@ -4,6 +4,7 @@
   "esversion": 8,
   "browser": true,
   "globals": {
+    "srp": true,
     "THREE": true,
     "Dexie": true,
     "console": true

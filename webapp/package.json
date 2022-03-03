@@ -17,7 +17,6 @@
   "dependencies": {
     "crypto-js": "^4.1.1",
     "dexie": "^3.2.1",
-    "secure-remote-password": "github:LinusU/secure-remote-password#rfc5054",
     "three": "^0.138.0"
   }
 }
