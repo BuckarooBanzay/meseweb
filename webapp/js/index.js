@@ -1,5 +1,4 @@
 
-import { generateEphemeral, generateSalt, derivePrivateKey, deriveVerifier, deriveSession } from "./srp/client.js";
 import { Client } from "./client.js";
 import { ClientFirstSRP } from "./commands/client_first_srp.js";
 import { ClientInit } from "./commands/client_init.js";
@@ -49,7 +48,7 @@ client.addReadyListener(function(c){
     }, 100);
 });
 
-const eph = generateEphemeral();
+const eph = srp.generateEphemeral();
 
 client.addCommandListener(async function(client, cmd){
     //console.log(`Received command: ${JSON.stringify(cmd)}`)
@@ -57,9 +56,9 @@ client.addCommandListener(async function(client, cmd){
         console.log(`Got server hello, protocol=${cmd.protocolVersion}`);
 
         if (cmd.authMechanismFirstSrp) {
-            const salt = generateSalt();
-            const privateKey = derivePrivateKey(salt, username, password);
-            const verifier = deriveVerifier(privateKey);
+            const salt = srp.generateSalt();
+            const privateKey = srp.derivePrivateKey(salt, username, password);
+            const verifier = srp.deriveVerifier(privateKey);
             client.sendCommand(new ClientFirstSRP(hexToArray(salt), hexToArray(verifier)));
 
         } else if (cmd.authMechanismSrp) {
@@ -75,8 +74,8 @@ client.addCommandListener(async function(client, cmd){
         const serverSalt = arrayToHex(cmd.bytesS);
         const serverPublic = arrayToHex(cmd.bytesB);
 
-        const privateKey = derivePrivateKey(serverSalt, username, password);
-        const clientSession = deriveSession(eph.secret, serverPublic, serverSalt, username, privateKey);
+        const privateKey = srp.derivePrivateKey(serverSalt, username, password);
+        const clientSession = srp.deriveSession(eph.secret, serverPublic, serverSalt, username, privateKey);
 
         const proof = hexToArray(clientSession.proof);
         client.sendCommand(new ClientSRPBytesM(proof));

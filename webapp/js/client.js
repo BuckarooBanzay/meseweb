@@ -8,6 +8,10 @@ import { ControlType, PacketType } from "./packet/types.js";
 
 export class Client {
     constructor(ws){
+        this.packetListeners = [];
+        this.readyListeners = [];
+        this.commandListeners = [];
+
         this.ws = ws;
         ws.addEventListener("message", ev => this.onMessage(ev));
         ws.addEventListener("open", () => this.onOpen());
@@ -17,10 +21,6 @@ export class Client {
 
         this.peerId = 0;
         this.splitHandler = new SplitPacketHandler();
-
-        this.packetListeners = [];
-        this.readyListeners = [];
-        this.commandListeners = [];
     }
 
     onOpen() {
