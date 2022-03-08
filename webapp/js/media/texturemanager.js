@@ -22,7 +22,7 @@ export class TextureManager {
             return Promise.resolve();
         }
         let textureName = nodedef.tileDefs[0].name;
-        console.log(`Trying to resolve texture from '${nodedef.name}' textureName=${textureName}`);
+        //console.log(`Trying to resolve texture from '${nodedef.name}' textureName=${textureName}`);
         if (textureName.includes("^")) {
             textureName = textureName.split("^")[0];
         }
@@ -45,7 +45,7 @@ export class TextureManager {
                 side: THREE.DoubleSide
             });
 
-            console.log(`Created new material from nodeid=${nodeid} texture=${textureName}`);
+            //console.log(`Created new material from nodeid=${nodeid} texture=${textureName}`);
 
             this.cache[cachekey] = material;
 

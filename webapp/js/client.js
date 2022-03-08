@@ -173,7 +173,7 @@ export class Client {
         }
     
         if (cmd instanceof ServerBlockData){
-            console.log(`Got block data ${cmd.blockPos.X}/${cmd.blockPos.Y}/${cmd.blockPos.Z}`, cmd.blockData.blockMapping);    
+            //console.log(`Got block data ${cmd.blockPos.X}/${cmd.blockPos.Y}/${cmd.blockPos.Z}`);    
             this.scene.updateMapblock(cmd.blockPos, cmd.blockData);
         }
     }
