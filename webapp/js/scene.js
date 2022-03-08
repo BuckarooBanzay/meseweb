@@ -13,6 +13,8 @@ const directionMap = {
 const directions = Object.keys(directionMap);
 const airNodeId = 126;
 
+const side_geometry = new THREE.PlaneGeometry(1, 1);
+
 export class Scene {
 
     constructor() {
@@ -141,27 +143,35 @@ export class Scene {
     }
 
     updateMapblock(pos, blockdata) {
-        if (pos.X == -12 && pos.Y == 0 && pos.Z == -12) {
-            const faces = this.calculateFaces(blockdata);
-            console.log(`Rendering mapblock ${pos.toString()}`, blockdata, faces);
+        const block_offset = new Pos(pos.X*16, pos.Y*16, pos.Z*16);
+        const faces = this.calculateFaces(blockdata);
+        console.log(`Rendering mapblock ${pos.toString()}`, blockdata, faces);
 
-            const renderMaterial = nodeid => {
-                this.textureManager.getMaterial(nodeid).then(material => {
-                    if (!material){
-                        return;
-                    }
-                    //console.log(`material for id=${nodeid}`, material);
+        Object.keys(faces).forEach(nodeId => {
+            this.textureManager.getMaterial(nodeId)
+            .then(material => {
+                if (!material){
+                    return;
+                }
+                const dirMap = faces[nodeId];
+                const yplus = dirMap["+y"];
+                if (yplus.length == 0){
+                    return;
+                }
 
-                    const sideGeometry = new THREE.PlaneGeometry(1,1);
-                    const cube = new THREE.Mesh( sideGeometry, material );
-                    cube.translateX(nodeid+1);
-                    this.scene.add( cube );
-                });
-            };
+                const instanced_mesh = new THREE.InstancedMesh(side_geometry, material, yplus.length);
+                const rotation = new THREE.Matrix4().makeRotationX(Math.PI/2);
 
-            Object.keys(this.nodedefs.nodeMapping).forEach(nodeid => renderMaterial(+nodeid));
-        }
-        // TODO
+                for (let i=0; i<yplus.length; i++){
+                    const pos = yplus[i].add(block_offset);
+                    const translation = new THREE.Matrix4().makeTranslation(pos.X, pos.Y+0.5, pos.Z);
+                    const matrix = translation.multiply(rotation);
+                    instanced_mesh.setMatrixAt(i, matrix);
+                }
+
+                this.scene.add(instanced_mesh);
+            });                
+        });
     }
 
     animate(){
