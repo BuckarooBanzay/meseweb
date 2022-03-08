@@ -8,6 +8,7 @@
     "srp": true,
     "THREE": true,
     "Dexie": true,
-    "console": true
+    "console": true,
+    "QUnit": true
   }
 }
