@@ -50,7 +50,7 @@ client.addReadyListener(function(c){
 
 const eph = srp.generateEphemeral();
 
-client.addCommandListener(async function(client, cmd){
+client.addCommandListener(function(client, cmd){
     //console.log(`Received command: ${JSON.stringify(cmd)}`)
     if (cmd instanceof ServerHello){
         console.log(`Got server hello, protocol=${cmd.protocolVersion}`);
@@ -95,26 +95,31 @@ client.addCommandListener(async function(client, cmd){
     }
 
     if (cmd instanceof ServerAnnounceMedia){
-        const localCount = await mediaManager.getMediaCount();
-        console.log(`Server announced media, files=${cmd.fileCount}, localCount=${localCount}`);
+        console.log(`Server announced media, files=${cmd.fileCount}`);
         // store filename->hash association
         hashes = cmd.hashes;
 
         const reqMedia = new ClientRequestMedia();
         const filenameList = Object.keys(hashes);
-        for (let i=0; i<filenameList.length; i++){
-            const fileName = filenameList[i];
-            const hash = hashes[fileName];
-            const hasMedia = await mediaManager.hasMedia(hash);
-            if (!hasMedia){
-                reqMedia.names.push(fileName);
-            }
-        }
+        const promiseList = filenameList.map(filename => {
+            const hash = hashes[filename];
+            return mediaManager.hasMedia(hash);
+        });
 
-        if (reqMedia.names.length > 0){
-            console.log(`Requesting media, count=${reqMedia.names.length}`);
-            client.sendCommand(reqMedia);
-        }
+        Promise.all(promiseList).then(hasMediaList => {
+            for (let i=0; i<hasMediaList.length; i++){
+                const filename = filenameList[i];
+                const hasMedia = hasMediaList[i];
+                if (!hasMedia) {
+                    reqMedia.names.push(filename);
+                }
+            }
+
+            if (reqMedia.names.length > 0){
+                console.log(`Requesting media, count=${reqMedia.names.length}`);
+                client.sendCommand(reqMedia);
+            }
+        });
     }
 
     if (cmd instanceof ServerNodeDefinitions){
