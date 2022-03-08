@@ -18,7 +18,7 @@ import { ServerMedia } from "./commands/server_media.js";
 import { ServerNodeDefinitions } from "./commands/server_node_definitions.js";
 import { ServerSRPBytesSB } from "./commands/server_srp_bytes_s_b.js";
 import { ServerTimeOfDay } from "./commands/server_time_of_day.js";
-import { MapblockView } from "./mapblockview.js";
+//import { MapblockView } from "./mapblockview.js";
 import { MediaManager } from "./media/mediamanager.js";
 import { PacketType } from "./packet/types.js";
 import { Scene } from "./scene.js";
@@ -149,9 +149,9 @@ client.addCommandListener(async function(client, cmd){
             return;
         }
 
-        const view = new MapblockView(scene, cmd, textureManager, nodedefs);
-        await view.render();
-        mapblockCount++;
+        //const view = new MapblockView(scene, cmd, textureManager, nodedefs);
+        //await view.render();
+        //mapblockCount++;
     }
 });
 

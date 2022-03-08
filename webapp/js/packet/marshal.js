@@ -99,6 +99,7 @@ export function unmarshal(buf) {
     
     switch (p.packetType){
         case PacketType.Reliable:
+        case PacketType.Original:
             p.seqNr = dv.getUint16(8);
             p.subtype = dv.getUint8(10);
 
