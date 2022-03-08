@@ -59,13 +59,15 @@ export class Scene {
     init(textureManager, nodedefs) {
         this.textureManager = textureManager;
         this.nodedefs = nodedefs;
-        const transparentDrawTypes = {}
+        const transparentDrawTypes = {};
         transparentDrawTypes[NodeDrawType.NDT_AIRLIKE] = true;
         transparentDrawTypes[NodeDrawType.NDT_LIQUID] = true;
         transparentDrawTypes[NodeDrawType.NDT_FLOWINGLIQUID] = true;
         transparentDrawTypes[NodeDrawType.NDT_GLASSLIKE] = true;
         transparentDrawTypes[NodeDrawType.NDT_GLASSLIKE_FRAMED] = true;
         transparentDrawTypes[NodeDrawType.NDT_GLASSLIKE_FRAMED_OPTIONAL] = true;
+        transparentDrawTypes[NodeDrawType.NDT_PLANTLIKE] = true;
+        transparentDrawTypes[NodeDrawType.NDT_PLANTLIKE_ROOTED] = true;
 
         this.transparentNodeIds = {};
         this.transparentNodeIds[airNodeId] = true;
