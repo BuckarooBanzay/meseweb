@@ -50,6 +50,24 @@ client.addReadyListener(function(c){
 
 const eph = srp.generateEphemeral();
 
+let hasAllMedia = false;
+let clientReadyTriggered = false;
+
+function checkClientReady() {
+    if (clientReadyTriggered || !hasAllMedia) {
+        return;
+    }
+    clientReadyTriggered = true;
+
+    console.log(`Sending CLIENT_READY`);
+    client.sendCommand(new ClientReady());
+
+    const ppos = new ClientPlayerPos();
+    ppos.fov = 149;
+    ppos.requestViewRange = 13;
+    client.sendCommand(ppos, PacketType.Original);
+}
+
 client.addCommandListener(function(client, cmd){
     //console.log(`Received command: ${JSON.stringify(cmd)}`)
     if (cmd instanceof ServerHello){
@@ -118,6 +136,9 @@ client.addCommandListener(function(client, cmd){
             if (reqMedia.names.length > 0){
                 console.log(`Requesting media, count=${reqMedia.names.length}`);
                 client.sendCommand(reqMedia);
+            } else {
+                hasAllMedia = true;
+                checkClientReady();
             }
         });
     }
@@ -131,21 +152,25 @@ client.addCommandListener(function(client, cmd){
     if (cmd instanceof ServerMedia){
         console.log(`Got server media bunches=${cmd.bunches} index=${cmd.index} numFiles=${cmd.numFiles}`, cmd.files);
 
+        const promises = [];
         Object.keys(cmd.files).forEach(filename => {
             const hash = hashes[filename];
             const data = cmd.files[filename];
-            mediaManager.addMedia(hash, filename, data);
+            const p = mediaManager.addMedia(hash, filename, data);
+            promises.push(p);
+        });
+
+        Promise.all(promises).then(() => {
+            if (cmd.index+1 == cmd.bunches){
+                hasAllMedia = true;
+                checkClientReady();
+            }
         });
     }
 
     if (cmd instanceof ServerCSMRestrictionFlags){
         console.log("Got CSM restriction flags");
-        client.sendCommand(new ClientReady());
-
-        const ppos = new ClientPlayerPos();
-        ppos.fov = 149;
-        ppos.requestViewRange = 13;
-        client.sendCommand(ppos, PacketType.Original);
+        checkClientReady();
     }
 
     if (cmd instanceof ServerBlockData){
