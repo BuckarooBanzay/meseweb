@@ -12,3 +12,7 @@ const ws = new WebSocket(`ws://127.0.0.1:8080/api/ws?host=${host}&port=${port}`)
 const cmdClient = new CommandClient(ws);
 const client = new Client(cmdClient, username, password);
 client.init();
+
+window.addEventListener('beforeunload', function() {
+    client.close();
+});

@@ -46,6 +46,10 @@ export class Client {
         this.cmdClient.addCommandListener(this.onCommand.bind(this));
     }
 
+    close() {
+        this.cmdClient.close();
+    }
+
     checkClientReady() {
         if (this.clientReadyTriggered || !this.hasAllMedia) {
             return;
