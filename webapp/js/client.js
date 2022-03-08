@@ -19,7 +19,7 @@ import { ServerSRPBytesSB } from "./commands/server_srp_bytes_s_b.js";
 import { ServerTimeOfDay } from "./commands/server_time_of_day.js";
 import { MediaManager } from "./media/mediamanager.js";
 import { PacketType } from "./packet/types.js";
-import { TextureManager } from "./texturemanager.js";
+import { TextureManager } from "./media/texturemanager.js";
 import { arrayToHex, hexToArray } from "./util/hex.js";
 import { Scene } from "./scene.js";
 

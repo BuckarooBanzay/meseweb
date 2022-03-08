@@ -13,12 +13,12 @@ export class Scene {
 
         this.controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );
         this.controls.listenToKeyEvents(document.body);
-        this.controls.enableDamping = true;
-        this.controls.dampingFactor = 0.05;
-        this.controls.screenSpacePanning = false;
+        //this.controls.enableDamping = true;
+        //this.controls.dampingFactor = 0.05;
+        //this.controls.screenSpacePanning = false;
         this.controls.minDistance = 5;
         this.controls.maxDistance = 500;
-        this.controls.maxPolarAngle = Math.PI / 2;
+        //this.controls.maxPolarAngle = Math.PI / 2;
 
         const geometry = new THREE.BoxGeometry();
         const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
@@ -46,6 +46,23 @@ export class Scene {
     }
 
     updateMapblock(pos, blockdata) {
+        if (pos.X == -12 && pos.Y == 0 && pos.Z == -12) {
+            const renderMaterial = nodeid => {
+                this.textureManager.getMaterial(nodeid).then(material => {
+                    if (!material){
+                        return;
+                    }
+                    console.log(`material for id=${nodeid}`, material);
+
+                    const sideGeometry = new THREE.PlaneGeometry(1,1);
+                    const cube = new THREE.Mesh( sideGeometry, material );
+                    cube.translateX(nodeid+1);
+                    this.scene.add( cube );
+                });
+            };
+
+            Object.keys(this.nodedefs.nodeMapping).forEach(nodeid => renderMaterial(+nodeid));
+        }
         // TODO
     }
 
