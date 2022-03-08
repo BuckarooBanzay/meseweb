@@ -1,4 +1,4 @@
-import { Client } from './client.js';
+import { CommandClient } from './command_client.js';
 
 QUnit.module("client");
 QUnit.test("emits events properly", assert => {
@@ -21,7 +21,7 @@ QUnit.test("emits events properly", assert => {
         }
     };
 
-    const c = new Client(mockSocket);
+    const c = new CommandClient(mockSocket);
     openFn();
     assert.equal(closed, false, "not closed");
     assert.equal(sentMessages.length, 1, "sent INIT");

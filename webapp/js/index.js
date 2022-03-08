@@ -1,5 +1,5 @@
 
-import { Client } from "./client.js";
+import { CommandClient } from "./command_client.js";
 import { ClientFirstSRP } from "./commands/client_first_srp.js";
 import { ClientInit } from "./commands/client_init.js";
 import { ClientInit2 } from "./commands/client_init2.js";
@@ -40,8 +40,8 @@ let hashes = {};
 
 let nodedefs, textureManager, mapblockCount = 0;
 
-const client = new Client(ws);
-client.addReadyListener(function(c){
+const cmdClient = new CommandClient(ws);
+cmdClient.addReadyListener(function(c){
     setTimeout(function(){
         console.log("Sending INIT");
         c.sendCommand(new ClientInit(username), PacketType.Original);
@@ -60,15 +60,15 @@ function checkClientReady() {
     clientReadyTriggered = true;
 
     console.log(`Sending CLIENT_READY`);
-    client.sendCommand(new ClientReady());
+    cmdClient.sendCommand(new ClientReady());
 
     const ppos = new ClientPlayerPos();
     ppos.fov = 149;
     ppos.requestViewRange = 13;
-    client.sendCommand(ppos, PacketType.Original);
+    cmdClient.sendCommand(ppos, PacketType.Original);
 }
 
-client.addCommandListener(function(client, cmd){
+cmdClient.addCommandListener(function(client, cmd){
     //console.log(`Received command: ${JSON.stringify(cmd)}`)
     if (cmd instanceof ServerHello){
         console.log(`Got server hello, protocol=${cmd.protocolVersion}`);

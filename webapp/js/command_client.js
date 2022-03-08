@@ -6,7 +6,7 @@ import { createCommandPacket, createDisconnect, createPeerInit } from "./packet/
 import { SplitPacketHandler } from "./packet/splitpackethandler.js";
 import { ControlType, PacketType } from "./packet/types.js";
 
-export class Client {
+export class CommandClient {
     constructor(ws){
         this.packetListeners = [];
         this.readyListeners = [];
