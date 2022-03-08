@@ -17,11 +17,11 @@ import { ServerMedia } from "./commands/server_media.js";
 import { ServerNodeDefinitions } from "./commands/server_node_definitions.js";
 import { ServerSRPBytesSB } from "./commands/server_srp_bytes_s_b.js";
 import { ServerTimeOfDay } from "./commands/server_time_of_day.js";
-//import { MapblockView } from "./mapblockview.js";
 import { MediaManager } from "./media/mediamanager.js";
 import { PacketType } from "./packet/types.js";
 import { TextureManager } from "./texturemanager.js";
 import { arrayToHex, hexToArray } from "./util/hex.js";
+import { Scene } from "./scene.js";
 
 export class Client {
     constructor(cmdClient, username, password) {
@@ -29,6 +29,7 @@ export class Client {
         this.username = username;
         this.password = password;
 
+        this.scene = new Scene();
         this.mediaManager = new MediaManager();
         this.eph = srp.generateEphemeral();
         // filename -> hash
@@ -50,6 +51,8 @@ export class Client {
             return;
         }
         this.clientReadyTriggered = true;
+
+        this.scene.init(this.textureManager, this.nodedefs);
     
         console.log(`Sending CLIENT_READY`);
         this.cmdClient.sendCommand(new ClientReady());
@@ -166,11 +169,8 @@ export class Client {
         }
     
         if (cmd instanceof ServerBlockData){
-            console.log(`Got block data ${cmd.blockPos.X}/${cmd.blockPos.Y}/${cmd.blockPos.Z}`, cmd.blockData.blockMapping);
-    
-            //const view = new MapblockView(scene, cmd, textureManager, nodedefs);
-            //await view.render();
-            //mapblockCount++;
+            console.log(`Got block data ${cmd.blockPos.X}/${cmd.blockPos.Y}/${cmd.blockPos.Z}`, cmd.blockData.blockMapping);    
+            this.scene.updateMapblock(cmd.blockPos, cmd.blockData);
         }
     }
 

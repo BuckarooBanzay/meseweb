@@ -7,18 +7,18 @@ export class Scene {
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
-        //document.body.appendChild(this.stats.dom);
 
-        /*
+        this.stats = new Stats();
+        document.body.appendChild(this.stats.dom);
+
         this.controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );
         this.controls.listenToKeyEvents(document.body);
-        this.controls.enableDamping = true
-        this.controls.dampingFactor = 0.05
-        this.controls.screenSpacePanning = false
-        this.controls.minDistance = 5
-        this.controls.maxDistance = 500
-        this.controls.maxPolarAngle = Math.PI / 2
-        */
+        this.controls.enableDamping = true;
+        this.controls.dampingFactor = 0.05;
+        this.controls.screenSpacePanning = false;
+        this.controls.minDistance = 5;
+        this.controls.maxDistance = 500;
+        this.controls.maxPolarAngle = Math.PI / 2;
 
         const geometry = new THREE.BoxGeometry();
         const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
@@ -40,12 +40,21 @@ export class Scene {
         this.renderer.render(this.scene, this.camera);
     }
 
-    animate(){
-        //this.stats.begin()
-        this.renderer.render(this.scene, this.camera);
-        //this.stats.end()
+    init(textureManager, nodedefs) {
+        this.textureManager = textureManager;
+        this.nodedefs = nodedefs;
+    }
 
-        //this.controls.update();
+    updateMapblock(pos, blockdata) {
+        // TODO
+    }
+
+    animate(){
+        this.stats.begin();
+        this.renderer.render(this.scene, this.camera);
+        this.stats.end();
+
+        this.controls.update();
 
         requestAnimationFrame(() => this.animate());
     }

@@ -7,6 +7,7 @@
     "Zlib": true,
     "srp": true,
     "THREE": true,
+    "Stats": true,
     "Dexie": true,
     "console": true,
     "QUnit": true
