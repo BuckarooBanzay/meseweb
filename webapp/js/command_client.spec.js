@@ -1,6 +1,6 @@
 import { CommandClient } from './command_client.js';
 
-QUnit.module("client");
+QUnit.module("command_client");
 QUnit.test("emits events properly", assert => {
     var openFn, messageFn;
     let closed = false;

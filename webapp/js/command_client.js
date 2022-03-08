@@ -24,6 +24,7 @@ export class CommandClient {
     }
 
     onOpen() {
+        this.open = true;
         console.log("websocket opened");
         this.sendPacket(createPeerInit());
         this.readyListeners.forEach(l => l(this));
@@ -34,35 +35,36 @@ export class CommandClient {
         this.ws.close();
     }
 
-    async onMessage(ev) {
-        const ab = await ev.data.arrayBuffer();
-        const buf = new Uint8Array(ab);
-        const p = unmarshal(buf);
-        //console.log("RX>>> " + p, p)
-
-        // emit packet events
-        this.packetListeners.forEach(h => h(this, p));
-
-        if (p.packetType == PacketType.Reliable){
-            if (p.controlType == ControlType.SetPeerID){
-                // set peer id
-                this.peerId = p.peerId;
-                console.log("Set peerId to " + this.peerId);
-                return;
-            }
-
-            if (p.subtype == PacketType.Original){
-                this.parseCommandPayload(p.payloadView);
-            }
-
-            if (p.subtype == PacketType.Split) {
-                const payload = this.splitHandler.AddSplitPacket(p);
-                if (payload != null) {
-                    // all split parts arrived
-                    this.parseCommandPayload(new DataView(payload.buffer));
+    onMessage(ev) {
+        ev.data.arrayBuffer().then(ab => {
+            const buf = new Uint8Array(ab);
+            const p = unmarshal(buf);
+            //console.log("RX>>> " + p, p)
+    
+            // emit packet events
+            this.packetListeners.forEach(h => h(this, p));
+    
+            if (p.packetType == PacketType.Reliable){
+                if (p.controlType == ControlType.SetPeerID){
+                    // set peer id
+                    this.peerId = p.peerId;
+                    console.log("Set peerId to " + this.peerId);
+                    return;
+                }
+    
+                if (p.subtype == PacketType.Original){
+                    this.parseCommandPayload(p.payloadView);
+                }
+    
+                if (p.subtype == PacketType.Split) {
+                    const payload = this.splitHandler.AddSplitPacket(p);
+                    if (payload != null) {
+                        // all split parts arrived
+                        this.parseCommandPayload(new DataView(payload.buffer));
+                    }
                 }
             }
-        }
+        });
     }
 
     parseCommandPayload(dv){
@@ -116,6 +118,12 @@ export class CommandClient {
     }
 
     addReadyListener(h){
-        this.readyListeners.push(h);
+        if (this.open) {
+            // already open/ready
+            h(this);
+        } else {
+            // defer until open
+            this.readyListeners.push(h);
+        }
     }
 }
