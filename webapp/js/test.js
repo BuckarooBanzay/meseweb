@@ -10,3 +10,4 @@ import './commands/server_block_data.spec.js';
 import './commands/server_node_definitions.spec.js';
 import './command_client.spec.js';
 import './media/mediamanager.spec.js';
+import './types/pos.spec.js';

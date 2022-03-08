@@ -9,4 +9,8 @@ export class Pos {
     add(pos){
         return new Pos(this.X+pos.X, this.Y+pos.Y, this.Z+pos.Z);
     }
+
+    toString() {
+        return `${this.X}/${this.Y}/${this.Z}`;
+    }
 }
