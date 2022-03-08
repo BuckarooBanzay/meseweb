@@ -146,7 +146,7 @@ export class Client {
     
             const promises = [];
             Object.keys(cmd.files).forEach(filename => {
-                const hash = hashes[filename];
+                const hash = this.hashes[filename];
                 const data = cmd.files[filename];
                 const p = this.mediaManager.addMedia(hash, filename, data);
                 promises.push(p);
