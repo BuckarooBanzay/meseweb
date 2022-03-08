@@ -19,6 +19,11 @@ export class Scene {
         this.controls.maxDistance = 500
         this.controls.maxPolarAngle = Math.PI / 2
         */
+
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+        const cube = new THREE.Mesh( geometry, material );
+        this.scene.add( cube );
     
         this.camera.position.z = 30;
         this.camera.position.x = 5;

@@ -7,13 +7,17 @@ export class MediaManager extends Dexie {
         });
     }
 
+    clear() {
+        return this.media.clear();
+    }
+
     getMediaCount() {
         return this.media.count();
     }
 
     addMedia(hash, filename, data){
             // only store if not already in cache
-            this.media
+            return this.media
             .where("hash")
             .equalsIgnoreCase(hash)
             .first()
