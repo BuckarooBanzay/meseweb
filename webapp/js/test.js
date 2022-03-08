@@ -8,3 +8,4 @@ import './util/hex.spec.js';
 import './commands/server_auth_accept.spec.js';
 import './commands/server_block_data.spec.js';
 import './commands/server_node_definitions.spec.js';
+import './client.spec.js';
