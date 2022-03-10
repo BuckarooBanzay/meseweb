@@ -1,4 +1,8 @@
 
+/**
+ * @param {*} pos the position as object
+ * @returns {number} the node position
+ */
 export function getNodePos(pos) {
     return pos.X + (pos.Y * 16) + (pos.Z * 256);
 }

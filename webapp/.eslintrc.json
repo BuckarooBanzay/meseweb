@@ -1,0 +1,22 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "globals": {
+        "Zlib": true,
+        "srp": true,
+        "THREE": true,
+        "Stats": true,
+        "Dexie": true,
+        "console": true,
+        "QUnit": true
+    },
+    "extends": ["plugin:jsdoc/recommended"],
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module"
+    },
+    "rules": {
+    }
+}
