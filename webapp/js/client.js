@@ -22,6 +22,7 @@ import { PacketType } from "./packet/types.js";
 import { TextureManager } from "./media/texturemanager.js";
 import { arrayToHex, hexToArray } from "./util/hex.js";
 import { Scene } from "./scene.js";
+import { Pos } from "./types/pos.js";
 
 export class Client {
     constructor(cmdClient, username, password) {
@@ -34,6 +35,8 @@ export class Client {
         this.eph = srp.generateEphemeral();
         // filename -> hash
         this.hashes = {};
+
+        this.pos = new Pos(0,0,0);
     }
 
     init() {
@@ -64,6 +67,9 @@ export class Client {
         const ppos = new ClientPlayerPos();
         ppos.fov = 149;
         ppos.requestViewRange = 13;
+        ppos.posX = this.pos.X;
+        ppos.posY = this.pos.Y;
+        ppos.posZ = this.pos.Z;
         this.cmdClient.sendCommand(ppos, PacketType.Original);
     }
     
@@ -108,6 +114,9 @@ export class Client {
     
         if (cmd instanceof ServerAuthAccept) {
             console.log(`Server access granted, seed=${cmd.seed} x=${cmd.posX}, y=${cmd.posY}, z=${cmd.posZ}`);
+            this.pos.X = cmd.posX;
+            this.pos.Y = cmd.posY;
+            this.pos.Z = cmd.posZ;
             client.sendCommand(new ClientInit2());
         }
     
