@@ -26,6 +26,7 @@ services:
     user: root
     volumes:
     - "world_data:/root/.minetest/worlds/world"
+    - "./minetest.conf:/etc/minetest/minetest.conf"
     ports:
     - "30000:30000/udp"
     command: ["/usr/local/bin/minetestserver", "--config", "/etc/minetest/minetest.conf", "--verbose"]
