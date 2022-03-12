@@ -56,6 +56,15 @@ export class Scene {
         this.renderer.render(this.scene, this.camera);
     }
 
+    setCameraPosition(pos){
+        this.camera.position.z = pos.Z;
+        this.camera.position.x = pos.X;
+        this.camera.position.y = pos.Y;
+        this.controls.target.set(pos.X, pos.Y, pos.Z);
+        this.controls.update();
+        console.log(`Setting camera position to ${pos}`);
+    }
+
     init(textureManager, nodedefs) {
         this.textureManager = textureManager;
         this.nodedefs = nodedefs;
@@ -84,7 +93,7 @@ export class Scene {
         this.solidNodeIds = {};
         Object.keys(this.nodedefs.nodeMapping).forEach(nodeId => {
             const nodedef = this.nodedefs.nodeMapping[nodeId];
-            if (nodedef.drawType == NodeDrawType.NDT_NORMAL) {
+            if (nodedef.drawType == NodeDrawType.NDT_NORMAL || nodedef.drawType == NodeDrawType.NDT_ALLFACES_OPTIONAL) {
                 this.solidNodeIds[nodeId] = true;
             }
         });

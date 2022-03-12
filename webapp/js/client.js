@@ -16,6 +16,7 @@ import { ServerHello } from "./commands/server_hello.js";
 import { ServerMedia } from "./commands/server_media.js";
 import { ServerNodeDefinitions } from "./commands/server_node_definitions.js";
 import { ServerSRPBytesSB } from "./commands/server_srp_bytes_s_b.js";
+import { ServerMovePlayer } from "./commands/server_move_player.js";
 import { ServerTimeOfDay } from "./commands/server_time_of_day.js";
 import { MediaManager } from "./media/mediamanager.js";
 import { PacketType } from "./packet/types.js";
@@ -117,6 +118,7 @@ export class Client {
             this.pos.X = cmd.posX;
             this.pos.Y = cmd.posY;
             this.pos.Z = cmd.posZ;
+            this.scene.setCameraPosition(this.pos);
             client.sendCommand(new ClientInit2());
         }
     
@@ -179,6 +181,13 @@ export class Client {
         if (cmd instanceof ServerCSMRestrictionFlags){
             console.log("Got CSM restriction flags");
             this.checkClientReady();
+        }
+
+        if (cmd instanceof ServerMovePlayer){
+            this.pos.X = cmd.posX;
+            this.pos.Y = cmd.posY;
+            this.pos.Z = cmd.posZ;
+            this.scene.setCameraPosition(this.pos);
         }
     
         if (cmd instanceof ServerBlockData){

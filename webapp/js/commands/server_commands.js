@@ -9,6 +9,7 @@ import { ServerSRPBytesSB } from "./server_srp_bytes_s_b.js";
 import { ServerTimeOfDay } from "./server_time_of_day.js";
 import { ServerCSMRestrictionFlags } from "./server_csm_restriction_flags.js";
 import { ServerBlockData } from "./server_block_data.js";
+import { ServerMovePlayer } from "./server_move_player.js";
 
 export function getServerCommand(commandId) {
     switch (commandId) {
@@ -19,6 +20,7 @@ export function getServerCommand(commandId) {
         case 0x2A: return new ServerCSMRestrictionFlags();
         case 0x29: return new ServerTimeOfDay();
         case 0x2F: return new ServerChatMessage();
+        case 0x34: return new ServerMovePlayer();
         case 0x3A: return new ServerNodeDefinitions();
         case 0x3C: return new ServerAnnounceMedia();
         case 0x38: return new ServerMedia();
