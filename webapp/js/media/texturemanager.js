@@ -1,4 +1,13 @@
 
+const dirKeyTileIndexMap = {
+    "+y": 0,
+    "-y": 1,
+    "+x": 2,
+    "-x": 3,
+    "+z": 4,
+    "-z": 5
+};
+
 export class TextureManager {
     constructor(mediaManager, nodedefs){
         this.mediaManager = mediaManager;
@@ -6,12 +15,12 @@ export class TextureManager {
         this.cache = {};
     }
 
-    getCacheKey(nodeid) {
-        return "" + nodeid;
+    getCacheKey(nodeid, dirKey) {
+        return `${nodeid}/${dirKey}`;
     }
 
-    getMaterial(nodeid) {
-        const cachekey = this.getCacheKey(nodeid);
+    getMaterial(nodeid, dirKey) {
+        const cachekey = this.getCacheKey(nodeid, dirKey);
         const cacheMaterial = this.cache[cachekey];
         if (cacheMaterial != undefined){
             return Promise.resolve(cacheMaterial);
@@ -21,7 +30,9 @@ export class TextureManager {
         if (!nodedef){
             return Promise.resolve();
         }
-        let textureName = nodedef.tileDefs[0].name;
+        const tileIndex = dirKeyTileIndexMap[dirKey];
+        const tileDef = nodedef.tileDefs[tileIndex];
+        let textureName = tileDef.name;
         //console.log(`Trying to resolve texture from '${nodedef.name}' textureName=${textureName}`);
         if (textureName.includes("^")) {
             textureName = textureName.split("^")[0];
@@ -42,7 +53,8 @@ export class TextureManager {
             const material = new THREE.MeshBasicMaterial({
                 color: 0xffffff,
                 map: texture,
-                side: THREE.DoubleSide
+                side: THREE.FrontSide,
+                transparent: true
             });
 
             //console.log(`Created new material from nodeid=${nodeid} texture=${textureName}`);

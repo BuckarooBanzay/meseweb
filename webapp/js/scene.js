@@ -171,11 +171,11 @@ export class Scene {
         console.log(`Rendering mapblock ${pos.toString()}`, blockdata, faces);
 
         const rotations = {
-            "-x": new THREE.Matrix4().makeRotationY(Math.PI/2),
+            "-x": new THREE.Matrix4().makeRotationY(-Math.PI/2),
             "+x": new THREE.Matrix4().makeRotationY(Math.PI/2),
             "-y": new THREE.Matrix4().makeRotationX(Math.PI/2),
-            "+y": new THREE.Matrix4().makeRotationX(Math.PI/2),
-            "-z": new THREE.Matrix4(),
+            "+y": new THREE.Matrix4().makeRotationX(-Math.PI/2),
+            "-z": new THREE.Matrix4().makeRotationX(Math.PI),
             "+z": new THREE.Matrix4()
         };
 
@@ -189,27 +189,26 @@ export class Scene {
         };
 
         Object.keys(faces).forEach(nodeId => {
-            this.textureManager.getMaterial(nodeId)
-            .then(material => {
-                if (!material){
+            const dirMap = faces[nodeId];
+            Object.keys(dirMap).forEach(dirKey => {
+                const poslist = dirMap[dirKey];
+                if (poslist.length == 0){
                     return;
                 }
-                const dirMap = faces[nodeId];
-                Object.keys(dirMap).forEach(dirKey => {
-                    const poslist = dirMap[dirKey];
-                    if (poslist.length == 0){
+
+                this.textureManager.getMaterial(nodeId, dirKey)
+                .then(material => {
+                    if (!material){
                         return;
-                    }
+                    }    
 
                     const rotation = rotations[dirKey];
                     const face_offset = face_offsets[dirKey];
-    
+
                     const instanced_mesh = this.createdInstancedMesh(material, block_offset, poslist, rotation, face_offset);
                     this.scene.add(instanced_mesh);
-    
                 });
-
-            });                
+            });
         });
     }
 
