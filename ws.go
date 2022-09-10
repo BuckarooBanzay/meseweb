@@ -60,7 +60,7 @@ func (t *WS) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 				return
 			}
 
-			fmt.Printf("Relaying %d bytes to the websocket\n", len)
+			//fmt.Printf("Relaying %d bytes to the websocket\n", len)
 			err = conn.WriteMessage(websocket.BinaryMessage, buf[:len])
 			if err != nil {
 				err_chan <- err
@@ -78,7 +78,7 @@ func (t *WS) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 				return
 			}
 
-			fmt.Printf("Relaying %d bytes to the udp socket\n", len(data))
+			//fmt.Printf("Relaying %d bytes to the udp socket\n", len(data))
 			_, err = udp_conn.Write(data)
 			if err != nil {
 				err_chan <- err

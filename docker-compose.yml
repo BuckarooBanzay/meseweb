@@ -2,7 +2,7 @@ version: "2.0"
 
 services:
   webapp:
-    image: node:17.5.0
+    image: node:18.9.0
     volumes:
      - "./webapp:/app"
     user: node
@@ -10,7 +10,7 @@ services:
     command: "bash -c 'npm ci'"
   
   server:
-    image: golang:1.17.7
+    image: golang:1.19.1
     restart: always
     volumes:
      - "./:/app"
@@ -22,14 +22,14 @@ services:
     command: "go run ."
 
   minetest:
-    image: registry.gitlab.com/minetest/minetest/server:5.4.0
+    image: registry.gitlab.com/minetest/minetest/server:5.6.0
     user: root
     volumes:
     - "world_data:/root/.minetest/worlds/world"
     - "./minetest.conf:/etc/minetest/minetest.conf"
     ports:
     - "30000:30000/udp"
-    command: ["/usr/local/bin/minetestserver", "--config", "/etc/minetest/minetest.conf", "--verbose"]
+    command: ["/usr/local/bin/minetestserver", "--config", "/etc/minetest/minetest.conf"]
 
 volumes:
   world_data: {}
