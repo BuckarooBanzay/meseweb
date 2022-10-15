@@ -54,7 +54,7 @@ export class TextureManager {
                 color: 0xffffff,
                 map: texture,
                 side: THREE.FrontSide,
-                //transparent: true
+                transparent: true
             });
 
             //console.log(`Created new material from nodeid=${nodeid} texture=${textureName}`);
