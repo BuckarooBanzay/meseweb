@@ -2,15 +2,13 @@ import { CommandClient } from './command_client.js';
 
 QUnit.module("command_client");
 QUnit.test("emits events properly", assert => {
-    var openFn, messageFn;
+    var openFn;
     let closed = false;
     let sentMessages = [];
     const mockSocket = {
         addEventListener(key, fn){
             if (key == "open"){
                 openFn = fn;
-            } else if (key == "message") {
-                messageFn = fn;
             }
         },
         send(buf){
