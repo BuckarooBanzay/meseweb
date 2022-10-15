@@ -24,6 +24,7 @@ import { TextureManager } from "./media/texturemanager.js";
 import { arrayToHex, hexToArray } from "./util/hex.js";
 import { Scene } from "./scene.js";
 import { Pos } from "./types/pos.js";
+import { ServerMinimapModes } from "./commands/server_minimap_modes.js";
 
 export class Client {
     constructor(cmdClient, username, password) {
@@ -120,6 +121,10 @@ export class Client {
             this.pos.Z = cmd.posZ;
             this.scene.setCameraPosition(this.pos);
             client.sendCommand(new ClientInit2());
+        }
+
+        if (cmd instanceof ServerMinimapModes) {
+            console.log(`Minimap-modes`);
         }
     
         if (cmd instanceof ServerAnnounceMedia){
