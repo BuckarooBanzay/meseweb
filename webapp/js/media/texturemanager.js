@@ -50,11 +50,11 @@ export class TextureManager {
             });
             texture.magFilter = THREE.NearestFilter;
 
-            const material = new THREE.MeshBasicMaterial({
+            const material = new THREE.MeshLambertMaterial({
                 color: 0xffffff,
                 map: texture,
                 side: THREE.FrontSide,
-                transparent: true
+                //transparent: true
             });
 
             //console.log(`Created new material from nodeid=${nodeid} texture=${textureName}`);

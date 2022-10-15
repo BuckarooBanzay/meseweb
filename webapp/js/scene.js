@@ -45,6 +45,11 @@ export class Scene {
         this.camera.position.x = 5;
         this.camera.position.y = 2;
 
+        const light = new THREE.DirectionalLight( 0xffffff, 0.9 );
+        light.position.set( -0.2, 1, -0.2 );
+        light.castShadow = true;
+        this.scene.add( light );
+
         this.animate();
         window.addEventListener("resize", () => this.onWindowResize(), false);
     }
@@ -155,6 +160,7 @@ export class Scene {
 
     createdInstancedMesh(material, block_offset, poslist, rotation, face_offset) {
         const instanced_mesh = new THREE.InstancedMesh(side_geometry, material, poslist.length);
+        instanced_mesh.receiveShadow = true;
 
         for (let i=0; i<poslist.length; i++){
             const pos = poslist[i].add(block_offset).add(face_offset);
