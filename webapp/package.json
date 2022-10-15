@@ -5,15 +5,13 @@
   "main": "js/index.js",
   "scripts": {
     "bundle": "rollup -c rollup.config.js",
-    "lint": "eslint js",
-    "watch": "rollup -c rollup.config.js --watch"
+    "lint": "eslint js"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "eslint": "^8.10.0",
     "eslint-plugin-jsdoc": "^37.9.7",
-    "jsdoc": "^3.6.10",
     "qunit": "^2.18.0",
     "rollup": "^2.67.2"
   },
