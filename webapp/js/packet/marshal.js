@@ -98,8 +98,12 @@ export function unmarshal(buf) {
     p.packetType = dv.getUint8(7);
     
     switch (p.packetType){
-        case PacketType.Reliable:
         case PacketType.Original:
+            p.payload = buf.subarray(8);
+            p.payloadView = new DataView(buf.buffer, 8);
+            return p;
+
+        case PacketType.Reliable:
             p.seqNr = dv.getUint16(8);
             p.subtype = dv.getUint8(10);
 

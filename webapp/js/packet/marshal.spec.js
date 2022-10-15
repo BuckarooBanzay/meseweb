@@ -1,4 +1,4 @@
-import { marshal } from "./marshal.js";
+import { marshal, unmarshal } from "./marshal.js";
 import { createAck } from "./packetfactory.js";
 import { Packet, PacketType } from './types.js';
 
@@ -24,3 +24,18 @@ QUnit.test("creates a proper ack", assert => {
     assert.equal(dv.getUint16(4), 55);
     assert.equal(dv.getUint16(9), srcp.seqNr);
 });
+
+QUnit.test("properly unmarshals a packet", assert => {
+    // TOCLIENT_SET_LIGHTING
+    const data = [
+        0x4f,0x45,0x74,0x3, //protocol id
+        0x0,0x1,  // peerID
+        0x0, // channel
+        0x1, // packet type
+        0x0,0x63, // command id
+        0x3e,0xf0,0x49,0xb1
+    ];
+    const buf = new Uint8Array(data);
+    const pkg = unmarshal(buf);
+    assert.equal(pkg.payload.length, 6);
+})
