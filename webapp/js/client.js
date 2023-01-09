@@ -33,7 +33,7 @@ export class Client {
         this.password = password;
 
         this.scene = new Scene();
-        this.mediaManager = new MediaManager();
+        this.mediaManager = new MediaManager("meseweb_media");
         this.eph = srp.generateEphemeral();
         // filename -> hash
         this.hashes = {};
@@ -41,14 +41,59 @@ export class Client {
         this.pos = new Pos(0,0,0);
     }
 
+    // Start the client connection
     init() {
-        this.cmdClient.addReadyListener(c => {
-            setTimeout(() => {
-                console.log("Sending INIT");
-                c.sendCommand(new ClientInit(this.username), PacketType.Original);
-            }, 100);
+        this.cmdClient.addReadyListener(client => {
+            setTimeout(() => this.doInit(client), 100);
         });
         this.cmdClient.addCommandListener(this.onCommand.bind(this));
+    }
+
+    // handles credential/proof exchange
+    doInit(client) {
+        console.log("Sending INIT");
+        client.sendCommand(new ClientInit(this.username), PacketType.Original);
+
+        client.waitForCommand(ServerHello)
+        .then(cmd => {
+            console.log(`Got server hello, protocol=${cmd.protocolVersion}`);
+
+            if (cmd.authMechanismFirstSrp) {
+                const salt = srp.generateSalt();
+                const privateKey = srp.derivePrivateKey(salt, this.username, this.password);
+                const verifier = srp.deriveVerifier(privateKey);
+                client.sendCommand(new ClientFirstSRP(hexToArray(salt), hexToArray(verifier)));
+    
+            } else if (cmd.authMechanismSrp) {
+                const a = hexToArray(this.eph.public);
+                client.sendCommand(new ClientSRPBytesA(a));
+            }
+
+            return client.waitForCommand(ServerSRPBytesSB);
+        })
+        .then(cmd => {
+            console.log("Got server bytes S+B");
+
+            const serverSalt = arrayToHex(cmd.bytesS);
+            const serverPublic = arrayToHex(cmd.bytesB);
+    
+            const privateKey = srp.derivePrivateKey(serverSalt, this.username, this.password);
+            const clientSession = srp.deriveSession(this.eph.secret, serverPublic, serverSalt, this.username, privateKey);
+    
+            const proof = hexToArray(clientSession.proof);
+            client.sendCommand(new ClientSRPBytesM(proof));
+
+            return client.waitForCommand(ServerAuthAccept);
+        })
+        .then(cmd => {
+            console.log(`Server access granted, seed=${cmd.seed} x=${cmd.posX}, y=${cmd.posY}, z=${cmd.posZ}`);
+            this.pos.X = cmd.posX;
+            this.pos.Y = cmd.posY;
+            this.pos.Z = cmd.posZ;
+            this.scene.setCameraPosition(this.pos);
+            client.sendCommand(new ClientInit2());
+        })
+        .catch(e => console.error(e));
     }
 
     close() {
@@ -77,50 +122,12 @@ export class Client {
     
 
     onCommand(client, cmd){
-        if (cmd instanceof ServerHello){
-            console.log(`Got server hello, protocol=${cmd.protocolVersion}`);
-    
-            if (cmd.authMechanismFirstSrp) {
-                const salt = srp.generateSalt();
-                const privateKey = srp.derivePrivateKey(salt, this.username, this.password);
-                const verifier = srp.deriveVerifier(privateKey);
-                client.sendCommand(new ClientFirstSRP(hexToArray(salt), hexToArray(verifier)));
-    
-            } else if (cmd.authMechanismSrp) {
-                const a = hexToArray(this.eph.public);
-                client.sendCommand(new ClientSRPBytesA(a));
-    
-            }
-        }
-    
-        if (cmd instanceof ServerSRPBytesSB) {
-            console.log("Got server bytes S+B");
-    
-            const serverSalt = arrayToHex(cmd.bytesS);
-            const serverPublic = arrayToHex(cmd.bytesB);
-    
-            const privateKey = srp.derivePrivateKey(serverSalt, this.username, this.password);
-            const clientSession = srp.deriveSession(this.eph.secret, serverPublic, serverSalt, this.username, privateKey);
-    
-            const proof = hexToArray(clientSession.proof);
-            client.sendCommand(new ClientSRPBytesM(proof));
-        }
-    
         if (cmd instanceof ServerTimeOfDay) {
             console.log("Got server time of day: " + cmd.timeOfday);
         }
     
         if (cmd instanceof ServerAccessDenied) {
             console.log("Server access denied");
-        }
-    
-        if (cmd instanceof ServerAuthAccept) {
-            console.log(`Server access granted, seed=${cmd.seed} x=${cmd.posX}, y=${cmd.posY}, z=${cmd.posZ}`);
-            this.pos.X = cmd.posX;
-            this.pos.Y = cmd.posY;
-            this.pos.Z = cmd.posZ;
-            this.scene.setCameraPosition(this.pos);
-            client.sendCommand(new ClientInit2());
         }
 
         if (cmd instanceof ServerMinimapModes) {

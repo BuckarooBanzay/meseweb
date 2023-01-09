@@ -1,7 +1,7 @@
 
 export class MediaManager extends Dexie {
-    constructor(){
-        super("mediacache");
+    constructor(dbname){
+        super(dbname);
         this.version(1).stores({
             media: "++id,hash,filename,size,data"
         });

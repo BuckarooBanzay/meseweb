@@ -117,6 +117,10 @@ export class CommandClient {
         this.commandListeners.push(h);
     }
 
+    removeCommandListener(h) {
+        this.commandListeners = this.commandListeners.filter(l => l != h);
+    }
+
     addReadyListener(h){
         if (this.open) {
             // already open/ready
@@ -125,5 +129,29 @@ export class CommandClient {
             // defer until open
             this.readyListeners.push(h);
         }
+    }
+
+    /**
+     * waits for the specified command
+     * @param {Command Type} type 
+     * @param {number} timeout_millis (default 5 seconds)
+     * @returns Promise<Command>
+     */
+    waitForCommand(type, timeout_millis) {
+        return new Promise((resolve, reject) => {
+            const listener = (client, cmd) => {
+                if (cmd instanceof type) {
+                    resolve(cmd);
+                    this.removeCommandListener(listener);
+                }
+            };
+
+            this.addCommandListener(listener);
+
+            setTimeout(() => {
+                this.removeCommandListener(listener);
+                reject(new Error("timed out"));
+            }, timeout_millis || 5000);
+        });
     }
 }

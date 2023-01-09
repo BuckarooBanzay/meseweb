@@ -4,7 +4,7 @@ QUnit.module("mediamanager");
 QUnit.test("stores the assets properly", assert => {
     assert.timeout(1000);
     const done = assert.async();
-    const mmgr = new MediaManager();
+    const mmgr = new MediaManager("meseweb_testmedia");
 
     mmgr.clear()
     .then(() => mmgr.getMediaCount())
