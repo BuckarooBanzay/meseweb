@@ -6,7 +6,8 @@
   "scripts": {
     "build": "webpack --mode production",
     "watch": "webpack --mode development --watch",
-    "test": "jest"
+    "test": "jest",
+    "coverage": "jest --coverage"
   },
   "author": "",
   "license": "MIT",
