@@ -1,6 +1,6 @@
 import { marshal, unmarshal } from "../packet/marshal";
 import { Packet } from "../packet/Packet";
-import { createCommandPacket, createDisconnect } from "../packet/packetfactory";
+import { createAck, createCommandPacket, createDisconnect } from "../packet/packetfactory";
 import { setSeqNr } from "../packet/sequence";
 import { SplitPacketHandler } from "../packet/splitpackethandler";
 import { ControlType, PacketType } from "../packet/types";
@@ -26,8 +26,13 @@ export class CommandClient {
         ev.data.arrayBuffer().then(ab => {
             const buf = new Uint8Array(ab);
             const p = unmarshal(buf);
-            console.log(p)
+
             if (p.packetType == PacketType.Reliable){
+                // send ack
+                const ack = createAck(p, this.peerId)
+                ack.channel = p.channel
+                this.SendPacket(ack)
+
                 if (p.controlType == ControlType.SetPeerID){
                     // set peer id
                     this.peerId = p.peerId;
