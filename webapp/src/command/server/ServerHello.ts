@@ -3,11 +3,11 @@ import { ServerCommand } from "../ServerCommand";
 
 export class ServerHello implements ServerCommand {
 
-    serializationVersion = 0
-    compressionMode = 0
-    protocolVersion = 0
-    authMechanismSrp = false
-    authMechanismFirstSrp = false
+    serializationVersion!: number
+    compressionMode!: number
+    protocolVersion!: number
+    authMechanismSrp!: boolean
+    authMechanismFirstSrp!: boolean
 
     UnmarshalPacket(dv: DataView): void {
         const ph = new PayloadHelper(dv);

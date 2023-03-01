@@ -1,7 +1,6 @@
 
 export class PayloadHelper {
-    constructor(public dv: DataView){
-    }
+    constructor(public dv: DataView){}
 
     getBoolean(offset: number, mask: number): boolean {
         return (this.dv.getUint8(offset) & mask) == mask;
