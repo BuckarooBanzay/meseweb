@@ -22,4 +22,4 @@ jobs:
       uses: coverallsapp/github-action@v1.1.2
       with:
         github-token: ${{ github.token }}
-        base-path: "webapp"
+        path-to-lcov: "webapp/coverage/lcov.info"
