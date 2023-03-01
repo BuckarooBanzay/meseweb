@@ -12,7 +12,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/three": "^0.149.0",
-    "rollup": "^3.17.3",
+    "node-polyfill-webpack-plugin": "^2.0.1",
     "secure-remote-password": "github:LinusU/secure-remote-password#rfc5054",
     "three": "^0.150.1",
     "ts-loader": "^9.4.2",
