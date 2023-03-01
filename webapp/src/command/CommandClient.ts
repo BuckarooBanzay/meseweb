@@ -6,12 +6,21 @@ import { SplitPacketHandler } from "../packet/splitpackethandler";
 import { ControlType, PacketType } from "../packet/types";
 import { ClientInit } from "./client/ClientInit";
 import { ClientCommand } from "./ClientCommand";
-import { getServerCommand } from "./ServerCommand";
+import { getServerCommand, ServerCommand } from "./ServerCommand";
+
+import EventEmitter from "events"
+import TypedEmitter from "typed-emitter"
+
+type CommandClientEvents = {
+    Ready: () => void,
+    ServerCommand: (c: ServerCommand) => void
+}
 
 export class CommandClient {
 
     peerId = 0
     splitHandler = new SplitPacketHandler()
+    events = new EventEmitter() as TypedEmitter<CommandClientEvents>
 
     constructor(public ws: WebSocket) {
         ws.addEventListener("open", () => this.onOpen())
@@ -20,6 +29,7 @@ export class CommandClient {
 
     private onOpen() {
         console.log("websocket opened")
+        this.events.emit("Ready")
     }
 
     private onMessage(ev: MessageEvent<Blob>) {
@@ -65,7 +75,7 @@ export class CommandClient {
             const cmd = getServerCommand(cmdId);
             if (cmd != null){
                 cmd.UnmarshalPacket(new DataView(dv.buffer, dv.byteOffset + 2));
-                //TODO: propagate
+                this.events.emit("ServerCommand", cmd)
             } else {
                 console.log("Unknown command received: " + cmdId);
             }
@@ -94,5 +104,9 @@ export class CommandClient {
         if (cmd instanceof ClientInit){
             setSeqNr(65500-1);
         }
+    }
+
+    WaitForCommand() {
+        //TODO
     }
 }
