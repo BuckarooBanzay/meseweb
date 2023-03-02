@@ -9,6 +9,16 @@ services:
     working_dir: "/app"
     command: "bash -c 'npm ci && npm run watch'"
   
+  integration_test:
+    image: node:18.9.0
+    depends_on:
+     - minetest
+    volumes:
+     - "./webapp:/app"
+    user: node
+    working_dir: "/app"
+    command: "bash -c 'INTEGRATION_TEST=true npm test'"
+
   server:
     image: golang:1.19.1
     restart: always

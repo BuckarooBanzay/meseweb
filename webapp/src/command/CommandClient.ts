@@ -97,7 +97,7 @@ export class CommandClient {
         this.ws.send(marshal(p))
     }
 
-    SendCommand(cmd: ClientCommand, type: PacketType) {
+    SendCommand(cmd: ClientCommand, type = PacketType.Reliable) {
         const packets = createCommandPacket(cmd, this.peerId, type || PacketType.Reliable);
         packets.forEach(p => this.SendPacket(p));
 
