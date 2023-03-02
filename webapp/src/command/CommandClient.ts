@@ -33,6 +33,7 @@ export class CommandClient {
     }
 
     private onMessage(ev: MessageEvent<Blob>) {
+        console.log(ev.data)
         ev.data.arrayBuffer().then(ab => {
             const buf = new Uint8Array(ab);
             const p = unmarshal(buf);
