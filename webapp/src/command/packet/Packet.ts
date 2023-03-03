@@ -24,8 +24,8 @@ export class Packet {
             `peerId=${this.peerId},`+
             `seqNr=${this.seqNr},`+
             `channel=${this.channel},`+
-            `type=${PacketType[this.packetType]},`+
-            `control=${ControlType[this.controlType]},`+
+            `packetType=${PacketType[this.packetType]},`+
+            `controlType=${ControlType[this.controlType]},`+
             `subType=${PacketType[this.subType]},`+
             `payload=${this.payload}` +
         `}`;

@@ -3,8 +3,8 @@ import { ServerCommand } from "../ServerCommand";
 
 export class ServerSRPBytesSB implements ServerCommand {
 
-    public bytesS?: number[]
-    public bytesB?: number[]
+    public bytesS!: number[]
+    public bytesB!: number[]
 
     UnmarshalPacket(dv: DataView): void {
         const ph = new PayloadHelper(dv)

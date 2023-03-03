@@ -1,3 +1,4 @@
+import Logger from "js-logger";
 import { Packet } from "./Packet";
 import { getNextSeqNr } from "./sequence";
 import { ControlType, PacketType, ProtocolID } from "./types";
@@ -111,7 +112,7 @@ export function unmarshal(buf: Uint8Array) {
             break;
         case PacketType.Control:
             p.controlType = dv.getUint8(8);
-            //TODO
+            p.seqNr = dv.getUint16(9)
             return p;
     }
 
