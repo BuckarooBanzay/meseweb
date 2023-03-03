@@ -26,7 +26,8 @@ export class Packet {
             `channel=${this.channel},`+
             `type=${PacketType[this.packetType]},`+
             `control=${ControlType[this.controlType]},`+
-            `subType=${PacketType[this.subType]}`+
+            `subType=${PacketType[this.subType]},`+
+            `payload=${this.payload}` +
         `}`;
     }
 }

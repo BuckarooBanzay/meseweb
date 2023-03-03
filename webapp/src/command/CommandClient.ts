@@ -1,6 +1,6 @@
 import { marshal, unmarshal } from "../packet/marshal";
 import { Packet } from "../packet/Packet";
-import { createAck, createCommandPacket, createDisconnect } from "../packet/packetfactory";
+import { createAck, createCommandPacket, createDisconnect, createPeerInit } from "../packet/packetfactory";
 import { setSeqNr } from "../packet/sequence";
 import { SplitPacketHandler } from "../packet/splitpackethandler";
 import { ControlType, PacketType } from "../packet/types";
@@ -15,6 +15,7 @@ import TypedEmitter from "typed-emitter"
 type CommandClientEvents = {
     Ready: () => void,
     ServerCommand: (c: ServerCommand) => void
+    ServerPacket: (p: Packet) => void
 }
 
 export const TimeoutError = new Error("timeout")
@@ -47,19 +48,13 @@ export class CommandClient {
         const buf = new Uint8Array(ab);
         const p = unmarshal(buf);
         Logger.debug(`<<< Received ${buf.length} bytes: ${p}`)
+        this.events.emit("ServerPacket", p)
 
         if (p.packetType == PacketType.Reliable){
             // send ack
             const ack = createAck(p, this.peerId)
             ack.channel = p.channel
             this.SendPacket(ack)
-
-            if (p.controlType == ControlType.SetPeerID){
-                // set peer id
-                this.peerId = p.peerId;
-                Logger.debug("Set peerId to " + this.peerId);
-                return;
-            }
 
             if (p.subType == PacketType.Original){
                 this.parseCommandPayload(p.payloadView);
@@ -76,10 +71,6 @@ export class CommandClient {
     }
 
     private parseCommandPayload(dv: DataView) {
-        if (this.ws.readyState != WebSocket.OPEN){
-            return;
-        }
-
         const cmdId = dv.getUint16(0);
         try {
             const cmd = getServerCommand(cmdId);
@@ -96,6 +87,12 @@ export class CommandClient {
             Logger.debug("Caught error, aborting");
             this.close();
         }
+    }
+
+    OnReady(): Promise<void> {
+        return new Promise((resolve) => {
+            this.events.once("Ready", resolve)
+        })
     }
 
     close() {
@@ -119,15 +116,39 @@ export class CommandClient {
         }
     }
 
+    PeerInit(timeout = 1000): Promise<void> {
+        return new Promise((resolve, reject) => {
+            this.SendPacket(createPeerInit())
+            var handle: NodeJS.Timeout
+
+            const listener = (p: Packet) => {
+                if (p.packetType == PacketType.Reliable && p.controlType == ControlType.SetPeerID) {
+                    this.peerId = p.peerId
+                    Logger.debug("Set peerId to " + this.peerId);
+                    this.events.off("ServerPacket", listener)
+                    clearTimeout(handle)
+                    resolve()
+                }
+            }
+
+            handle = setTimeout(() => {
+                reject(TimeoutError)
+                // timed out, clean up
+                this.events.off("ServerPacket", listener)
+            }, timeout)
+
+            this.events.on("ServerPacket", listener)
+        })
+    }
+
     WaitForCommand<T>(t: new() => T, timeout = 1000): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             var handle: NodeJS.Timeout
             const listener = (c: ServerCommand) => {
                 if (c instanceof t) {
-                    resolve(c)
-                    // clean up
                     this.events.off("ServerCommand", listener)
                     clearTimeout(handle)
+                    resolve(c)
                 }
             }
     
@@ -136,6 +157,7 @@ export class CommandClient {
                 // timed out, clean up
                 this.events.off("ServerCommand", listener)
             }, timeout)
+
             this.events.on("ServerCommand", listener)
         })
     }

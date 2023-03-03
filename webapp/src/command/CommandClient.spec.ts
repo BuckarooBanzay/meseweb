@@ -14,7 +14,7 @@ describe("CommandClient", function(){
         test.only("skip", function() {})
     }
 
-    Logger.useDefaults({ defaultLevel: Logger.DEBUG })
+    //Logger.useDefaults({ defaultLevel: Logger.DEBUG })
 
     test("connect", function(done){
         const host = "minetest"
@@ -25,21 +25,27 @@ describe("CommandClient", function(){
         const ws = new NodeWebSocket(url);
         const cc = new CommandClient(ws as unknown as WebSocket)
 
-        cc.events.once("Ready", function() {
-            cc.SendPacket(createPeerInit())
+        cc.OnReady()
+        .then(() => {
+            return cc.PeerInit()
+        })
+        .then(() => {
+            return new Promise(resolve => setTimeout(resolve, 1000))
+        })
+        .then(() => {
             cc.SendCommand(new ClientInit("test"), PacketType.Original)
-            cc.WaitForCommand(ServerHello, 1000)
-            .then(sh => {
-                //TODO
-                Logger.debug(sh)
-                done()
-            })
-            .catch(e => {
-                done(e)
-            })
-            .finally(() => {
-                cc.close()
-            })
+            return cc.WaitForCommand(ServerHello)
+        })
+        .then(sh => {
+            //TODO
+            Logger.debug(sh)
+            done()
+        })
+        .catch(e => {
+            done(e)
+        })
+        .finally(() => {
+            cc.close()
         })
     })
 })
