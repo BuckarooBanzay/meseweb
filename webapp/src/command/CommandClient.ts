@@ -8,6 +8,7 @@ import { ClientInit } from "./client/ClientInit";
 import { ClientCommand } from "./ClientCommand";
 import { getServerCommand, ServerCommand } from "./ServerCommand";
 
+import Logger from "js-logger"
 import EventEmitter from "events"
 import TypedEmitter from "typed-emitter"
 
@@ -28,12 +29,12 @@ export class CommandClient {
     }
 
     private onOpen() {
-        console.log("websocket opened")
+        Logger.debug("websocket opened")
         this.events.emit("Ready")
     }
 
     private onMessage(ev: MessageEvent<Blob>) {
-        console.log(ev.data)
+        Logger.debug(ev.data)
         ev.data.arrayBuffer().then(ab => {
             const buf = new Uint8Array(ab);
             const p = unmarshal(buf);
@@ -47,7 +48,7 @@ export class CommandClient {
                 if (p.controlType == ControlType.SetPeerID){
                     // set peer id
                     this.peerId = p.peerId;
-                    console.log("Set peerId to " + this.peerId);
+                    Logger.debug("Set peerId to " + this.peerId);
                     return;
                 }
     
@@ -78,12 +79,12 @@ export class CommandClient {
                 cmd.UnmarshalPacket(new DataView(dv.buffer, dv.byteOffset + 2));
                 this.events.emit("ServerCommand", cmd)
             } else {
-                console.log("Unknown command received: " + cmdId);
+                Logger.debug("Unknown command received: " + cmdId);
             }
 
         } catch (e) {
             console.error(e);
-            console.log("Caught error, aborting");
+            Logger.debug("Caught error, aborting");
             this.close();
         }
     }
@@ -94,6 +95,7 @@ export class CommandClient {
     }
 
     SendPacket(p: Packet) {
+        Logger.debug("Sending packet", p)
         p.peerId = this.peerId
         this.ws.send(marshal(p))
     }
