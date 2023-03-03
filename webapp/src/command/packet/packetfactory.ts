@@ -1,4 +1,4 @@
-import { ClientCommand } from "../command/ClientCommand";
+import { ClientCommand } from "../ClientCommand";
 import { Packet } from "./Packet";
 import { splitPayload } from "./splitter";
 import { ControlType, MaxPacketLength, PacketType } from "./types";

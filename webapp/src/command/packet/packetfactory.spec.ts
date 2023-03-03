@@ -1,4 +1,4 @@
-import { ClientInit } from "../command/client/ClientInit"
+import { ClientInit } from "../client/ClientInit"
 import { marshal } from "./marshal"
 import { createCommandPacket, createPing } from "./packetfactory"
 import { PacketType } from "./types"

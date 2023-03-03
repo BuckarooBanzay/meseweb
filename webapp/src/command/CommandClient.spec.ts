@@ -2,11 +2,10 @@
 import NodeWebSocket from "ws"
 import { env } from "process"
 import { CommandClient } from "./CommandClient"
-import { createPeerInit } from "../packet/packetfactory"
 import Logger from "js-logger"
 import { ServerHello } from "./server/ServerHello"
 import { ClientInit } from "./client/ClientInit"
-import { PacketType } from "../packet/types"
+import { PacketType } from "./packet/types"
 
 describe("CommandClient", function(){
 

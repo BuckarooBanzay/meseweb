@@ -1,4 +1,4 @@
-import { PayloadBuilder } from "../../packet/PayloadBuilder";
+import { PayloadBuilder } from "../packet/PayloadBuilder";
 import { ClientCommand } from "../ClientCommand";
 
 export class ClientInit implements ClientCommand {

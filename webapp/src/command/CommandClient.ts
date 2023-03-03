@@ -1,9 +1,9 @@
-import { marshal, unmarshal } from "../packet/marshal";
-import { Packet } from "../packet/Packet";
-import { createAck, createCommandPacket, createDisconnect, createPeerInit } from "../packet/packetfactory";
-import { setSeqNr } from "../packet/sequence";
-import { SplitPacketHandler } from "../packet/splitpackethandler";
-import { ControlType, PacketType } from "../packet/types";
+import { marshal, unmarshal } from "./packet/marshal";
+import { Packet } from "./packet/Packet";
+import { createAck, createCommandPacket, createDisconnect, createPeerInit } from "./packet/packetfactory";
+import { setSeqNr } from "./packet/sequence";
+import { SplitPacketHandler } from "./packet/splitpackethandler";
+import { ControlType, PacketType } from "./packet/types";
 import { ClientInit } from "./client/ClientInit";
 import { ClientCommand } from "./ClientCommand";
 import { getServerCommand, ServerCommand } from "./ServerCommand";

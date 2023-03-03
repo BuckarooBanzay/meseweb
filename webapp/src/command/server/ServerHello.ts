@@ -1,4 +1,4 @@
-import { PayloadHelper } from "../../packet/PayloadHelper";
+import { PayloadHelper } from "../packet/PayloadHelper";
 import { ServerCommand } from "../ServerCommand";
 
 export class ServerHello implements ServerCommand {
