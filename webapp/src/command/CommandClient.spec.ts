@@ -13,6 +13,7 @@ import { ClientSRPBytesA } from "./client/ClientSRPBytesA"
 import { ServerSRPBytesSB } from "./server/ServerSRPBytesSB"
 import { ClientSRPBytesM } from "./client/ClientSRPBytesM"
 import { ServerAuthAccept } from "./server/ServerAuthAccept"
+import { ClientInit2 } from "./client/ClientInit2"
 
 describe("CommandClient", function(){
 
@@ -37,31 +38,21 @@ describe("CommandClient", function(){
         const eph = srp.generateEphemeral()
 
         cc.OnReady()
-        .then(() => {
-            return cc.PeerInit()
-        })
-        .then(() => {
-            return new Promise(resolve => setTimeout(resolve, 1000))
-        })
-        .then(() => {
-            cc.SendCommand(new ClientInit("test"), PacketType.Original)
-            return cc.WaitForCommand(ServerHello)
-        })
+        .then(() => cc.PeerInit())
+        .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
+        .then(() => cc.SendCommandAndWait(new ClientInit("test"), PacketType.Original, ServerHello))
         .then(sh => {
             if (sh.authMechanismFirstSrp) {
                 const salt = srp.generateSalt()
                 const private_key = srp.derivePrivateKey(salt, username, password)
                 const verifier = srp.deriveVerifier(private_key)
                 const cmd = new ClientFirstSRP(hexToArray(salt), hexToArray(verifier))
-                return cc.SendCommand(cmd)
+                return cc.SendCommandAndWait(cmd, PacketType.Reliable, ServerSRPBytesSB)
 
-            } else if (sh.authMechanismSrp) {
+            } else {
                 const cmd = new ClientSRPBytesA(hexToArray(eph.public))
-                return cc.SendCommand(cmd)
+                return cc.SendCommandAndWait(cmd, PacketType.Reliable, ServerSRPBytesSB)
             }
-        })
-        .then(() => {
-            return cc.WaitForCommand(ServerSRPBytesSB)
         })
         .then(cmd => {
             const serverSalt = arrayToHex(cmd.bytesS);
@@ -71,10 +62,7 @@ describe("CommandClient", function(){
             const clientSession = srp.deriveSession(eph.secret, serverPublic, serverSalt, username, privateKey);
     
             const proof = hexToArray(clientSession.proof);
-            return cc.SendCommand(new ClientSRPBytesM(proof));
-        })
-        .then(() => {
-            return cc.WaitForCommand(ServerAuthAccept);
+            return cc.SendCommandAndWait(new ClientSRPBytesM(proof), PacketType.Reliable, ServerAuthAccept);
         })
         .then(cmd => {
             expect(cmd.posX != undefined).toBeTruthy()
@@ -82,6 +70,10 @@ describe("CommandClient", function(){
             expect(cmd.posZ != undefined).toBeTruthy()
             expect(cmd.seed.length).toBeGreaterThan(0)
             expect(cmd.sendInterval).toBeGreaterThan(0)
+            return cc.SendCommand(new ClientInit2)
+        })
+        //.then(() => new Promise(resolve => setTimeout(resolve, 2000)))
+        .then(() => {
             done()
         })
         .catch(e => {

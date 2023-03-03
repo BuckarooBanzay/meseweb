@@ -194,4 +194,10 @@ export class CommandClient {
             this.events.on("ServerCommand", listener)
         })
     }
+
+    SendCommandAndWait<T>(cmd: ClientCommand, type = PacketType.Reliable, t: new() => T, timeout = 2000): Promise<T> {
+        const p = this.WaitForCommand(t)
+        this.SendCommand(cmd, type, timeout)
+        return p
+    }
 }
