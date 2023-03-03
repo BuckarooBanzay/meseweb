@@ -136,7 +136,7 @@ export class CommandClient {
         }
     }
 
-    SendCommand(cmd: ClientCommand, type = PacketType.Reliable, timeout = 2000) {
+    SendCommand(cmd: ClientCommand, type = PacketType.Reliable, timeout = 2000): Promise<void[]> {
         const packets = createCommandPacket(cmd, this.peerId, type || PacketType.Reliable);
         const promises = packets.map(p => this.SendPacket(p, timeout));
 
