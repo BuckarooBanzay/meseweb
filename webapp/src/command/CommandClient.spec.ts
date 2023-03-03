@@ -4,6 +4,9 @@ import { env } from "process"
 import { CommandClient } from "./CommandClient"
 import { createPeerInit } from "../packet/packetfactory"
 import Logger from "js-logger"
+import { ServerHello } from "./server/ServerHello"
+import { ClientInit } from "./client/ClientInit"
+import { PacketType } from "../packet/types"
 
 describe("CommandClient", function(){
 
@@ -22,10 +25,21 @@ describe("CommandClient", function(){
         const ws = new NodeWebSocket(url);
         const cc = new CommandClient(ws as unknown as WebSocket)
 
-        ws.onopen = function() {
+        cc.events.once("Ready", function() {
             cc.SendPacket(createPeerInit())
-            done()
-            ws.close()
-        }
+            cc.SendCommand(new ClientInit("test"), PacketType.Original)
+            cc.WaitForCommand(ServerHello, 1000)
+            .then(sh => {
+                //TODO
+                Logger.debug(sh)
+                done()
+            })
+            .catch(e => {
+                done(e)
+            })
+            .finally(() => {
+                cc.close()
+            })
+        })
     })
 })

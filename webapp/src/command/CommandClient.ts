@@ -17,6 +17,8 @@ type CommandClientEvents = {
     ServerCommand: (c: ServerCommand) => void
 }
 
+export const TimeoutError = new Error("timeout")
+
 export class CommandClient {
 
     peerId = 0
@@ -25,7 +27,15 @@ export class CommandClient {
 
     constructor(public ws: WebSocket) {
         ws.addEventListener("open", () => this.onOpen())
-        ws.addEventListener("message", ev => this.onMessage(ev))
+        ws.addEventListener("message", ev => {
+            if (ev.data instanceof Blob) {
+                ev.data.arrayBuffer().then(ab => this.onMessage(ab))
+            } else if (ev.data instanceof Buffer) {
+                this.onMessage(ev.data)
+            } else {
+                Logger.error("invalid event type: ", ev.data)
+            }
+        })
     }
 
     private onOpen() {
@@ -33,38 +43,36 @@ export class CommandClient {
         this.events.emit("Ready")
     }
 
-    private onMessage(ev: MessageEvent<Blob>) {
-        Logger.debug(ev.data)
-        ev.data.arrayBuffer().then(ab => {
-            const buf = new Uint8Array(ab);
-            const p = unmarshal(buf);
+    private onMessage(ab: ArrayBuffer) {
+        const buf = new Uint8Array(ab);
+        const p = unmarshal(buf);
+        Logger.debug(`<<< Received ${buf.length} bytes: ${p}`)
 
-            if (p.packetType == PacketType.Reliable){
-                // send ack
-                const ack = createAck(p, this.peerId)
-                ack.channel = p.channel
-                this.SendPacket(ack)
+        if (p.packetType == PacketType.Reliable){
+            // send ack
+            const ack = createAck(p, this.peerId)
+            ack.channel = p.channel
+            this.SendPacket(ack)
 
-                if (p.controlType == ControlType.SetPeerID){
-                    // set peer id
-                    this.peerId = p.peerId;
-                    Logger.debug("Set peerId to " + this.peerId);
-                    return;
-                }
-    
-                if (p.subType == PacketType.Original){
-                    this.parseCommandPayload(p.payloadView);
-                }
-    
-                if (p.subType == PacketType.Split) {
-                    const payload = this.splitHandler.AddSplitPacket(p);
-                    if (payload != null) {
-                        // all split parts arrived
-                        this.parseCommandPayload(new DataView(payload.buffer));
-                    }
+            if (p.controlType == ControlType.SetPeerID){
+                // set peer id
+                this.peerId = p.peerId;
+                Logger.debug("Set peerId to " + this.peerId);
+                return;
+            }
+
+            if (p.subType == PacketType.Original){
+                this.parseCommandPayload(p.payloadView);
+            }
+
+            if (p.subType == PacketType.Split) {
+                const payload = this.splitHandler.AddSplitPacket(p);
+                if (payload != null) {
+                    // all split parts arrived
+                    this.parseCommandPayload(new DataView(payload.buffer));
                 }
             }
-        })
+        }
     }
 
     private parseCommandPayload(dv: DataView) {
@@ -75,6 +83,7 @@ export class CommandClient {
         const cmdId = dv.getUint16(0);
         try {
             const cmd = getServerCommand(cmdId);
+            Logger.debug("received command", cmd)
             if (cmd != null){
                 cmd.UnmarshalPacket(new DataView(dv.buffer, dv.byteOffset + 2));
                 this.events.emit("ServerCommand", cmd)
@@ -95,9 +104,10 @@ export class CommandClient {
     }
 
     SendPacket(p: Packet) {
-        Logger.debug("Sending packet", p)
         p.peerId = this.peerId
-        this.ws.send(marshal(p))
+        const payload = marshal(p)
+        Logger.debug(`>>> Sent ${payload.length} bytes: ${p}`)
+        this.ws.send(payload)
     }
 
     SendCommand(cmd: ClientCommand, type = PacketType.Reliable) {
@@ -109,7 +119,24 @@ export class CommandClient {
         }
     }
 
-    WaitForCommand() {
-        //TODO
+    WaitForCommand<T>(t: new() => T, timeout = 1000): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+            var handle: NodeJS.Timeout
+            const listener = (c: ServerCommand) => {
+                if (c instanceof t) {
+                    resolve(c)
+                    // clean up
+                    this.events.off("ServerCommand", listener)
+                    clearTimeout(handle)
+                }
+            }
+    
+            handle = setTimeout(() => {
+                reject(TimeoutError)
+                // timed out, clean up
+                this.events.off("ServerCommand", listener)
+            }, timeout)
+            this.events.on("ServerCommand", listener)
+        })
     }
 }
