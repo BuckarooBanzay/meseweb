@@ -25,6 +25,7 @@ export class CommandClient {
     peerId = 0
     splitHandler = new SplitPacketHandler()
     events = new EventEmitter() as TypedEmitter<CommandClientEvents>
+    ready = false
 
     constructor(public ws: WebSocket) {
         ws.addEventListener("open", () => this.onOpen())
@@ -42,6 +43,7 @@ export class CommandClient {
     private onOpen() {
         Logger.debug("websocket opened")
         this.events.emit("Ready")
+        this.ready = true
     }
 
     private onMessage(ab: ArrayBuffer) {
@@ -93,7 +95,11 @@ export class CommandClient {
 
     OnReady(): Promise<void> {
         return new Promise((resolve) => {
-            this.events.once("Ready", resolve)
+            if (this.ready) {
+                resolve()
+            } else {
+                this.events.once("Ready", resolve)
+            }
         })
     }
 
@@ -195,7 +201,7 @@ export class CommandClient {
         })
     }
 
-    SendCommandAndWait<T>(cmd: ClientCommand, type = PacketType.Reliable, t: new() => T, timeout = 2000): Promise<T> {
+    ExchangeCommand<T>(cmd: ClientCommand, type = PacketType.Reliable, t: new() => T, timeout = 2000): Promise<T> {
         const p = this.WaitForCommand(t)
         this.SendCommand(cmd, type, timeout)
         return p
