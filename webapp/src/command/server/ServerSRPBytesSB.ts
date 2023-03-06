@@ -6,7 +6,7 @@ export class ServerSRPBytesSB implements ServerCommand {
     public bytesS!: number[]
     public bytesB!: number[]
 
-    UnmarshalPacket(dv: DataView): void {
+    unmarshalPacket(dv: DataView): void {
         const ph = new PayloadHelper(dv)
         this.bytesS = ph.getArray(0);
         if (this.bytesS.length != 32){

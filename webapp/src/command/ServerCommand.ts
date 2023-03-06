@@ -4,7 +4,7 @@ import { ServerHello } from "./server/ServerHello"
 import { ServerSRPBytesSB } from "./server/ServerSRPBytesSB"
 
 export interface ServerCommand {
-    UnmarshalPacket(dv: DataView): void
+    unmarshalPacket(dv: DataView): void
 }
 
 export function getServerCommand(commandId: number): ServerCommand | null {

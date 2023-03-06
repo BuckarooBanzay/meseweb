@@ -58,7 +58,7 @@ export class CommandClient {
             // send ack
             const ack = createAck(p, this.peerId)
             ack.channel = p.channel
-            this.SendPacket(ack)
+            this.sendPacket(ack)
 
             if (p.subType == PacketType.Original){
                 this.parseCommandPayload(p.payloadView);
@@ -80,7 +80,7 @@ export class CommandClient {
             const cmd = getServerCommand(cmdId);
             Logger.debug("received command", cmd)
             if (cmd != null){
-                cmd.UnmarshalPacket(new DataView(dv.buffer, dv.byteOffset + 2));
+                cmd.unmarshalPacket(new DataView(dv.buffer, dv.byteOffset + 2));
                 this.events.emit("ServerCommand", cmd)
             } else {
                 Logger.debug("Unknown command received: " + cmdId);
@@ -93,7 +93,7 @@ export class CommandClient {
         }
     }
 
-    OnReady(): Promise<void> {
+    onReady(): Promise<void> {
         return new Promise((resolve) => {
             if (this.ready) {
                 resolve()
@@ -104,11 +104,11 @@ export class CommandClient {
     }
 
     close() {
-        this.SendPacket(createDisconnect())
+        this.sendPacket(createDisconnect())
         this.ws.close()
     }
 
-    SendPacket(p: Packet, timeout = 2000): Promise<void> {
+    sendPacket(p: Packet, timeout = 2000): Promise<void> {
         p.peerId = this.peerId
         const payload = marshal(p)
         Logger.debug(`>>> Sent ${payload.length} bytes: ${p}`)
@@ -142,9 +142,9 @@ export class CommandClient {
         }
     }
 
-    SendCommand(cmd: ClientCommand, type = PacketType.Reliable, timeout = 2000): Promise<void[]> {
+    sendCommand(cmd: ClientCommand, type = PacketType.Reliable, timeout = 2000): Promise<void[]> {
         const packets = createCommandPacket(cmd, this.peerId, type || PacketType.Reliable);
-        const promises = packets.map(p => this.SendPacket(p, timeout));
+        const promises = packets.map(p => this.sendPacket(p, timeout));
 
         if (cmd instanceof ClientInit){
             setSeqNr(65500-1);
@@ -153,9 +153,9 @@ export class CommandClient {
         return Promise.all(promises)
     }
 
-    PeerInit(timeout = 2000): Promise<void> {
+    peerInit(timeout = 2000): Promise<void> {
         return new Promise((resolve, reject) => {
-            this.SendPacket(createPeerInit())
+            this.sendPacket(createPeerInit())
             var handle: NodeJS.Timeout
 
             const listener = (p: Packet) => {
@@ -179,7 +179,7 @@ export class CommandClient {
         })
     }
 
-    WaitForCommand<T>(t: new() => T, timeout = 2000): Promise<T> {
+    waitForCommand<T>(t: new() => T, timeout = 2000): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             var handle: NodeJS.Timeout
             const listener = (c: ServerCommand) => {
@@ -201,9 +201,9 @@ export class CommandClient {
         })
     }
 
-    ExchangeCommand<T>(cmd: ClientCommand, type = PacketType.Reliable, t: new() => T, timeout = 2000): Promise<T> {
-        const p = this.WaitForCommand(t)
-        this.SendCommand(cmd, type, timeout)
+    exchangeCommand<T>(cmd: ClientCommand, type = PacketType.Reliable, t: new() => T, timeout = 2000): Promise<T> {
+        const p = this.waitForCommand(t)
+        this.sendCommand(cmd, type, timeout)
         return p
     }
 }

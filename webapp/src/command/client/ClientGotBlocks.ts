@@ -1,10 +1,10 @@
 import { ClientCommand } from "../ClientCommand";
 
 export class ClientGotBlocks implements ClientCommand {
-    GetCommandID(): number {
+    getCommandID(): number {
         return 0x24
     }
-    MarshalPacket(): Uint8Array {
+    marshalPacket(): Uint8Array {
         throw new Error("Method not implemented.");
     }
 

@@ -24,7 +24,7 @@ describe("Client", function() {
         const cc = new CommandClient(ws as unknown as WebSocket)
         const client = new Client(cc)
 
-        client.Login(username, password)
+        client.login(username, password)
         .then(() => {
             done()
         })

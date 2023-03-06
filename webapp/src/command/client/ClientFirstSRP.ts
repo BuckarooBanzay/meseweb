@@ -5,11 +5,11 @@ export class ClientFirstSRP implements ClientCommand {
 
     constructor(public salt: number[], public verificationKey: number[]) {}
 
-    GetCommandID(): number {
+    getCommandID(): number {
         return 0x50;
     }
 
-    MarshalPacket(): Uint8Array {
+    marshalPacket(): Uint8Array {
         const p = new PayloadBuilder();
         p.appendArray(this.salt)
         p.appendArray(this.verificationKey)

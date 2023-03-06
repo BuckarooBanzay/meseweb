@@ -37,21 +37,21 @@ describe("CommandClient", function(){
 
         const eph = srp.generateEphemeral()
 
-        cc.OnReady()
-        .then(() => cc.PeerInit())
+        cc.onReady()
+        .then(() => cc.peerInit())
         .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
-        .then(() => cc.ExchangeCommand(new ClientInit(username), PacketType.Original, ServerHello))
+        .then(() => cc.exchangeCommand(new ClientInit(username), PacketType.Original, ServerHello))
         .then(sh => {
             if (sh.authMechanismFirstSrp) {
                 const salt = srp.generateSalt()
                 const private_key = srp.derivePrivateKey(salt, username, password)
                 const verifier = srp.deriveVerifier(private_key)
                 const cmd = new ClientFirstSRP(hexToArray(salt), hexToArray(verifier))
-                return cc.ExchangeCommand(cmd, PacketType.Reliable, ServerSRPBytesSB)
+                return cc.exchangeCommand(cmd, PacketType.Reliable, ServerSRPBytesSB)
 
             } else {
                 const cmd = new ClientSRPBytesA(hexToArray(eph.public))
-                return cc.ExchangeCommand(cmd, PacketType.Reliable, ServerSRPBytesSB)
+                return cc.exchangeCommand(cmd, PacketType.Reliable, ServerSRPBytesSB)
             }
         })
         .then(cmd => {
@@ -62,7 +62,7 @@ describe("CommandClient", function(){
             const clientSession = srp.deriveSession(eph.secret, serverPublic, serverSalt, username, privateKey);
     
             const proof = hexToArray(clientSession.proof);
-            return cc.ExchangeCommand(new ClientSRPBytesM(proof), PacketType.Reliable, ServerAuthAccept);
+            return cc.exchangeCommand(new ClientSRPBytesM(proof), PacketType.Reliable, ServerAuthAccept);
         })
         .then(cmd => {
             expect(cmd.posX != undefined).toBeTruthy()
@@ -70,7 +70,7 @@ describe("CommandClient", function(){
             expect(cmd.posZ != undefined).toBeTruthy()
             expect(cmd.seed.length).toBeGreaterThan(0)
             expect(cmd.sendInterval).toBeGreaterThan(0)
-            return cc.SendCommand(new ClientInit2)
+            return cc.sendCommand(new ClientInit2)
         })
         //.then(() => new Promise(resolve => setTimeout(resolve, 2000)))
         .then(() => {

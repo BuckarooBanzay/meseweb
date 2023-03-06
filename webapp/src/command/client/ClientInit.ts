@@ -10,11 +10,11 @@ export class ClientInit implements ClientCommand {
 
     constructor(public playername: string) {}
 
-    GetCommandID(): number {
+    getCommandID(): number {
         return 0x02;
     }
 
-    MarshalPacket(): Uint8Array {
+    marshalPacket(): Uint8Array {
         const p = new PayloadBuilder();
         p.appendUint8(this.clientMax);
         p.appendUint16(this.supportedCompressionModes);

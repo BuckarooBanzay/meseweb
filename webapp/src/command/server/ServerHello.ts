@@ -9,7 +9,7 @@ export class ServerHello implements ServerCommand {
     authMechanismSrp!: boolean
     authMechanismFirstSrp!: boolean
 
-    UnmarshalPacket(dv: DataView): void {
+    unmarshalPacket(dv: DataView): void {
         const ph = new PayloadHelper(dv);
         this.serializationVersion = dv.getUint8(0);
         this.compressionMode = dv.getUint16(1);

@@ -17,7 +17,7 @@ export class Client {
 
     constructor(public cc: CommandClient) {}
 
-    Login(username: string, password: string): Promise<void> {
+    login(username: string, password: string): Promise<void> {
         return new Promise((resolve, reject) => {
             this.cc.events.once("ServerCommand", cmd => {
                 if (cmd instanceof ServerAccessDenied) {
@@ -25,21 +25,21 @@ export class Client {
                 }
             })
 
-            this.cc.OnReady()
-            .then(() => this.cc.PeerInit())
+            this.cc.onReady()
+            .then(() => this.cc.peerInit())
             .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
-            .then(() => this.cc.ExchangeCommand(new ClientInit(username), PacketType.Original, ServerHello))
+            .then(() => this.cc.exchangeCommand(new ClientInit(username), PacketType.Original, ServerHello))
             .then(sh => {
                 if (sh.authMechanismFirstSrp) {
                     const salt = srp.generateSalt()
                     const private_key = srp.derivePrivateKey(salt, username, password)
                     const verifier = srp.deriveVerifier(private_key)
                     const cmd = new ClientFirstSRP(hexToArray(salt), hexToArray(verifier))
-                    return this.cc.ExchangeCommand(cmd, PacketType.Reliable, ServerSRPBytesSB)
+                    return this.cc.exchangeCommand(cmd, PacketType.Reliable, ServerSRPBytesSB)
     
                 } else {
                     const cmd = new ClientSRPBytesA(hexToArray(this.eph.public))
-                    return this.cc.ExchangeCommand(cmd, PacketType.Reliable, ServerSRPBytesSB)
+                    return this.cc.exchangeCommand(cmd, PacketType.Reliable, ServerSRPBytesSB)
                 }
             })
             .then(cmd => {
@@ -50,7 +50,7 @@ export class Client {
                 const clientSession = srp.deriveSession(this.eph.secret, serverPublic, serverSalt, username, privateKey);
         
                 const proof = hexToArray(clientSession.proof);
-                return this.cc.ExchangeCommand(new ClientSRPBytesM(proof), PacketType.Reliable, ServerAuthAccept);
+                return this.cc.exchangeCommand(new ClientSRPBytesM(proof), PacketType.Reliable, ServerAuthAccept);
             })
             .then(aa => {
                 resolve()

@@ -8,7 +8,7 @@ export class ServerAuthAccept implements ServerCommand {
     public seed!: string
     public sendInterval!: number
 
-    UnmarshalPacket(dv: DataView): void {
+    unmarshalPacket(dv: DataView): void {
         this.posX = dv.getUint32(0);
         this.posY = dv.getUint32(4);
         this.posZ = dv.getUint32(8);

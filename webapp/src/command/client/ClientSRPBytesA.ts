@@ -5,11 +5,11 @@ export class ClientSRPBytesA implements ClientCommand {
 
     constructor(public bytesA: number[]) {}
 
-    GetCommandID(): number {
+    getCommandID(): number {
         return 0x51;
     }
 
-    MarshalPacket(): Uint8Array {
+    marshalPacket(): Uint8Array {
         const p = new PayloadBuilder();
         p.appendArray(this.bytesA)
         p.appendUint8(0x01)

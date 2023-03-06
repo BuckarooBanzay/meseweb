@@ -36,10 +36,10 @@ export function createPeerInit(): Packet {
 }
 
 export function createCommandPacket(cmd: ClientCommand, peerId: number, type: PacketType): Array<Packet> {
-    const commandPayload = cmd.MarshalPacket();
+    const commandPayload = cmd.marshalPacket();
     const payload = new Uint8Array(2 + commandPayload.length);
     const dv = new DataView(payload.buffer);
-    dv.setUint16(0, cmd.GetCommandID());
+    dv.setUint16(0, cmd.getCommandID());
     payload.set(commandPayload, 2);
 
     if (payload.length > MaxPacketLength) {
