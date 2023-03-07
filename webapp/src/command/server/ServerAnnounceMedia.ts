@@ -6,6 +6,8 @@ export class ServerAnnounceMedia implements ServerCommand {
 
     fileCount!: number
     remoteServers!: Array<string>
+
+    // filename -> hash
     hashes = new Map<string, string>
 
     unmarshalPacket(dv: DataView): void {

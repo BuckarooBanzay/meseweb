@@ -3,7 +3,6 @@ import { env } from "process"
 import Logger from "js-logger"
 import { CommandClient } from "./command/CommandClient"
 import { Client } from "./Client"
-import { ClientInit2 } from "./command/client/ClientInit2"
 
 describe("Client", function() {
     if (env.INTEGRATION_TEST != "true") {
@@ -26,7 +25,10 @@ describe("Client", function() {
         const client = new Client(cc)
 
         client.login(username, password)
-        .then(() => {
+        .then(() => client.mediamanager.size())
+        .then(media_size => {
+            expect(media_size).toBeGreaterThan(0)
+            expect(client.nodedefs.length).toBeGreaterThan(0)
             done()
         })
         .catch(e => {

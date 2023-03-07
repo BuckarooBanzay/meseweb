@@ -20,6 +20,7 @@ import { MediaManager } from "./media/MediaManager";
 import { InMemoryMediaManager } from "./media/InMemoryMediaManager";
 import { ClientInit2 } from "./command/client/ClientInit2";
 import { ClientReady } from "./command/client/ClientReady";
+import Logger from "js-logger";
 
 export class Client {
 
@@ -31,18 +32,56 @@ export class Client {
 
     media_ready = new Promise((resolve, reject) => {
         this.cc.events.on("ServerCommand", cmd => {
+            const name_to_hash = new Map<string, string>()
+
             if (cmd instanceof ServerAnnounceMedia) {
                 // TODO: request missing media
-                console.log(cmd)
-                const crm = new ClientRequestMedia()
-                crm.names.push("wool_blue.png")
-                this.cc.sendCommand(crm)
+
+                const filenameList = Array.from(cmd.hashes.keys())
+                const missing_filenames = new Array<string>
+
+                // populate name-hash map
+                filenameList.forEach(filename => name_to_hash.set(filename, cmd.hashes.get(filename)!))
+
+                const promises = filenameList
+                    .map(filename => cmd.hashes.get(filename)!)
+                    .map(hash => this.mediamanager.hasMedia(hash))
+                
+                Promise.all(promises).then(hasMediaList => {
+                    for (let i=0; i<hasMediaList.length; i++){
+                        const filename = filenameList[i];
+                        const hasMedia = hasMediaList[i];
+                        if (!hasMedia) {
+                            Logger.debug(`Adding ${filename} to requested media`)
+                            missing_filenames.push(filename);
+                        }
+                    }
+
+                    if (missing_filenames.length > 0) {
+                        // request missing media
+                        Logger.debug(`Requesting ${missing_filenames.length} media files`)
+                        const crm = new ClientRequestMedia()
+                        crm.names = missing_filenames
+                        this.cc.sendCommand(crm)
+                    } else {
+                        // got all media
+                        Logger.debug("All media files present")
+                        resolve(null)
+                    }
+                })
 
             } else if (cmd instanceof ServerMedia) {
-                console.log(cmd)
-                // TODO: store media locally
-                resolve(null)
+                const pending_addmedia = new Array<Promise<void>>()
+                cmd.files.forEach((buf, name) => {
+                    Logger.debug(`Adding '${name}' (${buf.length} bytes) to mediamanager`)
+                    const hash = name_to_hash.get(name)!
+                    const p = this.mediamanager.addMedia(hash, name, new Blob(new Array<BlobPart>(buf)))
+                    pending_addmedia.push(p)
+                })
 
+                Promise
+                .all(pending_addmedia)
+                .then(() => resolve(null))
             }
         })
     })

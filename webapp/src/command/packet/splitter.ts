@@ -24,7 +24,7 @@ function nextSequenceNr() {
     return seqNr;
 }
 
-export function splitPayload(buf: Uint8Array) {
+export function splitPayload(buf: Uint8Array): Array<Packet> {
     const parts = splitArray(buf, MaxPacketLength);
     const packets = new Array(parts.length);
     const seqNr = nextSequenceNr();

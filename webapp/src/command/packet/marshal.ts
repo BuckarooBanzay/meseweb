@@ -64,7 +64,7 @@ export function marshal(p: Packet) {
         }
     }
 
-    throw new Error("not implemented yet");
+    throw new Error("not implemented yet: " + p);
 }
 
 

@@ -31,6 +31,7 @@ export class CommandClient {
     })
 
     constructor(public ws: WebSocket) {
+        this.events.setMaxListeners(100)
         ws.addEventListener("message", ev => {
             if (ev.data instanceof Blob) {
                 ev.data.arrayBuffer().then(ab => this.onMessage(ab))

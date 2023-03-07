@@ -47,7 +47,7 @@ export function createCommandPacket(cmd: ClientCommand, peerId: number, type: Pa
         const packets = splitPayload(payload);
         packets.forEach(p => {
             p.packetType = PacketType.Reliable;
-            p.subtype = PacketType.Split;
+            p.subType = PacketType.Split;
             p.peerId = peerId;
             p.channel = 1;
         });
