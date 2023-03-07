@@ -10,12 +10,23 @@ import { ServerAccessDenied } from "./command/server/ServerAccessDenied";
 import { ServerAuthAccept } from "./command/server/ServerAuthAccept";
 import { ServerHello } from "./command/server/ServerHello";
 import { ServerSRPBytesSB } from "./command/server/ServerSRPBytesSB";
+import { NodeDefinition } from "./nodedefs/NodeDefinition";
+import { ServerNodeDefinitions } from "./command/server/ServerNodeDefinitions";
+import { ParseNodeDefinitions } from "./nodedefs/parser";
 
 export class Client {
 
     eph = srp.generateEphemeral()
 
-    constructor(public cc: CommandClient) {}
+    nodedefs = new Array<NodeDefinition>
+
+    constructor(public cc: CommandClient) {
+        cc.events.on("ServerCommand", cmd => {
+            if (cmd instanceof ServerNodeDefinitions) {
+                this.nodedefs = ParseNodeDefinitions(cmd)
+            }
+        })
+    }
 
     login(username: string, password: string): Promise<void> {
         return new Promise((resolve, reject) => {
