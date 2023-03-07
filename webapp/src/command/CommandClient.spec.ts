@@ -37,7 +37,7 @@ describe("CommandClient", function(){
 
         const eph = srp.generateEphemeral()
 
-        cc.onReady()
+        cc.ready
         .then(() => cc.peerInit())
         .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
         .then(() => cc.exchangeCommand(new ClientInit(username), PacketType.Original, ServerHello))

@@ -63,7 +63,7 @@ export class Client {
                 }
             })
 
-            this.cc.onReady()
+            this.cc.ready
             .then(() => this.cc.peerInit())
             .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
             .then(() => this.cc.exchangeCommand(new ClientInit(username), PacketType.Original, ServerHello))

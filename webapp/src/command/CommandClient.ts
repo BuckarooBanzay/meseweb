@@ -25,10 +25,13 @@ export class CommandClient {
     peerId = 0
     splitHandler = new SplitPacketHandler()
     events = new EventEmitter() as TypedEmitter<CommandClientEvents>
-    ready = false
+
+    ready = new Promise(resolve => {
+        Logger.debug("websocket opened")
+        this.ws.addEventListener("open", () => resolve(null))
+    })
 
     constructor(public ws: WebSocket) {
-        ws.addEventListener("open", () => this.onOpen())
         ws.addEventListener("message", ev => {
             if (ev.data instanceof Blob) {
                 ev.data.arrayBuffer().then(ab => this.onMessage(ab))
@@ -38,12 +41,6 @@ export class CommandClient {
                 Logger.error("invalid event type: ", ev.data)
             }
         })
-    }
-
-    private onOpen() {
-        Logger.debug("websocket opened")
-        this.events.emit("Ready")
-        this.ready = true
     }
 
     private onMessage(ab: ArrayBuffer) {
@@ -91,16 +88,6 @@ export class CommandClient {
             Logger.debug("Caught error, aborting");
             this.close();
         }
-    }
-
-    onReady(): Promise<void> {
-        return new Promise((resolve) => {
-            if (this.ready) {
-                resolve()
-            } else {
-                this.events.once("Ready", resolve)
-            }
-        })
     }
 
     close() {
