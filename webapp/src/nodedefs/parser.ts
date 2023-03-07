@@ -149,6 +149,8 @@ export function ParseNodeDefinition(dv: DataView): NodeDefinition {
 export function ParseNodeDefinitions(cmd: ServerNodeDefinitions): Array<NodeDefinition> {
     const defs = new Array<NodeDefinition>()
 
+    console.log(cmd)
+
     const output = inflateSync(cmd.data)
     const dv = new DataView(output.buffer);
 
