@@ -1,5 +1,5 @@
 import { BlockData } from "./blockdata"
-import zlib from "zlib"
+import { Inflate, constants } from "pako"
 
 export function getNodePos(x: number, y: number, z: number) {
     return x + (y * 16) + (z * 256);
@@ -27,13 +27,22 @@ export function parseBlock(buf: Uint8Array): BlockData {
         throw new Error("invalid zlib magic")
     }
 
-    const mapNodes = zlib.inflateSync(compressedMapnodes)
-    if (mapNodes.byteLength != (4096*4)){
+    // TODO: https://github.com/nodeca/pako/blob/master/lib/zlib/inflate.js
+    const inflate = new Inflate()
+
+    for (let i=0; i<compressedMapnodes.length; i++) {
+        inflate.push(compressedMapnodes.subarray(i,i+1), constants.Z_PARTIAL_FLUSH)
+        if (inflate.err == constants.Z_OK) {
+            break
+        }
+    }
+
+    const mapNodes = inflate.result as Uint8Array
+    if (mapNodes.length != (4096*4)){
         throw new Error("invalid decompressed size")
     }
 
-    b.mapNodes = new DataView(mapNodes.buffer)
-
+    b.mapNodes = new DataView(mapNodes)
     for (let i=0; i<4096; i++){
         b.blockMapping.set(b.mapNodes.getUint16(i*2), true)
     }

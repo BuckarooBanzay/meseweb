@@ -2,7 +2,7 @@ import { PayloadHelper } from "../command/packet/PayloadHelper";
 import { TileAnimationType, TileDefinition } from "./TileDefinition";
 import { NodeDefinition } from "./NodeDefinition";
 import { ServerNodeDefinitions } from "../command/server/ServerNodeDefinitions";
-import { inflateSync } from "zlib"
+import { inflate } from "pako"
 
 export function ParseTileDefinition(dv: DataView): [TileDefinition, number] {
     const td = new TileDefinition()
@@ -149,9 +149,12 @@ export function ParseNodeDefinition(dv: DataView): NodeDefinition {
 export function ParseNodeDefinitions(cmd: ServerNodeDefinitions): Array<NodeDefinition> {
     const defs = new Array<NodeDefinition>()
 
-    console.log(cmd)
+    const compressedNodedefs = new Uint8Array(cmd.data)
+    if (compressedNodedefs[0] != 0x78 || compressedNodedefs[1] != 0x9c) {
+        throw new Error("invalid zlib magic")
+    }
 
-    const output = inflateSync(cmd.data)
+    const output = inflate(compressedNodedefs)
     const dv = new DataView(output.buffer);
 
     const version = dv.getUint8(0);
