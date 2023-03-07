@@ -16,27 +16,44 @@ import { ParseNodeDefinitions } from "./nodedefs/parser";
 import { ServerAnnounceMedia } from "./command/server/ServerAnnounceMedia";
 import { ClientRequestMedia } from "./command/client/ClientRequestMedia";
 import { ServerMedia } from "./command/server/ServerMedia";
+import { MediaManager } from "./media/MediaManager";
+import { InMemoryMediaManager } from "./media/InMemoryMediaManager";
+import { ClientInit2 } from "./command/client/ClientInit2";
 
 export class Client {
 
+    constructor(public cc: CommandClient) {}
+
     eph = srp.generateEphemeral()
-
     nodedefs = new Array<NodeDefinition>
+    mediamanager: MediaManager = new InMemoryMediaManager
 
-    constructor(public cc: CommandClient) {
-        cc.events.on("ServerCommand", cmd => {
-            if (cmd instanceof ServerNodeDefinitions) {
-                this.nodedefs = ParseNodeDefinitions(cmd)
-            } else if (cmd instanceof ServerAnnounceMedia) {
+    media_ready = new Promise((resolve, reject) => {
+        this.cc.events.on("ServerCommand", cmd => {
+            if (cmd instanceof ServerAnnounceMedia) {
+                // TODO: request missing media
                 console.log(cmd)
                 const crm = new ClientRequestMedia()
                 crm.names.push("wool_blue.png")
-                cc.sendCommand(crm)
+                this.cc.sendCommand(crm)
+
             } else if (cmd instanceof ServerMedia) {
                 console.log(cmd)
+                // TODO: store media locally
+                resolve(null)
+
             }
         })
-    }
+    })
+
+    nodedefs_ready = new Promise((resolve, reject) => {
+        this.cc.events.on("ServerCommand", cmd => {
+            if (cmd instanceof ServerNodeDefinitions) {
+                this.nodedefs = ParseNodeDefinitions(cmd)
+                resolve(null)
+            } 
+        })
+    })
 
     login(username: string, password: string): Promise<void> {
         return new Promise((resolve, reject) => {
@@ -74,11 +91,14 @@ export class Client {
                 return this.cc.exchangeCommand(new ClientSRPBytesM(proof), PacketType.Reliable, ServerAuthAccept);
             })
             .then(aa => {
-                resolve()
+                // TODO: player pos
+                return this.cc.sendCommand(new ClientInit2())
             })
-            .catch(e => {
-                reject(e)
+            .then(() => {
+                return Promise.all([this.nodedefs_ready, this.media_ready])
             })
+            .then(() => resolve())
+            .catch(e => reject(e))
         })
     }
 }

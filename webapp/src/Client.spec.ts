@@ -27,12 +27,6 @@ describe("Client", function() {
 
         client.login(username, password)
         .then(() => {
-            return cc.sendCommand(new ClientInit2())
-        })
-        .then(() => {
-            return new Promise(resolve => setTimeout(resolve, 2000))
-        })
-        .then(() => {
             done()
         })
         .catch(e => {
