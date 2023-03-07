@@ -1,6 +1,7 @@
 import { ServerAccessDenied } from "./server/ServerAccessDenied"
 import { ServerAnnounceMedia } from "./server/ServerAnnounceMedia"
 import { ServerAuthAccept } from "./server/ServerAuthAccept"
+import { ServerBlockData } from "./server/ServerBlockData"
 import { ServerHello } from "./server/ServerHello"
 import { ServerMedia } from "./server/ServerMedia"
 import { ServerNodeDefinitions } from "./server/ServerNodeDefinitions"
@@ -19,6 +20,7 @@ export function getServerCommand(commandId: number): ServerCommand | null {
         case 0x3A: return new ServerNodeDefinitions
         case 0x3C: return new ServerAnnounceMedia
         case 0x38: return new ServerMedia
+        case 0x20: return new ServerBlockData
     }
     return null
 }
