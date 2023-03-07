@@ -13,6 +13,9 @@ import { ServerSRPBytesSB } from "./command/server/ServerSRPBytesSB";
 import { NodeDefinition } from "./nodedefs/NodeDefinition";
 import { ServerNodeDefinitions } from "./command/server/ServerNodeDefinitions";
 import { ParseNodeDefinitions } from "./nodedefs/parser";
+import { ServerAnnounceMedia } from "./command/server/ServerAnnounceMedia";
+import { ClientRequestMedia } from "./command/client/ClientRequestMedia";
+import { ServerMedia } from "./command/server/ServerMedia";
 
 export class Client {
 
@@ -24,6 +27,13 @@ export class Client {
         cc.events.on("ServerCommand", cmd => {
             if (cmd instanceof ServerNodeDefinitions) {
                 this.nodedefs = ParseNodeDefinitions(cmd)
+            } else if (cmd instanceof ServerAnnounceMedia) {
+                console.log(cmd)
+                const crm = new ClientRequestMedia()
+                crm.names.push("wool_blue.png")
+                cc.sendCommand(crm)
+            } else if (cmd instanceof ServerMedia) {
+                console.log(cmd)
             }
         })
     }

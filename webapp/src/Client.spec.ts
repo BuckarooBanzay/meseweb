@@ -3,6 +3,7 @@ import { env } from "process"
 import Logger from "js-logger"
 import { CommandClient } from "./command/CommandClient"
 import { Client } from "./Client"
+import { ClientInit2 } from "./command/client/ClientInit2"
 
 describe("Client", function() {
     if (env.INTEGRATION_TEST != "true") {
@@ -25,6 +26,12 @@ describe("Client", function() {
         const client = new Client(cc)
 
         client.login(username, password)
+        .then(() => {
+            return cc.sendCommand(new ClientInit2())
+        })
+        .then(() => {
+            return new Promise(resolve => setTimeout(resolve, 2000))
+        })
         .then(() => {
             done()
         })
