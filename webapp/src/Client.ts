@@ -19,6 +19,7 @@ import { ServerMedia } from "./command/server/ServerMedia";
 import { MediaManager } from "./media/MediaManager";
 import { InMemoryMediaManager } from "./media/InMemoryMediaManager";
 import { ClientInit2 } from "./command/client/ClientInit2";
+import { ClientReady } from "./command/client/ClientReady";
 
 export class Client {
 
@@ -97,8 +98,15 @@ export class Client {
             .then(() => {
                 return Promise.all([this.nodedefs_ready, this.media_ready])
             })
+            .then(() => {
+                return this.cc.sendCommand(new ClientReady())
+            })
             .then(() => resolve())
             .catch(e => reject(e))
         })
+    }
+
+    close() {
+        this.cc.close()
     }
 }

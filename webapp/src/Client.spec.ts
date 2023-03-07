@@ -34,7 +34,7 @@ describe("Client", function() {
             done(e)
         })
         .finally(() => {
-            cc.close()
+            client.close()
         })
     })
 })

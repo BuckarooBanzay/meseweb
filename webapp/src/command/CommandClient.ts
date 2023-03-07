@@ -13,7 +13,6 @@ import EventEmitter from "events"
 import TypedEmitter from "typed-emitter"
 
 type CommandClientEvents = {
-    Ready: () => void,
     ServerCommand: (c: ServerCommand) => void
     ServerPacket: (p: Packet) => void
 }
