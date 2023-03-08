@@ -3,10 +3,10 @@ import { PayloadBuilder } from "../packet/PayloadBuilder";
 
 export class ClientReady implements ClientCommand {
     
-    versionMajor = 5
-    versionMinor = 6
+    versionMajor = 1
+    versionMinor = 0
     versionPatch = 0
-    fullVersion = "mesewb"
+    fullVersion = "meseweb"
     formspecVersion = 4
 
     getCommandID(): number {
