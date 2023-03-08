@@ -3,8 +3,11 @@ import { PayloadBuilder } from "../packet/payloadbuilder.js";
 export class ClientInit {
     constructor(playername) {
         this.playername = playername;
-        this.clientMax = 28;
+        // https://github.com/minetest/minetest/blob/master/src/serialization.h#L66
+        this.clientMax = 29;
+        // unused: https://github.com/minetest/minetest/blob/master/src/network/serverpackethandler.cpp#L100
         this.supportedCompressionModes = 0;
+        // https://github.com/minetest/minetest/blob/master/src/network/networkprotocol.h#L208
         this.minNetProtoVersion = 37;
         this.maxNetProtoVersion = 40;
     }
