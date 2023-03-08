@@ -1,6 +1,7 @@
 import { CommandClient } from "./command/CommandClient"
 import { Scene } from "./Scene"
 import { Client } from "./Client"
+import { ServerBlockData } from "./command/server/ServerBlockData";
 
 const host = "minetest";
 const port = 30000;
@@ -16,6 +17,12 @@ client.login(username, password)
 .then(() =>{
     const e = document.getElementById("scene")!
     const scene = new Scene(client, e)
+})
+
+cmdClient.events.addListener("ServerCommand", cmd => {
+    if (cmd instanceof ServerBlockData) {
+        console.log(cmd)
+    }
 })
 
 window.addEventListener('beforeunload', function() {

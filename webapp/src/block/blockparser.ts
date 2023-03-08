@@ -1,5 +1,6 @@
 import { BlockData } from "./blockdata"
 import { Inflate, constants } from "pako"
+import { decompress } from "fzstd"
 
 export function getNodePos(x: number, y: number, z: number) {
     return x + (y * 16) + (z * 256);
@@ -7,6 +8,9 @@ export function getNodePos(x: number, y: number, z: number) {
 
 export function parseBlock(buf: Uint8Array): BlockData {
     const b = new BlockData()
+
+    const uncompressedData = decompress(buf)
+    console.log(uncompressedData)
 
     const dv = new DataView(buf.buffer)
     let offset = 0
