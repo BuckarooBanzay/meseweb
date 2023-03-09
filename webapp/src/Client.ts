@@ -31,9 +31,10 @@ export class Client {
     mediamanager: MediaManager = new InMemoryMediaManager
 
     media_ready = new Promise((resolve, reject) => {
-        this.cc.events.on("ServerCommand", cmd => {
-            const name_to_hash = new Map<string, string>()
+        let name_to_hash = new Map<string, string>()
+        const cached_names = new Map<string, boolean>
 
+        this.cc.events.on("ServerCommand", cmd => {
             if (cmd instanceof ServerAnnounceMedia) {
                 // TODO: request missing media
 
@@ -41,7 +42,7 @@ export class Client {
                 const missing_filenames = new Array<string>
 
                 // populate name-hash map
-                filenameList.forEach(filename => name_to_hash.set(filename, cmd.hashes.get(filename)!))
+                name_to_hash = cmd.hashes
 
                 const promises = filenameList
                     .map(filename => cmd.hashes.get(filename)!)
@@ -73,9 +74,14 @@ export class Client {
             } else if (cmd instanceof ServerMedia) {
                 const pending_addmedia = new Array<Promise<void>>()
                 cmd.files.forEach((buf, name) => {
-                    Logger.debug(`Adding '${name}' (${buf.length} bytes) to mediamanager`)
+                    if (cached_names.has(name)){
+                        // skip fast
+                        return
+                    }
+                    cached_names.set(name, true)
                     const hash = name_to_hash.get(name)!
-                    const p = this.mediamanager.addMedia(hash, name, new Blob(new Array<BlobPart>(buf)))
+                    Logger.debug(`Adding '${name}'/'${hash}' (${buf.length} bytes) to mediamanager`)
+                    const p = this.mediamanager.addMedia(hash, name, new Blob([buf]))
                     pending_addmedia.push(p)
                 })
 

@@ -46,8 +46,8 @@ export class CommandClient {
     private onMessage(ab: ArrayBuffer) {
         const buf = new Uint8Array(ab);
         const p = unmarshal(buf);
-        if (Logger.enabledFor(Logger.DEBUG)) {
-            Logger.debug(`<<< Received ${buf.length} bytes: ${p}`)
+        if (Logger.enabledFor(Logger.TRACE)) {
+            Logger.trace(`<<< Received ${buf.length} bytes: ${p}`)
         }
         this.events.emit("ServerPacket", p)
 
@@ -98,7 +98,9 @@ export class CommandClient {
     sendPacket(p: Packet, timeout = 2000): Promise<void> {
         p.peerId = this.peerId
         const payload = marshal(p)
-        Logger.debug(`>>> Sent ${payload.length} bytes: ${p}`)
+        if (Logger.enabledFor(Logger.TRACE)) {
+            Logger.trace(`>>> Sent ${payload.length} bytes: ${p}`)
+        }
         this.ws.send(payload)
 
         if (p.packetType == PacketType.Reliable) {

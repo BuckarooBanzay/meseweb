@@ -9,7 +9,7 @@ export class Scene {
             if (cmd instanceof ServerBlockData) {
                 const block = parseBlock(cmd.data)
 
-                console.log(`Got block: ${cmd.pos}, mapping: ${block.blockMapping}`)
+                console.log(`Got block: ${cmd.pos}`, block.blockMapping)
             }
         })
     }

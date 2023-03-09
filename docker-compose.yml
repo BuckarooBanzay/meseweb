@@ -39,7 +39,7 @@ services:
     - "./minetest.conf:/etc/minetest/minetest.conf"
     ports:
     - "30000:30000/udp"
-    command: ["/usr/local/bin/minetestserver", "--config", "/etc/minetest/minetest.conf", "--verbose"]
+    command: ["/usr/local/bin/minetestserver", "--config", "/etc/minetest/minetest.conf"]
 
 volumes:
   world_data: {}
