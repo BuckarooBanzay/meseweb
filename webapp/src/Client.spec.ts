@@ -28,7 +28,7 @@ describe("Client", function() {
         .then(() => client.mediamanager.size())
         .then(media_size => {
             expect(media_size).toBeGreaterThan(0)
-            expect(client.nodedefs.length).toBeGreaterThan(0)
+            expect(client.nodedefs.size).toBeGreaterThan(0)
             done()
         })
         .catch(e => {

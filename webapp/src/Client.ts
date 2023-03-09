@@ -27,7 +27,7 @@ export class Client {
     constructor(public cc: CommandClient) {}
 
     eph = srp.generateEphemeral()
-    nodedefs = new Array<NodeDefinition>
+    nodedefs = new Map<number, NodeDefinition>
     mediamanager: MediaManager = new InMemoryMediaManager
 
     media_ready = new Promise((resolve, reject) => {
@@ -96,7 +96,8 @@ export class Client {
     nodedefs_ready = new Promise((resolve, reject) => {
         this.cc.events.on("ServerCommand", cmd => {
             if (cmd instanceof ServerNodeDefinitions) {
-                this.nodedefs = ParseNodeDefinitions(cmd)
+                const deflist = ParseNodeDefinitions(cmd)
+                deflist.forEach(def => this.nodedefs.set(def.id, def))
                 resolve(null)
             } 
         })
