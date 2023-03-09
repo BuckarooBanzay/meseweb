@@ -1,4 +1,3 @@
-import { getNodePos } from "./blockparser"
 
 export class BlockData {
     underground = false
@@ -13,7 +12,13 @@ export class BlockData {
     mapNodes!: DataView
     blockMapping = new Map<number, boolean>()
 
-    GetNodeID(x: number, y: number, z: number): number {
-        return this.mapNodes.getUint16(getNodePos(x,y,z)*2)
+    getNodeID(x: number, y: number, z: number): number {
+        return this.mapNodes.getUint16(this.getNodePos(x,y,z)*2)
+    }
+
+    // TODO: param1/2 and metadata
+
+    getNodePos(x: number, y: number, z: number): number {
+        return x + (y * 16) + (z * 256);
     }
 }

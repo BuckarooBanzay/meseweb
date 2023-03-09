@@ -1,13 +1,9 @@
 import { BlockData } from "./blockdata"
-import { Inflate, constants } from "pako"
 import { decompress } from "fzstd"
-
-export function getNodePos(x: number, y: number, z: number) {
-    return x + (y * 16) + (z * 256);
-}
 
 function parseV29(buf: Uint8Array): BlockData {
     const b = new BlockData()
+    // skip trailing version byte before decompressing
     const uncompressedData = decompress(buf.slice(0, buf.byteLength - 1))
     const dv = new DataView(uncompressedData.buffer)
 
