@@ -8,7 +8,7 @@ export class IndexedDBMediaManager extends Dexie implements MediaManager {
     constructor() {
         super("meseweb")
         this.version(1).stores({
-            media: "++id,hash,filename,size,data"
+            media: "hash,filename,size,data"
         })
     }
 
@@ -46,7 +46,6 @@ export class IndexedDBMediaManager extends Dexie implements MediaManager {
 }
 
 interface CachedMedia {
-    id?: number
     hash: string
     filename: string
     size: number

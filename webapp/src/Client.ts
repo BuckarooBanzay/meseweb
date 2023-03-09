@@ -33,6 +33,7 @@ export class Client {
     media_ready = new Promise((resolve, reject) => {
         let name_to_hash = new Map<string, string>()
         const cached_names = new Map<string, boolean>
+        const missing_names = new Map<string, boolean>
 
         this.cc.events.on("ServerCommand", cmd => {
             if (cmd instanceof ServerAnnounceMedia) {
@@ -54,7 +55,8 @@ export class Client {
                         const hasMedia = hasMediaList[i];
                         if (!hasMedia) {
                             Logger.debug(`Adding ${filename} to requested media`)
-                            missing_filenames.push(filename);
+                            missing_filenames.push(filename)
+                            missing_names.set(filename, true)
                         }
                     }
 
@@ -72,22 +74,21 @@ export class Client {
                 })
 
             } else if (cmd instanceof ServerMedia) {
-                const pending_addmedia = new Array<Promise<void>>()
                 cmd.files.forEach((buf, name) => {
                     if (cached_names.has(name)){
                         // skip fast
                         return
                     }
                     cached_names.set(name, true)
+                    missing_names.delete(name)
                     const hash = name_to_hash.get(name)!
                     Logger.debug(`Adding '${name}'/'${hash}' (${buf.length} bytes) to mediamanager`)
-                    const p = this.mediamanager.addMedia(hash, name, new Blob([buf]))
-                    pending_addmedia.push(p)
+                    this.mediamanager.addMedia(hash, name, new Blob([buf]))
                 })
 
-                Promise
-                .all(pending_addmedia)
-                .then(() => resolve(null))
+                if (missing_names.size == 0) {
+                    resolve(null)
+                }
             }
         })
     })

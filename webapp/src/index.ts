@@ -13,7 +13,7 @@ const password = "enter";
 const ws = new WebSocket(`ws://127.0.0.1:8080/api/ws?host=${host}&port=${port}`);
 const cmdClient = new CommandClient(ws);
 
-//Logger.useDefaults({ defaultLevel: Logger.DEBUG })
+Logger.useDefaults({ defaultLevel: Logger.INFO })
 
 const client = new Client(cmdClient)
 client.mediamanager = new IndexedDBMediaManager()

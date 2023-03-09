@@ -17,8 +17,6 @@ type CommandClientEvents = {
     ServerPacket: (p: Packet) => void
 }
 
-export const TimeoutError = new Error("timeout")
-
 export class CommandClient {
 
     peerId = 0
@@ -117,8 +115,7 @@ export class CommandClient {
                 }
 
                 handle = setTimeout(() => {
-                    Logger.debug(`Timed out while waiting ${timeout} ms for packet ${p}`)
-                    reject(TimeoutError)
+                    reject(`Timed out while waiting ${timeout} ms for packet ${p}`)
                     // timed out, clean up
                     this.events.off("ServerPacket", listener)
                 }, timeout)
@@ -158,8 +155,7 @@ export class CommandClient {
             }
 
             handle = setTimeout(() => {
-                Logger.error(`Timed out while waiting ${timeout} ms for peer-init`)
-                reject(TimeoutError)
+                reject(`Timed out while waiting ${timeout} ms for peer-init`)
                 // timed out, clean up
                 this.events.off("ServerPacket", listener)
             }, timeout)
@@ -180,8 +176,7 @@ export class CommandClient {
             }
     
             handle = setTimeout(() => {
-                Logger.error(`Timed out while waiting ${timeout} ms for ${t}`)
-                reject(TimeoutError)
+                reject(`Timed out while waiting ${timeout} ms for ${t}`)
                 // timed out, clean up
                 this.events.off("ServerCommand", listener)
             }, timeout)
