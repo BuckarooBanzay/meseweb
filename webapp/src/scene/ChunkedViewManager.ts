@@ -1,5 +1,5 @@
 import { NodeDefinition, NodeDrawType } from "../nodedefs/NodeDefinition";
-import { Iterator, MapblockPositions, Pos } from "../util/pos";
+import { Iterator, MapblockPositions, NodePos, Pos } from "../util/pos";
 import { ChunkedView } from "./ChunkedView";
 import { BlockDataProvider, MaterialProvider } from "./types";
 
@@ -53,10 +53,24 @@ export class ChunkedViewManager {
                 return
             }
 
-            MapblockPositions.forEach(nodepos => {
+            MapblockPositions.forEach(pos => {
+                const nodepos = NodePos.from(pos)
+
+                const nodeid = b.getNodeID(nodepos)
+                const nodedef = this.nodedefs.get(nodeid)!
+                if (nodedef.drawType == NodeDrawType.NDT_AIRLIKE) {
+                    return
+                }
+
+                if (nodedef.drawType != NodeDrawType.NDT_NORMAL) {
+                    // TODO: only handle "normal" nodedrawtypes for now
+                    return
+                }
 
                 CardinalDirections.forEach(cd => {
-                    //TODO
+                    const neighbor_pos = NodePos.from(nodepos.add(cd))
+                    // TODO: overlap into other mapblocks
+                    const neighbor_nodeid = b.getNodeID(neighbor_pos)
                 })
             })
         });
