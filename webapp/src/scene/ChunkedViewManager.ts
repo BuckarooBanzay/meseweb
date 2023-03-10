@@ -1,7 +1,8 @@
 import { NodeDefinition, NodeDrawType } from "../nodedefs/NodeDefinition";
 import { Iterator, MapblockPositions, Pos, PosType } from "../util/pos";
 import { ChunkedView } from "./ChunkedView";
-import { BlockDataProvider, MaterialProvider } from "./types";
+import { MaterialProvider } from "./types";
+import { WorldMap } from "./WorldMap";
 
 // TODO: check
 const Directions = {
@@ -25,7 +26,7 @@ const CardinalDirections = [
 
 export class ChunkedViewManager {
 
-    constructor(public bdp: BlockDataProvider, public mp: MaterialProvider, public nodedefs: Map<number, NodeDefinition>) {
+    constructor(public wm: WorldMap, public mp: MaterialProvider, public nodedefs: Map<number, NodeDefinition>) {
 
         // populate transparent node-id map
         nodedefs.forEach((def, id) => {
@@ -37,18 +38,12 @@ export class ChunkedViewManager {
 
     transparentNodeIds = new Map<number, boolean>
 
-    isVisible() {
-        // TODO
-        CardinalDirections.some(p => {
-            return true
-        })
-    }
 
     create(pos1: Pos<PosType.Mapblock>, pos2: Pos<PosType.Mapblock>): Promise<ChunkedView> {
         const cv = new ChunkedView(pos1, pos2)
     
         Iterator(pos1, pos2).forEach(p => {
-            const b = this.bdp.getBlockdata(p)
+            const b = this.wm.getBlock(p)
             if (!b) {
                 return
             }
