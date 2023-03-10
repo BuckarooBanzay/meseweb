@@ -1,7 +1,7 @@
 import { Mesh } from "three";
-import { Pos } from "../util/pos";
+import { Pos, PosType } from "../util/pos";
 
 export class ChunkedView {
     meshes = new Array<Mesh>
-    constructor(public pos1: Pos, public pos2: Pos) {}
+    constructor(public pos1: Pos<PosType.Mapblock>, public pos2: Pos<PosType.Mapblock>) {}
 }

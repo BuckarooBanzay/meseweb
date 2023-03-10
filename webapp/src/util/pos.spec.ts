@@ -1,15 +1,15 @@
-import { NodePos, Pos } from "./pos"
+import { Pos, PosType, toMapblock, getNodeRegion } from "./pos"
 
 describe("pos", function() {
     test("calc", function() {
-        const np = new NodePos(-1, 10, 20)
+        const np = new Pos<PosType.Node>(-1, 10, 20)
 
-        const mbp = np.getMapblockPos()
+        const mbp = toMapblock(np)
         expect(mbp.x).toBeCloseTo(-1)
         expect(mbp.y).toBeCloseTo(0)
         expect(mbp.z).toBeCloseTo(1)
 
-        const r = mbp.getNodeRegion()
+        const r = getNodeRegion(mbp)
         expect(r[0].x).toBeCloseTo(-16)
         expect(r[0].y).toBeCloseTo(0)
         expect(r[0].z).toBeCloseTo(16)

@@ -3,7 +3,7 @@ import { BlockData } from "../block/blockdata";
 import { parseBlock } from "../block/blockparser";
 import { Client } from "../Client";
 import { ServerBlockData } from "../command/server/ServerBlockData";
-import { Pos } from "../util/pos";
+import { Pos, PosType } from "../util/pos";
 import { BlockDataProvider, MaterialProvider } from "./types";
 
 export class Scene implements MaterialProvider, BlockDataProvider {
@@ -20,7 +20,7 @@ export class Scene implements MaterialProvider, BlockDataProvider {
 
     blocks = new Map<string, BlockData>
 
-    getBlockdata(pos: Pos): BlockData | undefined {
+    getBlockdata(pos: Pos<PosType.Mapblock>): BlockData | undefined {
         return this.blocks.get(pos.toString())
     }
 

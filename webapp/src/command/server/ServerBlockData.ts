@@ -1,9 +1,9 @@
-import { Pos } from "../../util/pos";
+import { Pos, PosType } from "../../util/pos";
 import { ServerCommand } from "../ServerCommand";
 
 export class ServerBlockData implements ServerCommand {
 
-    pos!: Pos
+    pos!: Pos<PosType.Mapblock>
     data!: Uint8Array
 
     unmarshalPacket(dv: DataView): void {

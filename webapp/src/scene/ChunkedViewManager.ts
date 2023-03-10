@@ -1,16 +1,16 @@
 import { NodeDefinition, NodeDrawType } from "../nodedefs/NodeDefinition";
-import { Iterator, MapblockPositions, NodePos, Pos } from "../util/pos";
+import { Iterator, MapblockPositions, Pos, PosType } from "../util/pos";
 import { ChunkedView } from "./ChunkedView";
 import { BlockDataProvider, MaterialProvider } from "./types";
 
 // TODO: check
 const Directions = {
-    UP: new Pos(0,1,0),
-    DOWN: new Pos(0,-1,0),
-    NORTH: new Pos(1,0,0),
-    EAST: new Pos(0,0,1),
-    SOUTH: new Pos(0,-1,0),
-    WEST: new Pos(0,0,-1)
+    UP: new Pos<PosType.Node>(0,1,0),
+    DOWN: new Pos<PosType.Node>(0,-1,0),
+    NORTH: new Pos<PosType.Node>(1,0,0),
+    EAST: new Pos<PosType.Node>(0,0,1),
+    SOUTH: new Pos<PosType.Node>(0,-1,0),
+    WEST: new Pos<PosType.Node>(0,0,-1)
 }
 
 const CardinalDirections = [
@@ -44,7 +44,7 @@ export class ChunkedViewManager {
         })
     }
 
-    create(pos1: Pos, pos2: Pos): Promise<ChunkedView> {
+    create(pos1: Pos<PosType.Mapblock>, pos2: Pos<PosType.Mapblock>): Promise<ChunkedView> {
         const cv = new ChunkedView(pos1, pos2)
     
         Iterator(pos1, pos2).forEach(p => {
@@ -53,9 +53,7 @@ export class ChunkedViewManager {
                 return
             }
 
-            MapblockPositions.forEach(pos => {
-                const nodepos = NodePos.from(pos)
-
+            MapblockPositions.forEach(nodepos => {
                 const nodeid = b.getNodeID(nodepos)
                 const nodedef = this.nodedefs.get(nodeid)!
                 if (nodedef.drawType == NodeDrawType.NDT_AIRLIKE) {
@@ -68,7 +66,7 @@ export class ChunkedViewManager {
                 }
 
                 CardinalDirections.forEach(cd => {
-                    const neighbor_pos = NodePos.from(nodepos.add(cd))
+                    const neighbor_pos = nodepos.add(cd)
                     // TODO: overlap into other mapblocks
                     const neighbor_nodeid = b.getNodeID(neighbor_pos)
                 })

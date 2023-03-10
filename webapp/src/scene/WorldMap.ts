@@ -1,22 +1,28 @@
 import { BlockData } from "../block/blockdata";
 import { NodeDefinition } from "../nodedefs/NodeDefinition";
-import { MapblockPos, NodePos, Pos } from "../util/pos";
+import { Pos, PosType } from "../util/pos";
 import { BlockDataProvider } from "./types";
 
 export class WorldMap {
     constructor(private bp: BlockDataProvider) {
     }
 
-    getNode(pos: NodePos): WorldNode | undefined {
+    getNode(pos: Pos<PosType.Node>): WorldNode | undefined {
         return
     }
 
-    getBlock(pos: MapblockPos): BlockData | undefined {
+    getBlock(pos: Pos<PosType.Mapblock>): BlockData | undefined {
         return
+    }
+
+    isAirlike(pos: Pos<PosType.Node>): boolean {
+        return false
     }
     
 }
 
-export class WorldNode {
-    constructor(public pos: Pos, public nodeid: number, public nodedef: NodeDefinition){}
+export interface WorldNode {
+    readonly pos: Pos<PosType.Node>
+    readonly nodeid: number
+    readonly nodedef: NodeDefinition
 }
