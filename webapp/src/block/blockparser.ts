@@ -1,8 +1,9 @@
 import { BlockData } from "./blockdata"
 import { decompress } from "fzstd"
+import { Pos, PosType } from "../util/pos"
 
-function parseV29(buf: Uint8Array): BlockData {
-    const b = new BlockData()
+function parseV29(buf: Uint8Array, pos: Pos<PosType.Mapblock>): BlockData {
+    const b = new BlockData(pos)
     // skip trailing version byte before decompressing
     const uncompressedData = decompress(buf.slice(0, buf.byteLength - 1))
     const dv = new DataView(uncompressedData.buffer)
@@ -28,8 +29,8 @@ function parseV29(buf: Uint8Array): BlockData {
     return b
 }
 
-export function parseBlock(buf: Uint8Array): BlockData {
-    const b = new BlockData()
+export function parseBlock(buf: Uint8Array, pos: Pos<PosType.Mapblock>): BlockData {
+    const b = new BlockData(pos)
     const dv = new DataView(buf.buffer)
 
     if (dv.getUint8(0) == 0x28 &&
@@ -38,7 +39,7 @@ export function parseBlock(buf: Uint8Array): BlockData {
         dv.getUint8(3) == 0xfd
         ) {
             // zstd magic
-            return parseV29(buf)
+            return parseV29(buf, pos)
     } else {
         throw new Error("map format not supported")
     }

@@ -1,6 +1,9 @@
 import { Pos, PosType } from "../util/pos"
 
 export class BlockData {
+
+    constructor(public pos: Pos<PosType.Mapblock>){}
+
     underground = false
     dayNightDiff = false
     generated = false

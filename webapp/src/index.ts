@@ -1,7 +1,7 @@
+import Logger from "js-logger";
 import { CommandClient } from "./command/CommandClient"
 import { Scene } from "./scene/Scene"
 import { Client } from "./Client"
-import Logger from "js-logger";
 import { IndexedDBMediaManager } from "./media/IndexedDBMediaManager";
 import { WorldMap } from "./scene/WorldMap";
 
