@@ -17,7 +17,7 @@ services:
      - "./webapp:/app"
     user: node
     working_dir: "/app"
-    command: "bash -c 'INTEGRATION_TEST=true npm test'"
+    command: "bash -c 'npm ci && INTEGRATION_TEST=true npm test'"
 
   server:
     image: golang:1.19.1
