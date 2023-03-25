@@ -24,7 +24,6 @@ export class IndexedDBMediaManager extends Dexie implements MediaManager {
         })
     }
     addMedia(hash: string, filename: string, data: Blob): Promise<void> {
-        console.log(filename, hash, data.size)
         // only store if not already in cache
         return this.hasMedia(hash)
         .then(exists => {

@@ -1,7 +1,7 @@
 import { NodeDefinition, NodeDrawType } from "../nodedefs/NodeDefinition";
 import { Iterator, MapblockPositions, Pos, PosType } from "../util/pos";
 import { ChunkedView } from "./ChunkedView";
-import { MaterialProvider } from "./types";
+import { MaterialProvider } from "./MaterialProvider";
 import { WorldMap } from "./WorldMap";
 
 // TODO: check
