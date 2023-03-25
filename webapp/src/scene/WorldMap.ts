@@ -1,3 +1,4 @@
+import Logger from "js-logger";
 import { BlockData } from "../block/blockdata";
 import { parseBlock } from "../block/blockparser";
 import { CommandClient } from "../command/CommandClient";
@@ -15,7 +16,7 @@ export class WorldMap {
             if (cmd instanceof ServerBlockData) {
                 const block = parseBlock(cmd.data)
                 this.blocks.set(cmd.pos.toString(), block)
-                console.log(`Got block: ${cmd.pos}`, block.blockMapping)
+                Logger.debug(`Got block: ${cmd.pos}`, block.blockMapping)
             }
         })
     }

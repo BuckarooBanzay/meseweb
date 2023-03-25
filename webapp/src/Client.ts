@@ -37,8 +37,6 @@ export class Client {
 
         this.cc.events.on("ServerCommand", cmd => {
             if (cmd instanceof ServerAnnounceMedia) {
-                // TODO: request missing media
-
                 const filenameList = Array.from(cmd.hashes.keys())
                 const missing_filenames = new Array<string>
 
