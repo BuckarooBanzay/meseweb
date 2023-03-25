@@ -5,7 +5,8 @@ services:
     image: node:18.9.0
     volumes:
      - "./webapp:/app"
-    user: node
+     - "node_modules:/app/node_modules"
+    user: root
     working_dir: "/app"
     command: "bash -c 'npm ci && npm run watch'"
   
@@ -15,7 +16,8 @@ services:
      - minetest
     volumes:
      - "./webapp:/app"
-    user: node
+     - "node_modules:/app/node_modules"
+    user: root
     working_dir: "/app"
     command: "bash -c 'npm ci && INTEGRATION_TEST=true npm test'"
 
@@ -43,3 +45,4 @@ services:
 
 volumes:
   world_data: {}
+  node_modules: {}
