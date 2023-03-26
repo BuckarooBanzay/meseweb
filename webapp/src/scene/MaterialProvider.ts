@@ -1,6 +1,13 @@
-import Logger from "js-logger"
-import { FrontSide, Material, MeshLambertMaterial, NearestFilter, TextureLoader } from "three"
+import { DoubleSide, FrontSide, Material, MeshLambertMaterial, NearestFilter, TextureLoader } from "three"
 import { Client } from "../Client"
+
+function blobToDataURL(blob: Blob): Promise<string> {
+    return new Promise<string>(resolve => {
+        const reader = new FileReader()
+        reader.readAsDataURL(blob)
+        reader.onloadend = () => resolve(reader.result as string)
+    })
+}
 
 export class MaterialProvider {
     constructor(public client: Client) {}
@@ -26,12 +33,12 @@ export class MaterialProvider {
             if (blob == null) {
                 throw new Error(`texture not found: ${texturedef}`)
             }
-            const url = URL.createObjectURL(blob)
-
+            return blob
+        })
+        .then(blob => blobToDataURL(blob))
+        .then(url => {
             const loader = new TextureLoader()
-            const texture = loader.load(url, () => {
-                URL.revokeObjectURL(url)
-            })
+            const texture = loader.load(url)
             texture.magFilter = NearestFilter
 
             const material = new MeshLambertMaterial({
@@ -42,7 +49,6 @@ export class MaterialProvider {
             })
 
             this.materials.set(texturedef, material)
-
             return material
         })
     }

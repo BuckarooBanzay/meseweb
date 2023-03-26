@@ -2,7 +2,7 @@ import { Client } from "../Client";
 import { ChunkedViewManager } from "./ChunkedViewManager";
 import { MaterialProvider } from "./MaterialProvider";
 import { WorldMap } from "./WorldMap";
-import { BoxGeometry, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, Scene as ThreeScene, WebGLRenderer } from "three";
+import { AmbientLight, BoxGeometry, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, Scene as ThreeScene, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import Logger from "js-logger";
@@ -43,6 +43,9 @@ export class Scene {
     constructor(public client: Client, public wm: WorldMap, e: HTMLCanvasElement) {
         e.parentElement?.appendChild(this.stats.domElement)
 
+        const light = new AmbientLight( 0xffffff )
+        this.scene.add( light );
+
         this.renderer = new WebGLRenderer({ canvas: e })
         this.renderer.setSize(window.innerWidth, window.innerHeight)
 
@@ -64,9 +67,9 @@ export class Scene {
 
         this.materialprovider.getMaterial("default_diamond_block.png")
         .then(material => {
-            material = new MeshBasicMaterial( { color: 0x00ff00 } );
             const im = new InstancedMesh(side_geometry, material, 1)
-            im.setMatrixAt(0, rotations.Y_POS)        
+            const matrix = new Matrix4().makeTranslation(0,0,0).multiply(rotations.Y_POS)
+            im.setMatrixAt(0, matrix)
     
             this.scene.add(im)
         })
