@@ -14,7 +14,7 @@ export class InMemoryMediaManager implements MediaManager {
         })
     }
 
-    getMedia(filename: string): Promise<Blob> {
+    getMedia(filename: string): Promise<Blob | null> {
         return new Promise((resolve) => {
             resolve(this.data_map.get(filename)!)
         })

@@ -18,9 +18,9 @@ export class IndexedDBMediaManager extends Dexie implements MediaManager {
     hasMedia(hash: string): Promise<boolean> {
         return this.media.where("hash").equalsIgnoreCase(hash).first().then(v => !!v)
     }
-    getMedia(filename: string): Promise<Blob> {
+    getMedia(filename: string): Promise<Blob | null> {
         return this.media.where("filename").equals(filename).first().then(m => {
-            return m!.data
+            return m ? m.data : null
         })
     }
     addMedia(hash: string, filename: string, data: Blob): Promise<void> {

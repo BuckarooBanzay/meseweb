@@ -1,3 +1,4 @@
+import Logger from "js-logger"
 import { FrontSide, Material, MeshLambertMaterial, NearestFilter, TextureLoader } from "three"
 import { Client } from "../Client"
 
@@ -12,15 +13,19 @@ export class MaterialProvider {
             return Promise.resolve(this.materials.get(texturedef)!)
         }
 
-        return this.client.mediamanager.hasMedia(texturedef)
-        .then(exists => {
-            if (!exists) {
+        return this.client.mediamanager.getMedia(texturedef)
+        .then(blob => {
+            if (blob == null) {
+                // return unknown node texture
                 return this.client.mediamanager.getMedia("unknown_node.png")
             } else {
-                return this.client.mediamanager.getMedia(texturedef)
+                return blob
             }
         })
         .then(blob => {
+            if (blob == null) {
+                throw new Error(`texture not found: ${texturedef}`)
+            }
             const url = URL.createObjectURL(blob)
 
             const loader = new TextureLoader()
@@ -40,6 +45,5 @@ export class MaterialProvider {
 
             return material
         })
-
     }
 }

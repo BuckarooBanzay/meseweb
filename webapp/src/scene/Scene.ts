@@ -2,15 +2,40 @@ import { Client } from "../Client";
 import { ChunkedViewManager } from "./ChunkedViewManager";
 import { MaterialProvider } from "./MaterialProvider";
 import { WorldMap } from "./WorldMap";
-import { BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene as ThreeScene, WebGLRenderer } from "three";
+import { BoxGeometry, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, Scene as ThreeScene, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import Logger from "js-logger";
+import { Pos, PosType } from "../util/pos";
+
+const rotations = {
+    X_NEG: new Matrix4().makeRotationY(-Math.PI/2),
+    X_POS: new Matrix4().makeRotationY(Math.PI/2),
+    Y_NEG: new Matrix4().makeRotationX(Math.PI/2),
+    Y_POS: new Matrix4().makeRotationX(-Math.PI/2),
+    Z_NEG: new Matrix4().makeRotationX(Math.PI),
+    Z_POS: new Matrix4()
+}
+
+const face_offsets = {
+    X_NEG: new Pos<PosType.Node>(-0.5, 0, 0),
+    X_POS: new Pos<PosType.Node>(0.5, 0, 0),
+    Y_NEG: new Pos<PosType.Node>(0, -0.5, 0),
+    y_POS: new Pos<PosType.Node>(0, 0.5, 0),
+    Z_NEG: new Pos<PosType.Node>(0, 0, -0.5),
+    Z_POS: new Pos<PosType.Node>(0, 0, 0.5)
+};
+
+const side_geometry = new PlaneGeometry(1, 1);
 
 export class Scene {
 
     scene = new ThreeScene()
     camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+
+    materialprovider = new MaterialProvider(this.client)
+    cvm = new ChunkedViewManager(this.wm, this.materialprovider, this.client.nodedefs)
+
     controls: OrbitControls
     renderer: WebGLRenderer
     stats = Stats()
@@ -37,15 +62,16 @@ export class Scene {
             })
         })
 
-        const geometry = new BoxGeometry(1,1,1)
-        const material = new MeshBasicMaterial( { color: 0x00ff00 } );
-        const cube = new Mesh( geometry, material );
-
-        this.scene.add(cube)
+        this.materialprovider.getMaterial("default_diamond_block.png")
+        .then(material => {
+            material = new MeshBasicMaterial( { color: 0x00ff00 } );
+            const im = new InstancedMesh(side_geometry, material, 1)
+            im.setMatrixAt(0, rotations.Y_POS)        
+    
+            this.scene.add(im)
+        })
     }
 
-    materialprovider = new MaterialProvider(this.client)
-    cvm = new ChunkedViewManager(this.wm, this.materialprovider, this.client.nodedefs)
 
     animate() {
         this.stats.begin()
