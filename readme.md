@@ -14,7 +14,6 @@ What doesn't work:
 * Player stuff
 * everything else :P
 
-
 ## Tools used
 
 * THREEJS
@@ -27,7 +26,7 @@ Requirements:
 * a proper text-editor
 
 ```bash
-docker-compose up
+docker-compose up server minetest webapp
 ```
 
 Visit: http://127.0.0.1:8080
