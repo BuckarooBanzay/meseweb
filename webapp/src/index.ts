@@ -24,8 +24,9 @@ client.login(username, password)
     Logger.debug(`Creating worldmap store`)
     const wm = new WorldMap(cmdClient, client.nodedefs)
     Logger.info(`Connected to ${host}:${port}, creating scene`)
-    const e = document.getElementById("scene")!
+    const e = document.getElementById("scene") as HTMLCanvasElement
     const scene = new Scene(client, wm, e)
+    scene.animate()
 })
 .catch(e => console.error(e))
 

@@ -1,9 +1,11 @@
+import { BoxGeometry, Mesh, MeshBasicMaterial } from "three";
 import { NodeDefinition, NodeDrawType } from "../nodedefs/NodeDefinition";
 import { Iterator, MapblockPositions, Pos, PosType } from "../util/pos";
 import { ChunkedView } from "./ChunkedView";
 import { MaterialProvider } from "./MaterialProvider";
 import { WorldMap } from "./WorldMap";
 
+const cubeGeo = new BoxGeometry(1,1,1)
 
 export class ChunkedViewManager {
 
@@ -23,6 +25,10 @@ export class ChunkedViewManager {
                 if (!this.wm.isOccluded(worldpos)) {
                     const node = this.wm.getNode(worldpos)
                     if (node?.nodedef.drawType == NodeDrawType.NDT_NORMAL) {
+                        const material = new MeshBasicMaterial( { color: 0x00ff00 } );
+                        const cube = new Mesh( cubeGeo, material );
+                        cv.meshes.push(cube)
+                        
                         // TODO: create needed meshes
                     }
                 }
