@@ -67,9 +67,16 @@ export class Scene {
 
         this.materialprovider.getMaterial("default_diamond_block.png")
         .then(material => {
-            const im = new InstancedMesh(side_geometry, material, 1)
-            const matrix = new Matrix4().makeTranslation(0,0,0).multiply(rotations.Y_POS)
-            im.setMatrixAt(0, matrix)
+            const x_items = 250
+            const z_items = 250
+            let i = 0
+            const im = new InstancedMesh(side_geometry, material, x_items * z_items)
+            for (let x=0;x<x_items; x++) {
+                for (let z=0;z<z_items; z++) {
+                    const matrix = new Matrix4().makeTranslation(x,0,z).multiply(rotations.Y_POS)
+                    im.setMatrixAt(i++, matrix)
+                }
+            }
     
             this.scene.add(im)
         })
