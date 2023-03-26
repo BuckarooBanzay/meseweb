@@ -50,7 +50,7 @@ export class WorldMap {
             const neighbor_pos = pos.add(d)
             const neighbor_nodeid = this.getNodeID(neighbor_pos)
             // occluded (unknown node)
-            if (!neighbor_nodeid) return true
+            if (neighbor_nodeid == undefined) return true
 
             if (!this.transparentNodeIds.get(neighbor_nodeid)) {
                 // occluded (not transparent)
