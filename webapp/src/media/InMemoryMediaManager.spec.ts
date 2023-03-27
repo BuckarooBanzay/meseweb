@@ -14,7 +14,7 @@ describe("InMemoryMediaManager", function() {
         .then(() => mm.hasMedia("def"))
         .then(present => expect(present).toBeFalsy())
         .then(() => mm.getMedia("x.png"))
-        .then(b => b.arrayBuffer())
+        .then(b => b!.arrayBuffer())
         .then(ab2 => {
             expect(ab2).toBeTruthy()
             const bdv = new DataView(ab2)
