@@ -21,9 +21,11 @@ function parseV29(buf: Uint8Array, pos: Pos<PosType.Mapblock>): BlockData {
     b.contentWidth = dv.getUint8(offset++)
     b.paramsWidth = dv.getUint8(offset++)
 
-    b.mapNodes = new DataView(uncompressedData.buffer, offset, offset+(4096*2))
-    for (let i=0; i<4096; i++){
-        b.blockMapping.set(b.mapNodes.getUint16(i*2), true)
+    const nodeids = new DataView(uncompressedData.buffer, offset, offset+(4096*2))
+    for (let i=0; i<4096; i++) {
+        const nodeid = nodeids.getUint16(i*2)
+        b.mapNodes.push(nodeid)
+        b.blockMapping.set(nodeid, true)
     }
 
     return b

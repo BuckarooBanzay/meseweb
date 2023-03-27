@@ -13,11 +13,11 @@ export class BlockData {
     contentWidth = 0
     paramsWidth = 0
 
-    mapNodes!: DataView
+    mapNodes = new Array<number>
     blockMapping = new Map<number, boolean>()
 
     getNodeID(pos: Pos<PosType.Node>): number {
-        return this.mapNodes.getUint16(this.getNodePos(pos)*2)
+        return this.mapNodes[this.getNodePos(pos)]
     }
 
     // TODO: param1/2 and metadata
