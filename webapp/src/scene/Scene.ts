@@ -14,14 +14,13 @@ export class Scene {
     scene = new ThreeScene()
     camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
 
-    materialprovider = new MaterialManager(this.client.nodedefs, this.client.mediamanager)
-    cvm = new ChunkedViewManager(this.wm, this.materialprovider, this.client.nodedefs)
+    cvm = new ChunkedViewManager(this.wm, this.materialmanager, this.client.nodedefs)
 
     controls: OrbitControls
     renderer: WebGLRenderer
     stats = Stats()
 
-    constructor(public client: Client, public wm: WorldMap, e: HTMLCanvasElement) {
+    constructor(public client: Client, public wm: WorldMap, public materialmanager: MaterialManager, e: HTMLCanvasElement) {
         e.parentElement?.appendChild(this.stats.domElement)
 
         const light = new AmbientLight( 0xffffff )
@@ -36,12 +35,9 @@ export class Scene {
         this.controls.maxDistance = 500
 
         wm.events.on("BlockAdded", b => {
-            this.cvm.create(b.pos, b.pos)
-            .then(cv => {
-                //TODO: add meshes to scene
-                Logger.debug(`Adding ${cv.meshes.length} meshes to scene`)
-                cv.meshes.forEach(m => this.scene.add(m))
-            })
+            const cv = this.cvm.create(b.pos, b.pos)
+            Logger.debug(`Adding ${cv.meshes.length} meshes to scene`)
+            cv.meshes.forEach(m => this.scene.add(m))
         })
     }
 

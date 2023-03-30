@@ -4,6 +4,7 @@ import { Scene } from "./scene/Scene"
 import { Client } from "./Client"
 import { IndexedDBMediaManager } from "./media/IndexedDBMediaManager";
 import { WorldMap } from "./scene/WorldMap";
+import { MaterialManager } from "./scene/MaterialManager";
 
 const host = "minetest";
 const port = 30000;
@@ -21,11 +22,15 @@ client.mediamanager = new IndexedDBMediaManager()
 
 client.login(username, password)
 .then(() => {
-    Logger.debug(`Creating worldmap store`)
+    Logger.info(`Generating material for ${client.nodedefs.size} node-defs`)
+    const mm = new MaterialManager(client.nodedefs, client.mediamanager)
+    return mm.generate().then(() => mm)
+})
+.then((mm) => {
     const wm = new WorldMap(cmdClient, client.nodedefs)
     Logger.info(`Connected to ${host}:${port}, creating scene`)
     const e = document.getElementById("scene") as HTMLCanvasElement
-    const scene = new Scene(client, wm, e)
+    const scene = new Scene(client, wm, mm, e)
     scene.animate()
 })
 .catch(e => console.error(e))

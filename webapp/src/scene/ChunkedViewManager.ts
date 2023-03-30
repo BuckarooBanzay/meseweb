@@ -33,6 +33,8 @@ const face_matrix = {
     Z_POS: translations.Z_POS.multiply(rotations.Z_POS)
 }
 
+const AIR_NODEID = 126
+
 const side_geometry = new PlaneGeometry(1, 1);
 
 export class ChunkedViewManager {
@@ -43,8 +45,8 @@ export class ChunkedViewManager {
     // node-ids that occlude neighbors
     nodeids_occlude = new Map<number, boolean>()
 
-    constructor(public wm: WorldMap, public mp: MaterialManager, public nodedefs: Map<number, NodeDefinition>) {
-        this.nodeids_airlike.set(126, true) // air
+    constructor(public wm: WorldMap, public mm: MaterialManager, public nodedefs: Map<number, NodeDefinition>) {
+        this.nodeids_airlike.set(AIR_NODEID, true) // air
         nodedefs.forEach((nd, id) => {
             switch (nd.drawType) {
                 case NodeDrawType.NDT_AIRLIKE:
@@ -56,7 +58,7 @@ export class ChunkedViewManager {
         })
     }
 
-    create(pos1: Pos<PosType.Mapblock>, pos2: Pos<PosType.Mapblock>): Promise<ChunkedView> {
+    create(pos1: Pos<PosType.Mapblock>, pos2: Pos<PosType.Mapblock>): ChunkedView {
         Logger.debug(`Creating chunked view for ${pos1} to ${pos2}`)
         const cv = new ChunkedView(pos1, pos2)
     
@@ -72,6 +74,11 @@ export class ChunkedViewManager {
         Iterator(pos1, pos2).forEach(p => {
             const b = this.wm.getBlock(p)
             if (!b) {
+                return
+            }
+
+            if (b.blockMapping.size == 1 && b.blockMapping.has(AIR_NODEID)){
+                // air only
                 return
             }
 
@@ -103,58 +110,64 @@ export class ChunkedViewManager {
                     }
 
                     // render node face
-                    const promise = this.mp.getMaterial(nodeid, dir)
-                    promises.push(promise)
-                    promise.catch(e => console.error(e))
-                    promise.then(material => {
-                        if (material == null) {
-                            return
-                        }
+                    const material = this.mm.getMaterial(nodeid, dir)
+                    if (material == undefined) {
+                        // no material generated
+                        return
+                    }
 
-                        if (!materials.has(material.uuid)){
-                            // create material entries
-                            materials.set(material.uuid, material)
-                            matrices.set(material.uuid, new Array<Matrix4>())
-                        }
+                    if (!materials.has(material.uuid)){
+                        // create material entries
+                        materials.set(material.uuid, material)
+                        matrices.set(material.uuid, new Array<Matrix4>())
+                    }
 
-                        const matrix_list = matrices.get(material.uuid)!
-                        switch (dir) {
-                            case Directions.Z_POS:
-                                matrix_list.push(face_matrix.Z_POS)
-                                break
-                            case Directions.Z_NEG:
-                                matrix_list.push(face_matrix.Z_NEG)
-                                break
-                            case Directions.Y_POS:
-                                matrix_list.push(face_matrix.Y_POS)
-                                break
-                            case Directions.Y_NEG:
-                                matrix_list.push(face_matrix.Y_NEG)
-                                break
-                            case Directions.X_POS:
-                                matrix_list.push(face_matrix.X_POS)
-                                break
-                            case Directions.X_NEG:
-                                matrix_list.push(face_matrix.X_NEG)
-                                break
-                            }
-                    })
+                    const matrix_list = matrices.get(material.uuid)!
+                    let rotation: Matrix4
+                    let translation: Matrix4
+
+                    switch (dir) {
+                        case Directions.Z_POS:
+                            rotation = rotations.Z_POS
+                            translation = translations.Z_POS
+                            break
+                        case Directions.Z_NEG:
+                            rotation = rotations.Z_NEG
+                            translation = translations.Z_NEG
+                            break
+                        case Directions.Y_POS:
+                            rotation = rotations.Y_POS
+                            translation = translations.Y_POS
+                            break
+                        case Directions.Y_NEG:
+                            rotation = rotations.Y_NEG
+                            translation = translations.Y_NEG
+                            break
+                        case Directions.X_POS:
+                            rotation = rotations.X_POS
+                            translation = translations.X_POS
+                            break
+                        case Directions.X_NEG:
+                            rotation = rotations.X_NEG
+                            translation = translations.X_NEG
+                            break
+                    }
+
+                    translation = translation!.makeTranslation(nodepos.x, nodepos.y, nodepos.z)
+                    matrix_list.push(translation.multiply(rotation!))
                 })
 
             })
         });
 
-        return Promise.all(promises)
-        .then(() => {
-            materials.forEach((material) => {
-                const matrix_list = matrices.get(material.uuid)!
-                const mesh = new InstancedMesh(side_geometry, material, matrix_list.length)
-                matrix_list.forEach((m, i) => mesh.setMatrixAt(i, m))
-                cv.meshes.push(mesh)
-            })
-
-            return cv
+        materials.forEach((material) => {
+            const matrix_list = matrices.get(material.uuid)!
+            const mesh = new InstancedMesh(side_geometry, material, matrix_list.length)
+            matrix_list.forEach((m, i) => mesh.setMatrixAt(i, m))
+            cv.meshes.push(mesh)
         })
+
+        return cv
     }
 
 }
