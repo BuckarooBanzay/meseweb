@@ -15,23 +15,14 @@ const rotations = {
     Z_POS: new Matrix4()
 }
 
-const translations = {
-    X_NEG: new Matrix4().makeTranslation(-0.5, 0, 0),
-    X_POS: new Matrix4().makeTranslation(0.5, 0, 0),
-    Y_NEG: new Matrix4().makeTranslation(0, -0.5, 0),
-    Y_POS: new Matrix4().makeTranslation(0, 0.5, 0),
-    Z_NEG: new Matrix4().makeTranslation(0, 0, -0.5),
-    Z_POS: new Matrix4().makeTranslation(0, 0, 0.5)
+const face_offsets = {
+    X_NEG: new Pos<PosType.Node>(-0.5, 0, 0),
+    X_POS: new Pos<PosType.Node>(0.5, 0, 0),
+    Y_NEG: new Pos<PosType.Node>(0, -0.5, 0),
+    Y_POS: new Pos<PosType.Node>(0, 0.5, 0),
+    Z_NEG: new Pos<PosType.Node>(0, 0, -0.5),
+    Z_POS: new Pos<PosType.Node>(0, 0, 0.5)
 };
-
-const face_matrix = {
-    X_NEG: translations.X_NEG.multiply(rotations.X_NEG),
-    X_POS: translations.X_POS.multiply(rotations.X_POS),
-    Y_NEG: translations.Y_NEG.multiply(rotations.Y_NEG),
-    Y_POS: translations.Y_POS.multiply(rotations.Y_POS),
-    Z_NEG: translations.Z_NEG.multiply(rotations.Z_NEG),
-    Z_POS: translations.Z_POS.multiply(rotations.Z_POS)
-}
 
 const AIR_NODEID = 126
 
@@ -124,37 +115,38 @@ export class ChunkedViewManager {
 
                     const matrix_list = matrices.get(material.uuid)!
                     let rotation: Matrix4
-                    let translation: Matrix4
+                    let offset: Pos<PosType.Node>
 
                     switch (dir) {
                         case Directions.Z_POS:
                             rotation = rotations.Z_POS
-                            translation = translations.Z_POS
+                            offset = face_offsets.Z_POS
                             break
                         case Directions.Z_NEG:
                             rotation = rotations.Z_NEG
-                            translation = translations.Z_NEG
+                            offset = face_offsets.Z_NEG
                             break
                         case Directions.Y_POS:
                             rotation = rotations.Y_POS
-                            translation = translations.Y_POS
+                            offset = face_offsets.Y_POS
                             break
                         case Directions.Y_NEG:
                             rotation = rotations.Y_NEG
-                            translation = translations.Y_NEG
+                            offset = face_offsets.Y_NEG
                             break
                         case Directions.X_POS:
                             rotation = rotations.X_POS
-                            translation = translations.X_POS
+                            offset = face_offsets.X_POS
                             break
                         case Directions.X_NEG:
                             rotation = rotations.X_NEG
-                            translation = translations.X_NEG
+                            offset = face_offsets.X_NEG
                             break
                     }
 
-                    translation = translation!.makeTranslation(nodepos.x, nodepos.y, nodepos.z)
-                    matrix_list.push(translation.multiply(rotation!))
+                    const face_pos = nodepos.add(offset!)
+                    const m = new Matrix4().makeTranslation(face_pos.x, face_pos.y, face_pos.z)
+                    matrix_list.push(m.multiply(rotation!))
                 })
 
             })
