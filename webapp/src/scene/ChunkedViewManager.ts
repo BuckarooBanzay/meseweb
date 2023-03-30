@@ -83,20 +83,24 @@ export class ChunkedViewManager {
                     return
                 }
 
-                // for each cardinal direction
                 const nodepos = r[0].add(intrablock_nodepos)
+                const node = this.wm.getNode(nodepos)
+                if (!node) {
+                    // node-def not found
+                    return
+                }
+
+                if (node.nodedef.drawType != NodeDrawType.NDT_NORMAL) {
+                    return
+                }
+
+                // for each cardinal direction
                 CardinalNodeDirections.forEach(dir => {
                     const neighbor_pos = nodepos.add(dir)
                     const neighbor_nodeid = this.wm.getNodeID(neighbor_pos)
 
                     if (!neighbor_nodeid || this.nodeids_occlude.get(neighbor_nodeid)) {
                         // face/direction is occluded or not generated
-                        return
-                    }
-
-                    const node = this.wm.getNode(nodepos)
-                    if (!node) {
-                        // node-def not found
                         return
                     }
 
