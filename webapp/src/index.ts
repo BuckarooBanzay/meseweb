@@ -27,6 +27,7 @@ client.login(username, password)
     return mm.generate().then(() => mm)
 })
 .then((mm) => {
+    client.ready()
     const wm = new WorldMap(cmdClient, client.nodedefs)
     Logger.info(`Connected to ${host}:${port}, creating scene`)
     const e = document.getElementById("scene") as HTMLCanvasElement

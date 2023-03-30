@@ -21,6 +21,7 @@ import { InMemoryMediaManager } from "./media/InMemoryMediaManager";
 import { ClientInit2 } from "./command/client/ClientInit2";
 import { ClientReady } from "./command/client/ClientReady";
 import Logger from "js-logger";
+import { Pos, PosType } from "./util/pos";
 
 export class Client {
 
@@ -29,6 +30,8 @@ export class Client {
     eph = srp.generateEphemeral()
     nodedefs = new Map<number, NodeDefinition>
     mediamanager: MediaManager = new InMemoryMediaManager
+
+    pos = new Pos<PosType.Node>(0, 0, 0)
 
     media_ready = new Promise((resolve, reject) => {
         let name_to_hash = new Map<string, string>()
@@ -137,18 +140,19 @@ export class Client {
                 return this.cc.exchangeCommand(new ClientSRPBytesM(proof), PacketType.Reliable, ServerAuthAccept);
             })
             .then(aa => {
-                // TODO: player pos
+                this.pos = new Pos<PosType.Node>(aa.posX, aa.posY, aa.posZ)
                 return this.cc.sendCommand(new ClientInit2())
             })
             .then(() => {
                 return Promise.all([this.nodedefs_ready, this.media_ready])
             })
-            .then(() => {
-                return this.cc.sendCommand(new ClientReady())
-            })
             .then(() => resolve())
             .catch(e => reject(e))
         })
+    }
+
+    ready(): Promise<void[]> {
+        return this.cc.sendCommand(new ClientReady())
     }
 
     close() {
