@@ -1,18 +1,74 @@
 import Logger from "js-logger";
+import { InstancedMesh, Material, Matrix4, PlaneGeometry } from "three";
 import { NodeDefinition, NodeDrawType } from "../nodedefs/NodeDefinition";
-import { Iterator, MapblockPositions, Pos, PosType, getNodeRegion } from "../util/pos";
+import { Iterator, MapblockPositions, Pos, PosType, getNodeRegion, CardinalNodeDirections, Directions } from "../util/pos";
 import { ChunkedView } from "./ChunkedView";
-import { MaterialProvider } from "./MaterialProvider";
+import { MaterialManager } from "./MaterialManager";
 import { WorldMap } from "./WorldMap";
+
+const rotations = {
+    X_NEG: new Matrix4().makeRotationY(-Math.PI/2),
+    X_POS: new Matrix4().makeRotationY(Math.PI/2),
+    Y_NEG: new Matrix4().makeRotationX(Math.PI/2),
+    Y_POS: new Matrix4().makeRotationX(-Math.PI/2),
+    Z_NEG: new Matrix4().makeRotationX(Math.PI),
+    Z_POS: new Matrix4()
+}
+
+const translations = {
+    X_NEG: new Matrix4().makeTranslation(-0.5, 0, 0),
+    X_POS: new Matrix4().makeTranslation(0.5, 0, 0),
+    Y_NEG: new Matrix4().makeTranslation(0, -0.5, 0),
+    Y_POS: new Matrix4().makeTranslation(0, 0.5, 0),
+    Z_NEG: new Matrix4().makeTranslation(0, 0, -0.5),
+    Z_POS: new Matrix4().makeTranslation(0, 0, 0.5)
+};
+
+const face_matrix = {
+    X_NEG: translations.X_NEG.multiply(rotations.X_NEG),
+    X_POS: translations.X_POS.multiply(rotations.X_POS),
+    Y_NEG: translations.Y_NEG.multiply(rotations.Y_NEG),
+    Y_POS: translations.Y_POS.multiply(rotations.Y_POS),
+    Z_NEG: translations.Z_NEG.multiply(rotations.Z_NEG),
+    Z_POS: translations.Z_POS.multiply(rotations.Z_POS)
+}
+
+const side_geometry = new PlaneGeometry(1, 1);
 
 export class ChunkedViewManager {
 
-    constructor(public wm: WorldMap, public mp: MaterialProvider, public nodedefs: Map<number, NodeDefinition>) {}
+    // airlike nodeids
+    nodeids_airlike = new Map<number, boolean>()
+
+    // node-ids that occlude neighbors
+    nodeids_occlude = new Map<number, boolean>()
+
+    constructor(public wm: WorldMap, public mp: MaterialManager, public nodedefs: Map<number, NodeDefinition>) {
+        this.nodeids_airlike.set(126, true) // air
+        nodedefs.forEach((nd, id) => {
+            switch (nd.drawType) {
+                case NodeDrawType.NDT_AIRLIKE:
+                    this.nodeids_airlike.set(id, true)
+                    break
+                case NodeDrawType.NDT_NORMAL:
+                    this.nodeids_occlude.set(id, true)
+            }
+        })
+    }
 
     create(pos1: Pos<PosType.Mapblock>, pos2: Pos<PosType.Mapblock>): Promise<ChunkedView> {
         Logger.debug(`Creating chunked view for ${pos1} to ${pos2}`)
         const cv = new ChunkedView(pos1, pos2)
     
+        // material-uuid -> material
+        const materials = new Map<string, Material>()
+
+        // material-uuid -> matrix4[]
+        const matrices = new Map<string, Array<Matrix4>>()
+
+        const promises = new Array<Promise<Material|null>>()
+
+        // for each mapblock
         Iterator(pos1, pos2).forEach(p => {
             const b = this.wm.getBlock(p)
             if (!b) {
@@ -21,19 +77,84 @@ export class ChunkedViewManager {
 
             const r = getNodeRegion(p)
 
-            MapblockPositions.forEach(nodepos => {
-                const worldpos = r[0].add(nodepos)
-                if (!this.wm.isOccluded(worldpos)) {
-                    const node = this.wm.getNode(worldpos)
-                    if (node?.nodedef.drawType == NodeDrawType.NDT_NORMAL) {                        
-                        // TODO: create needed meshes
-                    }
+            // for each node
+            MapblockPositions.forEach(intrablock_nodepos => {
+                const nodeid = b.getNodeID(intrablock_nodepos)
+                if (this.nodeids_airlike.get(nodeid)) {
+                    // don't render airlike nodes
+                    return
                 }
+
+                // for each cardinal direction
+                const nodepos = r[0].add(intrablock_nodepos)
+                CardinalNodeDirections.forEach(dir => {
+                    const neighbor_pos = nodepos.add(dir)
+                    const neighbor_nodeid = this.wm.getNodeID(neighbor_pos)
+
+                    if (!neighbor_nodeid || this.nodeids_occlude.get(neighbor_nodeid)) {
+                        // face/direction is occluded or not generated
+                        return
+                    }
+
+                    const node = this.wm.getNode(nodepos)
+                    if (!node) {
+                        // node-def not found
+                        return
+                    }
+
+                    // render node face
+                    const promise = this.mp.getMaterial(nodeid, dir)
+                    promises.push(promise)
+                    promise.catch(e => console.error(e))
+                    promise.then(material => {
+                        if (material == null) {
+                            return
+                        }
+
+                        if (!materials.has(material.uuid)){
+                            // create material entries
+                            materials.set(material.uuid, material)
+                            matrices.set(material.uuid, new Array<Matrix4>())
+                        }
+
+                        const matrix_list = matrices.get(material.uuid)!
+                        switch (dir) {
+                            case Directions.Z_POS:
+                                matrix_list.push(face_matrix.Z_POS)
+                                break
+                            case Directions.Z_NEG:
+                                matrix_list.push(face_matrix.Z_NEG)
+                                break
+                            case Directions.Y_POS:
+                                matrix_list.push(face_matrix.Y_POS)
+                                break
+                            case Directions.Y_NEG:
+                                matrix_list.push(face_matrix.Y_NEG)
+                                break
+                            case Directions.X_POS:
+                                matrix_list.push(face_matrix.X_POS)
+                                break
+                            case Directions.X_NEG:
+                                matrix_list.push(face_matrix.X_NEG)
+                                break
+                            }
+                    })
+                })
+
             })
         });
-    
-            
-        return Promise.resolve(cv)
+
+        return Promise.all(promises)
+        .then(() => {
+            materials.forEach((material) => {
+                const matrix_list = matrices.get(material.uuid)!
+                const mesh = new InstancedMesh(side_geometry, material, matrix_list.length)
+                matrix_list.forEach((m, i) => mesh.setMatrixAt(i, m))
+                cv.meshes.push(mesh)
+            })
+
+            return cv
+        })
     }
 
 }

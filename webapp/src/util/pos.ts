@@ -74,19 +74,19 @@ export const MapblockPositions = Iterator(MapblockStartNode, MapblockEndNode)
 
 // TODO: check
 export const Directions = {
-    UP: new Pos<PosType.Node>(0,1,0),
-    DOWN: new Pos<PosType.Node>(0,-1,0),
-    NORTH: new Pos<PosType.Node>(1,0,0),
-    EAST: new Pos<PosType.Node>(0,0,1),
-    SOUTH: new Pos<PosType.Node>(0,-1,0),
-    WEST: new Pos<PosType.Node>(0,0,-1)
+    Y_POS: new Pos<PosType.Node>(0,1,0),
+    Y_NEG: new Pos<PosType.Node>(0,-1,0),
+    X_POS: new Pos<PosType.Node>(1,0,0),
+    Z_POS: new Pos<PosType.Node>(0,0,1),
+    X_NEG: new Pos<PosType.Node>(-1,0,0),
+    Z_NEG: new Pos<PosType.Node>(0,0,-1)
 }
 
 export const CardinalNodeDirections = [
-    Directions.UP,
-    Directions.DOWN,
-    Directions.NORTH,
-    Directions.EAST,
-    Directions.SOUTH,
-    Directions.WEST
+    Directions.Y_POS,
+    Directions.Y_NEG,
+    Directions.X_POS,
+    Directions.Z_POS,
+    Directions.X_NEG,
+    Directions.Z_NEG
 ]
