@@ -25,6 +25,7 @@ describe("Client", function() {
         const client = new Client(cc)
 
         client.login(username, password)
+        .then(() => client.ready())
         .then(() => client.mediamanager.size())
         .then(media_size => {
             expect(media_size).toBeGreaterThan(0)
