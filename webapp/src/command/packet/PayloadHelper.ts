@@ -15,6 +15,20 @@ export class PayloadHelper {
         return a;
     }
 
+    getStringArray(offset: number): Array<string> {
+        const a = new Array<string>()
+        const count = this.dv.getUint16(offset)
+        let o = offset + 2
+
+        for (let i=0; i<count; i++) {
+            a.push(this.getString(o))
+            // shift offset
+            o += 2 + this.dv.getUint16(o)
+        }
+
+        return a
+    }
+
     getUint8Array(offset: number): Uint8Array {
         const buf = new Uint8Array(this.dv.buffer);
         const len = this.dv.getUint32(offset);
@@ -27,11 +41,15 @@ export class PayloadHelper {
     }
 
     getString(offset: number): string {
-        const len = this.dv.getUint16(offset);
-        let str = "";
+        const len = this.dv.getUint16(offset)
+        let str = ""
         for (let i=0; i<len; i++){
-            str += String.fromCharCode(this.dv.getUint8(offset+2+i));
+            str += String.fromCharCode(this.dv.getUint8(offset+2+i))
         }
         return str;
+    }
+
+    getWideString(offset: number): string {
+        return this.getString(offset) //TODO: widestring
     }
 }

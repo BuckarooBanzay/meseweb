@@ -25,11 +25,13 @@ import { Pos, PosType } from "./util/pos";
 
 export class Client {
 
-    constructor(public cc: CommandClient) {}
+    constructor(public cc: CommandClient, mediamanager?: MediaManager) {
+        this.mediamanager = mediamanager ? mediamanager : new InMemoryMediaManager()
+    }
 
     eph = srp.generateEphemeral()
     nodedefs = new Map<number, NodeDefinition>
-    mediamanager: MediaManager = new InMemoryMediaManager
+    mediamanager: MediaManager
 
     pos = new Pos<PosType.Node>(0, 0, 0)
 
