@@ -6,7 +6,7 @@ export class ServerChatMessage implements ServerCommand {
 
     unmarshalPacket(dv: DataView): void {
         const ph = new PayloadHelper(dv)
-        this.message = ph.getWideString(0)
+        this.message = ph.getWideString(4)
     }
 
 }

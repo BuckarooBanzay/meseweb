@@ -11,6 +11,7 @@ import { getServerCommand, ServerCommand } from "./ServerCommand";
 import Logger from "js-logger"
 import EventEmitter from "events"
 import TypedEmitter from "typed-emitter"
+import { dataViewToHexDump } from "../util/hex";
 
 type CommandClientEvents = {
     ServerCommand: (c: ServerCommand) => void
@@ -71,20 +72,22 @@ export class CommandClient {
 
     private parseCommandPayload(dv: DataView) {
         const cmdId = dv.getUint16(0);
+        const cmd_dv = new DataView(dv.buffer, dv.byteOffset + 2)
         try {
             const cmd = getServerCommand(cmdId);
-            Logger.debug("received command", cmd)
             if (cmd != null){
-                cmd.unmarshalPacket(new DataView(dv.buffer, dv.byteOffset + 2));
+                cmd.unmarshalPacket(cmd_dv);
+                Logger.debug("received command", cmd)
                 this.events.emit("ServerCommand", cmd)
             } else {
                 Logger.debug("Unknown command received: " + cmdId);
             }
 
         } catch (e) {
-            console.error(e);
-            Logger.debug("Caught error, aborting");
-            this.close();
+            console.error(`Error in command-id: ${cmdId}: ${e}`)
+            console.error("Packet-Dump: " + dataViewToHexDump(cmd_dv))
+            Logger.debug("Caught error, aborting")
+            this.close()
         }
     }
 

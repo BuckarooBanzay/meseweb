@@ -50,6 +50,11 @@ export class PayloadHelper {
     }
 
     getWideString(offset: number): string {
-        return this.getString(offset) //TODO: widestring
+        const len = this.dv.getUint16(offset)
+        let str = ""
+        for (let i=0; i<len; i++){
+            str += String.fromCharCode(this.dv.getUint8(offset+2+1+(i*2)))
+        }
+        return str;
     }
 }
