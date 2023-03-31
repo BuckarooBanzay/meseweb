@@ -6,7 +6,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import Logger from "js-logger";
 import { MaterialManager } from "./MaterialManager";
-import { Pos, PosType } from "../util/pos";
+import { Pos, PosType, toMatrix4 } from "../util/pos";
 import { ServerMovePlayer } from "../command/server/ServerMovePlayer";
 
 
@@ -52,10 +52,9 @@ export class Scene {
     }
 
     setCameraPosition(pos: Pos<PosType.Node>){
-        this.camera.position.z = pos.z
-        this.camera.position.x = pos.x
-        this.camera.position.y = pos.y
-        this.controls.target.set(pos.x, pos.y, pos.z)
+        const m = toMatrix4(pos)
+        this.camera.position.setFromMatrixPosition(m)
+        this.controls.target.setFromMatrixPosition(m)
         this.controls.update()
         console.log(`Setting camera position to ${pos}`)
     }
