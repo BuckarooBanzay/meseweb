@@ -4,7 +4,9 @@ export enum PosType {
     // node reference
     Node,
     // mapblock reference
-    Mapblock
+    Mapblock,
+    // entity reference
+    Entity
 }
 
 export class Pos<T extends PosType> {

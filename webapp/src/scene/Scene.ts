@@ -8,6 +8,8 @@ import Logger from "js-logger";
 import { MaterialManager } from "./MaterialManager";
 import { Pos, PosType, toMatrix4 } from "../util/pos";
 import { ServerMovePlayer } from "../command/server/ServerMovePlayer";
+import { ClientPlayerPos } from "../command/client/ClientPlayerPos";
+import { PacketType } from "../command/packet/types";
 
 
 
@@ -21,6 +23,8 @@ export class Scene {
     controls: OrbitControls
     renderer: WebGLRenderer
     stats = Stats()
+
+    pos = new Pos<PosType.Entity>(0, 0, 0)
 
     constructor(public client: Client, public wm: WorldMap, public materialmanager: MaterialManager, e: HTMLCanvasElement) {
         e.parentElement?.appendChild(this.stats.domElement)
@@ -36,8 +40,6 @@ export class Scene {
         this.controls.minDistance = 5
         this.controls.maxDistance = 500
 
-        this.setCameraPosition(client.pos)
-
         wm.events.on("BlockAdded", b => {
             const cv = this.cvm.create(b.pos, b.pos)
             Logger.debug(`Adding ${cv.meshes.length} meshes to scene`)
@@ -46,12 +48,22 @@ export class Scene {
 
         client.cc.events.on("ServerCommand", cmd => {
             if (cmd instanceof ServerMovePlayer) {
-                this.setCameraPosition(new Pos<PosType.Node>(cmd.posX, cmd.posY, cmd.posZ))
+                this.setCameraPosition(new Pos<PosType.Entity>(cmd.posX, cmd.posY, cmd.posZ))
             }
+        })
+
+        client.events.on("Tick", c => {
+            c.cc.sendCommand(new ClientPlayerPos(this.pos), PacketType.Original)
+        })
+
+        client.events.on("PlayerMove", p => {
+            console.log("playermove", p)
+            this.pos = p
+            this.setCameraPosition(p)
         })
     }
 
-    setCameraPosition(pos: Pos<PosType.Node>){
+    setCameraPosition(pos: Pos<PosType.Entity>){
         const m = toMatrix4(pos)
         this.camera.position.setFromMatrixPosition(m)
         this.controls.target.setFromMatrixPosition(m)

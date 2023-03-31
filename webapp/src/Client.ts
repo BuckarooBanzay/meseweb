@@ -22,6 +22,14 @@ import { ClientInit2 } from "./command/client/ClientInit2";
 import { ClientReady } from "./command/client/ClientReady";
 import Logger from "js-logger";
 import { Pos, PosType } from "./util/pos";
+import EventEmitter from "events"
+import TypedEmitter from "typed-emitter"
+import { ServerMovePlayer } from "./command/server/ServerMovePlayer";
+
+type ClientEvents = {
+    Tick: (c: Client) => void
+    PlayerMove: (p: Pos<PosType.Entity>) => void
+}
 
 export class Client {
 
@@ -29,11 +37,12 @@ export class Client {
         this.mediamanager = mediamanager ? mediamanager : new InMemoryMediaManager()
     }
 
+    events = new EventEmitter() as TypedEmitter<ClientEvents>
+
     eph = srp.generateEphemeral()
     nodedefs = new Map<number, NodeDefinition>
     mediamanager: MediaManager
-
-    pos = new Pos<PosType.Node>(0, 0, 0)
+    tickhandle!: NodeJS.Timer
 
     media_ready = new Promise((resolve, reject) => {
         let name_to_hash = new Map<string, string>()
@@ -92,6 +101,8 @@ export class Client {
                 if (missing_names.size == 0) {
                     resolve(null)
                 }
+            } else if (cmd instanceof ServerMovePlayer) {
+                this.events.emit("PlayerMove", new Pos<PosType.Entity>(cmd.posX, cmd.posY, cmd.posZ))
             }
         })
     })
@@ -142,7 +153,7 @@ export class Client {
                 return this.cc.exchangeCommand(new ClientSRPBytesM(proof), PacketType.Reliable, ServerAuthAccept);
             })
             .then(aa => {
-                this.pos = new Pos<PosType.Node>(aa.posX, aa.posY, aa.posZ)
+                this.events.emit("PlayerMove", new Pos<PosType.Entity>(aa.posX, aa.posY, aa.posZ))
                 return this.cc.sendCommand(new ClientInit2())
             })
             .then(() => {
@@ -154,10 +165,13 @@ export class Client {
     }
 
     ready(): Promise<void[]> {
+        this.tickhandle = setInterval(() => this.events.emit("Tick", this), 1)
         return this.cc.sendCommand(new ClientReady())
+
     }
 
     close() {
+        clearInterval(this.tickhandle)
         this.cc.close()
     }
 }
