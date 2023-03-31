@@ -1,0 +1,18 @@
+name: integration_test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Run integration test
+      run: |
+        docker-compose pull
+        docker-compose up -d minetest server
+        docker-compose up --exit-code-from integration_test integration_test
+        docker-compose down -v
