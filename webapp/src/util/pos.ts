@@ -1,3 +1,4 @@
+import { Matrix4 } from "three"
 
 export enum PosType {
     // node reference
@@ -41,6 +42,11 @@ export class Pos<T extends PosType> {
 export function toMapblock(p: Pos<PosType.Node>): Pos<PosType.Mapblock> {
     const mbp = p.divide(MapblockSize)
     return new Pos<PosType.Mapblock>(mbp.x, mbp.y, mbp.z).floor()
+}
+
+// threejs coord system (z-axis inverted)
+export function toMatrix4(p: Pos<PosType.Node>): Matrix4 {
+    return new Matrix4().makeTranslation(p.x, p.y, p.z * -1)
 }
 
 export function getNodeRegion(p: Pos<PosType.Mapblock>): [Pos<PosType.Node>, Pos<PosType.Node>] {

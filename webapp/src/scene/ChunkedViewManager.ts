@@ -1,7 +1,7 @@
 import Logger from "js-logger";
 import { InstancedMesh, Material, Matrix4, PlaneGeometry } from "three";
 import { NodeDefinition, NodeDrawType } from "../nodedefs/NodeDefinition";
-import { Iterator, MapblockPositions, Pos, PosType, getNodeRegion, CardinalNodeDirections, Directions } from "../util/pos";
+import { Iterator, MapblockPositions, Pos, PosType, getNodeRegion, CardinalNodeDirections, Directions, toMatrix4 } from "../util/pos";
 import { ChunkedView } from "./ChunkedView";
 import { MaterialManager } from "./MaterialManager";
 import { WorldMap } from "./WorldMap";
@@ -11,8 +11,8 @@ const rotations = {
     X_POS: new Matrix4().makeRotationY(Math.PI/2),
     Y_NEG: new Matrix4().makeRotationX(Math.PI/2),
     Y_POS: new Matrix4().makeRotationX(-Math.PI/2),
-    Z_NEG: new Matrix4().makeRotationX(Math.PI),
-    Z_POS: new Matrix4()
+    Z_NEG: new Matrix4(),
+    Z_POS: new Matrix4().makeRotationX(Math.PI)
 }
 
 const face_offsets = {
@@ -58,8 +58,6 @@ export class ChunkedViewManager {
 
         // material-uuid -> matrix4[]
         const matrices = new Map<string, Array<Matrix4>>()
-
-        const promises = new Array<Promise<Material|null>>()
 
         // for each mapblock
         Iterator(pos1, pos2).forEach(p => {
@@ -149,7 +147,7 @@ export class ChunkedViewManager {
                     }
 
                     const face_pos = nodepos.add(offset!)
-                    const m = new Matrix4().makeTranslation(face_pos.x, face_pos.y, face_pos.z)
+                    const m = toMatrix4(face_pos)
                     matrix_list.push(m.multiply(rotation!))
                 })
 

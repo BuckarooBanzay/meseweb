@@ -35,8 +35,8 @@ export class Client {
 
     media_ready = new Promise((resolve, reject) => {
         let name_to_hash = new Map<string, string>()
-        const cached_names = new Map<string, boolean>
-        const missing_names = new Map<string, boolean>
+        const cached_names = new Map<string, boolean>()
+        const missing_names = new Map<string, boolean>()
 
         this.cc.events.on("ServerCommand", cmd => {
             if (cmd instanceof ServerAnnounceMedia) {

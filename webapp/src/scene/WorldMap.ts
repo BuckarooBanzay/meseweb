@@ -5,8 +5,8 @@ import { BlockData } from "../block/blockdata";
 import { parseBlock } from "../block/blockparser";
 import { CommandClient } from "../command/CommandClient";
 import { ServerBlockData } from "../command/server/ServerBlockData";
-import { NodeDefinition, NodeDrawType } from "../nodedefs/NodeDefinition";
-import { CardinalNodeDirections, getNodeRegion, Pos, PosType, toMapblock } from "../util/pos";
+import { NodeDefinition } from "../nodedefs/NodeDefinition";
+import { getNodeRegion, Pos, PosType, toMapblock } from "../util/pos";
 
 export type WorldMapEvents = {
     BlockAdded: (b: BlockData) => void
@@ -28,36 +28,6 @@ export class WorldMap {
                 Logger.debug(`Got block: ${cmd.pos}`, block.blockMapping)
                 this.events.emit("BlockAdded", block)
             }
-        })
-
-        // populate transparent node-id map
-        nodedefs.forEach((def, id) => {
-            switch (def.drawType) {
-                case NodeDrawType.NDT_AIRLIKE:
-                case NodeDrawType.NDT_GLASSLIKE:
-                case NodeDrawType.NDT_LIQUID:
-                    // TODO: meshes can be transparent too
-                    this.transparentNodeIds.set(id, true)
-            }
-        })
-    }
-
-    transparentNodeIds = new Map<number, boolean>
-
-    // returns true if the node is occluded by cardinal neighbors (not visible)
-    isOccluded(pos: Pos<PosType.Node>): boolean {
-        return CardinalNodeDirections.some(d => {
-            const neighbor_pos = pos.add(d)
-            const neighbor_nodeid = this.getNodeID(neighbor_pos)
-            // occluded (unknown node)
-            if (neighbor_nodeid == undefined) return true
-
-            if (!this.transparentNodeIds.get(neighbor_nodeid)) {
-                // occluded (not transparent)
-                return true
-            }
-
-            return false
         })
     }
 
