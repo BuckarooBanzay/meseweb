@@ -14,5 +14,6 @@ jobs:
       run: |
         docker-compose pull
         docker-compose up -d minetest server
+        sleep 5
         docker-compose up --exit-code-from integration_test integration_test
         docker-compose down -v
