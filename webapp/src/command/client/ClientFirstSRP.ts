@@ -10,7 +10,7 @@ export class ClientFirstSRP implements ClientCommand {
     }
 
     marshalPacket(): Uint8Array {
-        const p = new PayloadBuilder();
+        const p = new PayloadBuilder(2 + this.salt.length + 2 + this.verificationKey.length + 1);
         p.appendArray(this.salt)
         p.appendArray(this.verificationKey)
         p.appendUint8(0)

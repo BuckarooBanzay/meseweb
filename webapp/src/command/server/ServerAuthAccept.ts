@@ -9,9 +9,9 @@ export class ServerAuthAccept implements ServerCommand {
     public sendInterval!: number
 
     unmarshalPacket(dv: DataView): void {
-        this.posX = dv.getInt32(0) //TODO: scale?
-        this.posY = dv.getInt32(4)
-        this.posZ = dv.getInt32(8)
+        this.posX = dv.getFloat32(0) / 10
+        this.posY = dv.getFloat32(4) / 10
+        this.posZ = dv.getFloat32(8) / 10
         this.seed = dv.getBigUint64(12).toString()
         this.sendInterval = dv.getFloat32(20)
     }

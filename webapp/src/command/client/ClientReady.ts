@@ -14,7 +14,7 @@ export class ClientReady implements ClientCommand {
     }
     
     marshalPacket(): Uint8Array {
-        const pb = new PayloadBuilder();
+        const pb = new PayloadBuilder(6 + 2 + this.fullVersion.length);
         pb.appendUint8(this.versionMajor);
         pb.appendUint8(this.versionMinor);
         pb.appendUint8(this.versionPatch);

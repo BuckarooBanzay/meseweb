@@ -18,7 +18,7 @@ export class ClientInit implements ClientCommand {
     }
 
     marshalPacket(): Uint8Array {
-        const p = new PayloadBuilder();
+        const p = new PayloadBuilder(7 + 2 + this.playername.length);
         p.appendUint8(this.clientMax);
         p.appendUint16(this.supportedCompressionModes);
         p.appendUint16(this.minNetProtoVersion);

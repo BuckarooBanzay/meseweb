@@ -10,7 +10,7 @@ export class ClientSRPBytesA implements ClientCommand {
     }
 
     marshalPacket(): Uint8Array {
-        const p = new PayloadBuilder();
+        const p = new PayloadBuilder(2 + this.bytesA.length + 1);
         p.appendArray(this.bytesA)
         p.appendUint8(0x01)
         return p.toUint8Array();

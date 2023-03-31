@@ -10,6 +10,7 @@ import { Pos, PosType, toMatrix4 } from "../util/pos";
 import { ServerMovePlayer } from "../command/server/ServerMovePlayer";
 import { ClientPlayerPos } from "../command/client/ClientPlayerPos";
 import { PacketType } from "../command/packet/types";
+import { ClientGotBlocks } from "../command/client/ClientGotBlocks";
 
 
 
@@ -44,6 +45,9 @@ export class Scene {
             const cv = this.cvm.create(b.pos, b.pos)
             Logger.debug(`Adding ${cv.meshes.length} meshes to scene`)
             cv.meshes.forEach(m => this.scene.add(m))
+
+            const gotblocks = new ClientGotBlocks([b.pos])
+            client.cc.sendCommand(gotblocks, PacketType.Original)
         })
 
         client.cc.events.on("ServerCommand", cmd => {
@@ -53,6 +57,8 @@ export class Scene {
         })
 
         client.events.on("Tick", c => {
+            // XXX: move forward 1m/s
+            //this.pos = this.pos.add(new Pos<PosType.Entity>(1, 0, 0))
             c.cc.sendCommand(new ClientPlayerPos(this.pos), PacketType.Original)
         })
 

@@ -10,7 +10,10 @@ export class ClientRequestMedia implements ClientCommand {
     }
 
     marshalPacket(): Uint8Array {
-        const pb = new PayloadBuilder();
+        let name_size = 0
+        this.names.forEach(n => name_size += n.length + 2)
+
+        const pb = new PayloadBuilder(2 + name_size);
         pb.appendUint16(this.names.length);
         this.names.forEach(n => pb.appendString(n));
         return pb.toUint8Array();

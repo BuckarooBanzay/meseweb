@@ -2,48 +2,39 @@ import { Pos, PosType } from "../../util/pos";
 
 export class PayloadBuilder {
 
-    private data: Array<number>
+    data: Uint8Array
+    dv: DataView
+    index = 0
 
-    constructor(data?: number[]) {
-        this.data = data || new Array<number>()
+    constructor(size: number) {
+        this.data = new Uint8Array(size)
+        this.dv = new DataView(this.data.buffer)
     }
 
     appendUint8(v: number) {
-        this.data.push(v);
+        this.dv.setUint8(this.index, v)
+        this.index++
     }
 
     appendUint16(v: number) {
-        this.data.push((v >> 8) & 0xFF);
-        this.data.push(v & 0xFF);
+        this.dv.setUint16(this.index, v)
+        this.index += 2
     }
 
     appendUint32(v: number){
-        this.data.push((v >> 32) & 0xFF);
-        this.data.push((v >> 16) & 0xFF);
-        this.data.push((v >> 8) & 0xFF);
-        this.data.push(v & 0xFF);
+        this.dv.setUint32(this.index, v)
+        this.index += 4
     }
 
     appendFloat32(v: number) {
-        const a = new Uint8Array(4)
-        const dv = new DataView(a.buffer)
-        dv.setFloat32(0, v)
-        this.appendUint8(dv.getUint8(0))
-        this.appendUint8(dv.getUint8(1))
-        this.appendUint8(dv.getUint8(2))
-        this.appendUint8(dv.getUint8(3))
-    }
-
-    appendPos(p: Pos<PosType.Entity>) {
-        this.appendUint32(p.x * 1000)
-        this.appendUint32(p.y * 1000)
-        this.appendUint32(p.z * 1000)
+        this.dv.setFloat32(this.index, v)
+        this.index += 4
     }
 
     appendString(s: string) {
         this.appendUint16(s.length);
         for (let i=0; i<s.length; i++){
-            this.data.push(s.charCodeAt(i));
+            this.appendUint8(s.charCodeAt(i));
         }
     }
 
@@ -55,7 +46,7 @@ export class PayloadBuilder {
     }
 
     toUint8Array(): Uint8Array {
-        return new Uint8Array(this.data);
+        return this.data
     }
 
 }
